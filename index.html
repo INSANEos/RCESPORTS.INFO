@@ -73,7 +73,7 @@
   </script>
 
   <style>
-    /* ================= DYNAMIC 3-THEME CSS VARIABLES ================= */
+    /* ================= DYNAMIC 3-THEME PALETTE ================= */
     :root, .theme-dark {
       --bg-dark: #06070a;
       --bg-card: #0d0f16;
@@ -152,7 +152,6 @@
       box-shadow: 0 4px 20px var(--accent-glow);
     }
     
-    /* Sliding Indicator for Theme Switcher */
     .theme-slider {
       position: absolute;
       top: 3px;
@@ -166,58 +165,35 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-rc-red selection:text-white mesh-glow">
 
-  <!-- ================= EMBEDDED HIGH-RES RC ESPORTS EMBLEM ================= -->
-  <svg class="hidden" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="rcSilverL" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#ffffff"/>
-        <stop offset="40%" stop-color="#cbd5e1"/>
-        <stop offset="100%" stop-color="#64748b"/>
-      </linearGradient>
-      <linearGradient id="rcSilverD" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#94a3b8"/>
-        <stop offset="70%" stop-color="#475569"/>
-        <stop offset="100%" stop-color="#1e293b"/>
-      </linearGradient>
-      <linearGradient id="rcRedGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#ff1e56"/>
-        <stop offset="60%" stop-color="#e11d48"/>
-        <stop offset="100%" stop-color="#880d25"/>
-      </linearGradient>
+  <!-- ================= WELCOME GREETING ANIMATION SPLASH ================= -->
+  <div id="welcomeSplash" onclick="dismissWelcomeSplash()" class="fixed inset-0 z-40 bg-[#06070a] flex flex-col items-center justify-center p-4 transition-all duration-700 select-none cursor-pointer" title="Click anywhere to enter">
+    <div class="relative flex flex-col items-center text-center space-y-4 max-w-sm">
+      <div class="absolute w-48 h-48 bg-rc-red/25 rounded-full blur-3xl animate-pulse-glow pointer-events-none"></div>
 
-      <!-- Master Official Winged Shield Symbol -->
-      <g id="rc-official-emblem">
-        <polygon points="100,10 82,85 100,72" fill="url(#rcSilverD)"/>
-        <polygon points="100,10 118,85 100,72" fill="url(#rcSilverL)"/>
-        <polygon points="100,10 85,80 100,70 115,80" stroke="#090b10" stroke-width="2" fill="none"/>
-        <polygon points="100,45 60,70 42,95 62,88 78,70" fill="url(#rcSilverD)"/>
-        <polygon points="100,45 78,70 62,88 68,76 88,58" fill="url(#rcSilverL)"/>
-        <polygon points="100,45 140,70 158,95 138,88 122,70" fill="url(#rcSilverL)"/>
-        <polygon points="100,45 122,70 138,88 132,76 112,58" fill="url(#rcSilverD)"/>
-        <polygon points="16,75 58,95 52,106 18,88" fill="url(#rcRedGrad)" stroke="#090b10" stroke-width="1.5"/>
-        <polygon points="26,96 62,112 56,124 28,110" fill="url(#rcRedGrad)" stroke="#090b10" stroke-width="1.5"/>
-        <polygon points="40,118 68,130 64,148 42,132" fill="url(#rcRedGrad)" stroke="#090b10" stroke-width="1.5"/>
-        <polygon points="184,75 142,95 148,106 182,88" fill="url(#rcRedGrad)" stroke="#090b10" stroke-width="1.5"/>
-        <polygon points="174,96 138,112 144,124 172,110" fill="url(#rcRedGrad)" stroke="#090b10" stroke-width="1.5"/>
-        <polygon points="160,118 132,130 136,148 158,132" fill="url(#rcRedGrad)" stroke="#090b10" stroke-width="1.5"/>
-        <polygon points="100,185 85,125 100,140" fill="url(#rcSilverD)"/>
-        <polygon points="100,185 115,125 100,140" fill="url(#rcSilverL)"/>
-        <polygon points="76,165 72,130 84,142" fill="url(#rcSilverD)"/>
-        <polygon points="124,165 128,130 116,142" fill="url(#rcSilverL)"/>
-        <polygon points="42,135 62,148 58,168 36,148" fill="url(#rcRedGrad)" stroke="#090b10" stroke-width="1.5"/>
-        <polygon points="158,135 138,148 142,168 164,148" fill="url(#rcRedGrad)" stroke="#090b10" stroke-width="1.5"/>
-        <g transform="translate(100, 102) skewX(-14)">
-          <path d="M-42,-22 H-15 Q-2,-22 -2,-10 Q-2,-1 -16,-1 H-28 V12 H-42 Z M-28,-14 V-8 H-16 Q-10,-8 -10,-11 Q-10,-14 -16,-14 Z M-10,0 L2,12 H-14 L-22,0 Z" fill="url(#rcRedGrad)" stroke="#ffffff" stroke-width="1.5"/>
-          <path d="M12,-12 Q12,-22 28,-22 Q44,-22 44,-12 H32 Q32,-15 28,-15 Q24,-15 24,-12 V2 Q24,5 28,5 Q32,5 32,2 H44 Q44,12 28,12 Q12,12 12,2 Z" fill="url(#rcRedGrad)" stroke="#ffffff" stroke-width="1.5"/>
-        </g>
-        <polygon points="48,110 152,110 142,132 58,132" fill="#090b10" stroke="url(#rcSilverL)" stroke-width="2"/>
-        <text x="100" y="126" text-anchor="middle" fill="#ffffff" font-family="'Inter', sans-serif" font-weight="900" font-size="15" font-style="italic" letter-spacing="2">ESPORTS</text>
-      </g>
-    </defs>
-  </svg>
+      <div class="w-28 h-28 rounded-2xl bg-rc-card border border-rc-red/40 p-2 flex items-center justify-center shadow-[0_0_40px_rgba(225,29,72,0.6)] animate-pulse-glow relative z-10">
+        <img src="logo.png" alt="RC Esports" class="w-full h-full object-contain filter drop-shadow-[0_0_12px_rgba(225,29,72,0.8)]">
+      </div>
 
-  <!-- ================= ANIMATED LOADING OVERLAY ================= -->
-  <div id="loadingOverlay" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center space-y-4 transition-all">
+      <div class="space-y-1 relative z-10">
+        <span class="text-[11px] font-mono font-extrabold tracking-[0.35em] text-rc-red uppercase">Welcome to</span>
+        <h1 class="text-3xl sm:text-4xl font-black italic tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-rc-red uppercase drop-shadow-[0_0_20px_rgba(225,29,72,0.6)]">
+          RC <span class="text-rc-red">ESPORTS</span>
+        </h1>
+        <p class="text-xs text-gray-400 font-mono tracking-wider">India's Premier Esports Hub</p>
+      </div>
+
+      <div class="pt-3 relative z-10 space-y-1.5">
+        <div class="flex items-center justify-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-rc-red animate-ping"></span>
+          <span class="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-widest">Initializing Hub...</span>
+        </div>
+        <span class="block text-[10px] text-gray-600 font-mono">Tap anywhere to enter</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ACTION LOADING OVERLAY ================= -->
+  <div id="loadingOverlay" class="fixed inset-0 z-[110] bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center space-y-4 transition-all">
     <div class="relative w-14 h-14">
       <div class="w-14 h-14 border-4 border-rc-red/20 rounded-full"></div>
       <div class="w-14 h-14 border-4 border-rc-red border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
@@ -226,15 +202,13 @@
   </div>
 
   <!-- ================= TOP NAVIGATION BAR ================= -->
-  <header class="sticky top-0 z-40 bg-rc-dark/95 backdrop-blur-md border-b border-rc-border">
+  <header class="sticky top-0 z-30 bg-rc-dark/95 backdrop-blur-md border-b border-rc-border">
     <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-2 sm:gap-4">
       
       <!-- Brand Logo Box -->
       <div class="flex items-center gap-2.5 sm:gap-3.5 cursor-pointer group shrink-0" onclick="switchView('landing')">
-        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-rc-card border border-rc-border p-1 flex items-center justify-center group-hover:border-rc-red transition-all shadow-lg overflow-hidden shrink-0">
-          <svg viewBox="0 0 200 200" class="w-full h-full object-contain">
-            <use href="#rc-official-emblem"/>
-          </svg>
+        <div class="w-11 h-11 sm:w-13 sm:h-13 rounded-xl bg-rc-card border border-rc-border p-1 flex items-center justify-center group-hover:border-rc-red transition-all shadow-lg overflow-hidden shrink-0">
+          <img src="logo.png" alt="RC Esports" class="w-full h-full object-contain filter drop-shadow-[0_0_8px_var(--accent-glow)]">
         </div>
 
         <div class="leading-none select-none">
@@ -255,10 +229,8 @@
         <button onclick="openDrawer('social')" class="hover:text-rc-text transition-colors">Social Network</button>
       </nav>
 
-      <!-- Right Controls: Smooth 3-Way Theme Switcher & Redesigned Auth/Profile -->
+      <!-- Right Controls: Smooth 3-Way Theme Switcher & Auth/Profile -->
       <div class="flex items-center gap-2 sm:gap-3 shrink-0">
-        
-        <!-- SMOOTH 3-WAY THEME SWITCHER -->
         <div class="relative p-1 rounded-full bg-rc-surface border border-rc-border flex items-center font-mono text-[9px] sm:text-[10px] font-bold select-none shrink-0">
           <div id="themeSliderIndicator" class="theme-slider"></div>
           <button onclick="setTheme('dark')" id="themeBtnDark" class="relative z-10 px-2 sm:px-2.5 py-1 rounded-full transition-colors">Dark</button>
@@ -266,17 +238,16 @@
           <button onclick="setTheme('gold')" id="themeBtnGold" class="relative z-10 px-2 sm:px-2.5 py-1 rounded-full transition-colors">Gold</button>
         </div>
 
-        <!-- Dynamic Auth Module / Logged In Username Badge -->
         <div id="authNavArea" class="shrink-0"></div>
       </div>
     </div>
   </header>
 
   <!-- ================= MAIN WORKSPACE ROUTER ================= -->
-  <main class="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-10 sm:space-y-12">
+  <main class="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-10 sm:space-y-14">
     
     <!-- ================= VIEW 1: PUBLIC LANDING PAGE ================= -->
-    <section id="viewLanding" class="space-y-10 sm:space-y-12">
+    <section id="viewLanding" class="space-y-12 sm:space-y-16">
       
       <!-- HERO BANNER -->
       <div class="boxy-card p-6 sm:p-12 relative overflow-hidden shadow-2xl">
@@ -284,7 +255,6 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 items-center relative z-10">
           
-          <!-- Left Hero Column -->
           <div class="lg:col-span-7 space-y-5 sm:space-y-6">
             <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-rc-red/10 border border-rc-red/30 text-rc-red text-xs font-black uppercase tracking-wider font-mono">
               <span class="w-2 h-2 rounded-full bg-rc-red animate-pulse"></span>
@@ -299,14 +269,12 @@
               Join India’s premier esports operational ecosystem. Lead tournaments from <span class="text-rc-text font-bold">1K to 100K lobbies & daily scrims</span> in a professional environment with a 100K+ community.
             </p>
 
-            <!-- PRIMARY ACTION -->
             <div class="flex flex-wrap items-center gap-4 pt-2">
-              <button onclick="handleApplyStaffClick()" class="w-full sm:w-auto px-8 py-4 rounded-full bg-rc-red hover:bg-rc-redHover text-white font-black text-sm tracking-wide shadow-lg shadow-rc-red/30 hover:scale-105 transition-all flex items-center justify-center gap-2">
+              <button onclick="handleApplyStaffClick()" class="w-full sm:w-auto px-8 py-4 rounded-full bg-rc-red hover:bg-rc-redHover text-white font-black text-sm tracking-wide shadow-lg shadow-rc-red/30 hover:scale-105 transition-all flex items-center justify-center gap-2 font-mono">
                 Apply For Staff <span class="text-lg">→</span>
               </button>
             </div>
 
-            <!-- SIDEBAR TRIGGERS -->
             <div class="pt-6 border-t border-rc-border space-y-3">
               <span class="text-[11px] font-black uppercase tracking-wider text-rc-muted block font-mono">Explore Organization Info</span>
               
@@ -341,23 +309,21 @@
             <div class="grid grid-cols-3 gap-2 sm:gap-4 pt-4 border-t border-rc-border">
               <div>
                 <span class="text-lg sm:text-2xl font-black text-rc-text block font-mono">100K+</span>
-                <span class="text-[10px] sm:text-[11px] text-rc-muted">Total Reach</span>
+                <span class="text-[10px] sm:text-[11px] text-rc-muted font-mono">Total Reach</span>
               </div>
               <div>
                 <span class="text-lg sm:text-2xl font-black text-rc-emerald block font-mono">1K–100K</span>
-                <span class="text-[10px] sm:text-[11px] text-rc-muted">& Daily Scrims</span>
+                <span class="text-[10px] sm:text-[11px] text-rc-muted font-mono">& Daily Scrims</span>
               </div>
               <div>
                 <span class="text-lg sm:text-2xl font-black text-rc-discord block font-mono">70K+</span>
-                <span class="text-[10px] sm:text-[11px] text-rc-muted">Discord Members</span>
+                <span class="text-[10px] sm:text-[11px] text-rc-muted font-mono">Discord Members</span>
               </div>
             </div>
           </div>
 
-          <!-- Right Column: Dragon Mascot & Track Cards -->
+          <!-- Right Column: Mascot & Track Cards -->
           <div class="lg:col-span-5 space-y-6">
-            
-            <!-- ANIMATED DRAGON MASCOT -->
             <div class="relative rounded-3xl bg-rc-surface p-6 border border-rc-border flex flex-col items-center justify-center text-center overflow-hidden group">
               <div class="absolute w-56 h-56 bg-rc-red/20 rounded-full blur-2xl animate-pulse-glow pointer-events-none"></div>
               
@@ -436,6 +402,66 @@
           </div>
         </div>
       </div>
+
+      <!-- ================= COLLABORATIONS & ₹15,00,000+ MILESTONE ================= -->
+      <div class="space-y-6">
+        <div class="boxy-card p-6 sm:p-8 bg-gradient-to-r from-rc-card via-rc-surface to-rc-card border-rc-red/40 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+          <div class="space-y-2 text-center md:text-left relative z-10">
+            <span class="px-3 py-1 rounded-full bg-rc-emerald/15 border border-rc-emerald/30 text-rc-emerald text-[11px] font-mono font-bold uppercase tracking-wider">
+              ● Major Milestone Achieved
+            </span>
+            <h3 class="text-2xl sm:text-4xl font-black text-rc-text">
+              ₹15,00,000+ <span class="text-rc-red font-mono">Prize Volume</span>
+            </h3>
+            <p class="text-xs sm:text-sm text-rc-muted max-w-xl leading-relaxed">
+              Successfully organized, managed, and executed esports tournaments and prime scrims with over 15 Lakhs INR cumulative prize pools across top gaming titles.
+            </p>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-rc-surface border border-rc-border flex items-center justify-center shrink-0 w-full md:w-auto relative z-10">
+            <div class="text-center font-mono">
+              <span class="text-xl sm:text-2xl font-black text-rc-emerald block">₹15,00,000+</span>
+              <span class="text-[10px] text-rc-muted uppercase tracking-wider">Tournaments Conducted</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-[10px] font-mono font-bold text-rc-red uppercase tracking-widest block">Strategic Alliances</span>
+              <h3 class="text-lg sm:text-xl font-black text-rc-text">Industry Collaborations</h3>
+            </div>
+            <span class="text-xs font-mono text-rc-emerald font-bold">Trusted Ecosystem</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="p-5 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-red/60 transition-all space-y-2 group">
+              <div class="flex items-center justify-between">
+                <span class="w-8 h-8 rounded-lg bg-rc-red/15 text-rc-red flex items-center justify-center font-bold text-xs font-mono">P</span>
+                <span class="text-[10px] font-mono text-rc-emerald font-bold uppercase">Official Partner</span>
+              </div>
+              <h4 class="font-bold text-rc-text text-base group-hover:text-rc-red transition-colors">Playden</h4>
+              <p class="text-xs text-rc-muted leading-relaxed">Strategic partnership for competitive matchmaking, scrim hosting, and tournament operations.</p>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-discord/60 transition-all space-y-2 group">
+              <div class="flex items-center justify-between">
+                <span class="w-8 h-8 rounded-lg bg-rc-discord/15 text-rc-discord flex items-center justify-center font-bold text-xs font-mono">G</span>
+                <span class="text-[10px] font-mono text-rc-discord font-bold uppercase">Ecosystem Partner</span>
+              </div>
+              <h4 class="font-bold text-rc-text text-base group-hover:text-rc-discord transition-colors">Gamorite</h4>
+              <p class="text-xs text-rc-muted leading-relaxed">Collaborative tournament execution, point table infrastructure, and community scaling.</p>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-rc-surface border border-dashed border-rc-border flex flex-col justify-center space-y-1.5 text-center sm:text-left">
+              <span class="text-xs font-mono font-bold text-amber-500 uppercase tracking-wider block">⚡ More Coming Soon</span>
+              <h4 class="font-bold text-rc-text text-sm">Tier-1 Alliances in Pipeline</h4>
+              <p class="text-[11px] text-rc-muted">Expanding partnerships across top Indian gaming publishers and tournament platforms.</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- ================= VIEW 2: APPLICATION UNDER PROCESS ================= -->
@@ -462,10 +488,10 @@
         </div>
 
         <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
-          <button onclick="refreshApplicationStatus()" class="w-full py-3 rounded-xl bg-rc-surface hover:border-rc-red border border-rc-border text-rc-text text-xs font-bold transition-all">
+          <button onclick="refreshApplicationStatus()" class="w-full py-3 rounded-xl bg-rc-surface hover:border-rc-red border border-rc-border text-rc-text text-xs font-bold transition-all font-mono">
             Check Approval Status
           </button>
-          <button onclick="switchView('landing')" class="w-full py-3 rounded-xl bg-rc-red text-white text-xs font-bold hover:bg-rc-redHover transition-colors">
+          <button onclick="switchView('landing')" class="w-full py-3 rounded-xl bg-rc-red text-white text-xs font-bold hover:bg-rc-redHover transition-colors font-mono">
             Return to Overview
           </button>
         </div>
@@ -474,8 +500,6 @@
 
     <!-- ================= VIEW 3: ACTIVE STAFF WORKSPACE ================= -->
     <section id="viewStaff" class="hidden space-y-8">
-      
-      <!-- LOCKOUT STATE: ON LEAVE -->
       <div id="staffLeaveLockout" class="hidden boxy-card p-6 sm:p-12 text-center space-y-6">
         <div class="w-14 h-14 rounded-full bg-rc-emerald/15 text-rc-emerald flex items-center justify-center mx-auto">
           <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
@@ -500,7 +524,6 @@
         </div>
       </div>
 
-      <!-- OVER LEAVE WARNING BANNER -->
       <div id="staffOverLeaveWarning" class="hidden p-6 rounded-3xl bg-red-950/60 border-2 border-rc-red text-center space-y-4">
         <div class="w-12 h-12 rounded-full bg-rc-red/20 text-rc-red flex items-center justify-center mx-auto">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
@@ -514,10 +537,7 @@
         </button>
       </div>
 
-      <!-- MAIN ACTIVE STAFF CONSOLE -->
       <div id="staffMainDashboard" class="boxy-card p-5 sm:p-8 space-y-6">
-        
-        <!-- Workspace Header & Status Controls -->
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-rc-border pb-6">
           <div>
             <div class="flex items-center gap-2">
@@ -528,7 +548,6 @@
             <h2 id="staffHeroUsername" class="text-xl sm:text-2xl font-black text-rc-text mt-1">Operational Desk</h2>
           </div>
 
-          <!-- Live Duty Status Toggle -->
           <div class="flex items-center gap-3">
             <button onclick="toggleStaffDutyState()" id="dutyStateToggleBtn" class="px-4 py-2 rounded-xl text-xs font-bold border border-rc-emerald bg-rc-emerald/15 text-rc-emerald transition-all font-mono">
               ● Active Duty
@@ -537,7 +556,6 @@
           </div>
         </div>
 
-        <!-- 4 Metric Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <div class="bg-rc-surface p-4 rounded-2xl border border-rc-border">
             <span class="text-[10px] font-black uppercase text-rc-muted tracking-wider font-mono">Assigned Track</span>
@@ -571,7 +589,6 @@
           </div>
         </div>
 
-        <!-- QUICK POPUP ACTION BUTTONS -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <button onclick="openModal('staffAnnouncements')" class="p-3.5 sm:p-4 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-red text-left transition-all group">
             <div class="w-8 h-8 rounded-lg bg-rc-red/15 text-rc-red flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
@@ -606,16 +623,13 @@
           </button>
         </div>
 
-        <!-- TODAY'S DUTY DASHBOARD MODULE WITH REAL ACTIVE TIMER & AVAILABILITY -->
         <div id="dutyCardContainer"></div>
-
       </div>
     </section>
 
     <!-- ================= VIEW 4: HEAD STAFF & HR COMMAND TERMINAL ================= -->
     <section id="viewTerminal" class="hidden space-y-8">
       <div class="boxy-card p-5 sm:p-8 space-y-6">
-        
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-rc-border pb-6">
           <div>
             <div class="flex items-center gap-2">
@@ -625,7 +639,6 @@
             <h2 class="text-xl sm:text-2xl font-black text-rc-text mt-1">Operational Command Terminal</h2>
           </div>
 
-          <!-- Command Tabs -->
           <div class="flex flex-wrap gap-2 font-mono">
             <button onclick="switchTerminalTab('roster')" id="termTabBtnRoster" class="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-black bg-rc-red text-white transition-all">
               Active Staff
@@ -648,37 +661,30 @@
           </div>
         </div>
 
-        <!-- TERMINAL TAB 1: ACTIVE ROSTER -->
         <div id="termPanelRoster" class="space-y-4">
           <div class="flex justify-between items-center">
             <h3 class="text-xs sm:text-sm font-black text-rc-text uppercase tracking-wider font-mono">Active Staff Personnel Directory</h3>
             <span class="text-xs text-rc-muted font-mono">Boxy Dossier View</span>
           </div>
-
           <div id="rosterCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </div>
 
-        <!-- TERMINAL TAB 2: ON-LEAVE STAFF -->
         <div id="termPanelLeaves" class="hidden space-y-4">
           <div class="flex justify-between items-center">
             <h3 class="text-xs sm:text-sm font-black text-rc-text uppercase tracking-wider font-mono">Staff Currently On Leave</h3>
             <span class="text-xs text-rc-muted font-mono">Shifted from Active Directory</span>
           </div>
-
           <div id="leavesCardsStream" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </div>
 
-        <!-- TERMINAL TAB 3: INTAKE QUEUE -->
         <div id="termPanelIntake" class="hidden space-y-4">
           <div class="flex justify-between items-center">
             <h3 class="text-xs sm:text-sm font-black text-rc-text uppercase tracking-wider font-mono">Candidate Intake Queue</h3>
             <span class="text-xs text-rc-muted font-mono">Decision Desk</span>
           </div>
-
           <div id="intakeCardsStream" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </div>
 
-        <!-- TERMINAL TAB 4: 12-HOUR DUTY DISPATCHER -->
         <div id="termPanelDispatch" class="hidden space-y-6">
           <div class="p-5 sm:p-6 rounded-2xl bg-rc-surface border border-rc-border space-y-6">
             <div>
@@ -709,14 +715,13 @@
                 <input required type="text" id="dispTier" placeholder="Tier 1 Prime Scrims (Group A)" class="w-full px-4 py-3 rounded-xl bg-rc-card border border-rc-border text-rc-text text-sm focus:border-rc-red focus:outline-none">
               </div>
 
-              <button type="submit" class="w-full py-3.5 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-black text-sm tracking-wide transition-all shadow-lg shadow-rc-red/30">
+              <button type="submit" class="w-full py-3.5 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-black text-sm tracking-wide transition-all shadow-lg shadow-rc-red/30 font-mono">
                 Dispatch Duty to Staff (12h Auto-Refresh Active) →
               </button>
             </form>
           </div>
         </div>
 
-        <!-- TERMINAL TAB 5: BROADCASTS -->
         <div id="termPanelBroadcast" class="hidden space-y-6">
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div class="lg:col-span-5 p-5 sm:p-6 rounded-2xl bg-rc-surface border border-rc-border space-y-4">
@@ -734,7 +739,7 @@
                   <label class="text-xs font-bold text-rc-text block mb-1">Attached Link (Optional)</label>
                   <input type="url" id="pubLink" placeholder="https://linktr.ee/rc_esports" class="w-full px-4 py-2.5 rounded-xl bg-rc-card border border-rc-border text-rc-discord text-xs font-mono focus:border-rc-red focus:outline-none">
                 </div>
-                <button type="submit" class="w-full py-3 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-bold text-xs tracking-wider">
+                <button type="submit" class="w-full py-3 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-bold text-xs tracking-wider font-mono">
                   Publish Noticeboard Post
                 </button>
               </form>
@@ -747,7 +752,6 @@
           </div>
         </div>
 
-        <!-- TERMINAL TAB 6: AUDIT LOG -->
         <div id="termPanelAudit" class="hidden space-y-4">
           <div class="flex justify-between items-center">
             <div>
@@ -772,7 +776,6 @@
             </table>
           </div>
         </div>
-
       </div>
     </section>
   </main>
@@ -780,12 +783,12 @@
   <!-- ================= ANIMATED SLIDE-IN SIDEBARS ================= -->
 
   <!-- 1. ABOUT US SIDEBAR -->
-  <div id="drawerAbout" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden transition-opacity duration-300">
+  <div id="drawerAbout" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden transition-opacity duration-300">
     <div class="absolute right-0 top-0 h-full w-full max-w-md bg-rc-card border-l border-rc-border p-6 sm:p-8 overflow-y-auto custom-scrollbar flex flex-col justify-between">
       <div class="space-y-6">
         <div class="flex justify-between items-center border-b border-rc-border pb-4">
           <span class="text-xs font-black text-rc-red uppercase tracking-widest font-mono">Organization Charter</span>
-          <button onclick="closeDrawer('about')" class="text-rc-muted hover:text-rc-text text-xl">✕</button>
+          <button onclick="closeDrawer('about')" class="text-rc-muted hover:text-rc-text text-xl font-mono">✕</button>
         </div>
         
         <h3 class="text-xl font-black text-rc-text">Staff & Management</h3>
@@ -802,7 +805,7 @@
       </div>
 
       <div class="pt-6">
-        <button onclick="closeDrawer('about'); handleApplyStaffClick();" class="w-full py-3.5 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-bold text-xs tracking-wider transition-all">
+        <button onclick="closeDrawer('about'); handleApplyStaffClick();" class="w-full py-3.5 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-bold text-xs tracking-wider transition-all font-mono">
           Apply For Staff Position →
         </button>
       </div>
@@ -810,12 +813,12 @@
   </div>
 
   <!-- 2. WHY JOIN US SIDEBAR -->
-  <div id="drawerWhyJoin" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden transition-opacity duration-300">
+  <div id="drawerWhyJoin" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden transition-opacity duration-300">
     <div class="absolute right-0 top-0 h-full w-full max-w-md bg-rc-card border-l border-rc-border p-6 sm:p-8 overflow-y-auto custom-scrollbar flex flex-col justify-between">
       <div class="space-y-6">
         <div class="flex justify-between items-center border-b border-rc-border pb-4">
           <span class="text-xs font-black text-rc-red uppercase tracking-widest font-mono">Platform To Grow</span>
-          <button onclick="closeDrawer('whyJoin')" class="text-rc-muted hover:text-rc-text text-xl">✕</button>
+          <button onclick="closeDrawer('whyJoin')" class="text-rc-muted hover:text-rc-text text-xl font-mono">✕</button>
         </div>
         
         <h3 class="text-xl font-black text-rc-text">Why Join RC Esports</h3>
@@ -850,15 +853,15 @@
       </div>
 
       <div class="pt-6">
-        <button onclick="closeDrawer('whyJoin'); handleApplyStaffClick();" class="w-full py-3.5 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-bold text-xs tracking-wider transition-all">
+        <button onclick="closeDrawer('whyJoin'); handleApplyStaffClick();" class="w-full py-3.5 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-bold text-xs tracking-wider transition-all font-mono">
           Apply & Join The Journey →
         </button>
       </div>
     </div>
   </div>
 
-  <!-- 3. SOCIAL NETWORK SIDEBAR (20K+ INSTA, 10K+ YT, 70K+ DISCORD) -->
-  <div id="drawerSocial" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden transition-opacity duration-300">
+  <!-- 3. SOCIAL NETWORK SIDEBAR -->
+  <div id="drawerSocial" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden transition-opacity duration-300">
     <div class="absolute right-0 top-0 h-full w-full max-w-md bg-rc-card border-l border-rc-border p-6 sm:p-8 overflow-y-auto custom-scrollbar flex flex-col justify-between">
       <div class="space-y-6">
         <div class="flex justify-between items-center border-b border-rc-border pb-4">
@@ -866,12 +869,11 @@
             <span class="text-[10px] font-black text-rc-red uppercase tracking-widest block font-mono">100K+ Network</span>
             <h3 class="text-lg font-black text-rc-text">Official Social Channels</h3>
           </div>
-          <button onclick="closeDrawer('social')" class="text-rc-muted hover:text-rc-text text-xl">✕</button>
+          <button onclick="closeDrawer('social')" class="text-rc-muted hover:text-rc-text text-xl font-mono">✕</button>
         </div>
 
         <p class="text-xs text-rc-muted leading-relaxed">Connect directly with RC Esports across all verified Instagram, YouTube, and Discord handles:</p>
 
-        <!-- Instagram Handles Section (20K+) -->
         <div class="space-y-2">
           <div class="flex items-center justify-between text-xs font-mono font-bold text-pink-500 pb-1">
             <span>INSTAGRAM NETWORK</span>
@@ -903,7 +905,6 @@
           </a>
         </div>
 
-        <!-- YouTube (10K+) & Discord (70K+) -->
         <div class="space-y-2 pt-2 border-t border-rc-border">
           <div class="flex items-center justify-between text-xs font-mono font-bold text-red-500 pb-1">
             <span>YOUTUBE BROADCASTS</span>
@@ -936,7 +937,7 @@
 
         <a href="https://linktr.ee/rc_esports" target="_blank" rel="noopener noreferrer" class="p-4 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-red transition-all flex items-center justify-between group">
           <span class="font-bold text-rc-text text-xs">RC Esports Master Linktree</span>
-          <span class="text-rc-red font-bold">linktr.ee/rc_esports ↗</span>
+          <span class="text-rc-red font-bold font-mono">linktr.ee/rc_esports ↗</span>
         </a>
       </div>
 
@@ -948,17 +949,17 @@
     </div>
   </div>
 
-  <!-- ================= POPUP MODALS ================= -->
+  <!-- ================= POPUP MODALS (ELEVATED TO Z-[100]) ================= -->
 
   <!-- 1. OPEN POSITIONS SELECTION MODAL -->
-  <div id="modalOpenPositions" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div id="modalOpenPositions" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="w-full max-w-xl boxy-card p-6 sm:p-8 space-y-6">
       <div class="flex justify-between items-center border-b border-rc-border pb-4">
         <div>
           <span class="text-[10px] font-black text-rc-red uppercase tracking-widest block font-mono">Recruitment Desk</span>
           <h3 class="text-xl font-black text-rc-text">Select Open Position</h3>
         </div>
-        <button onclick="closeModal('openPositions')" class="text-rc-muted hover:text-rc-text text-lg font-bold">✕</button>
+        <button onclick="closeModal('openPositions')" class="text-rc-muted hover:text-rc-text text-lg font-bold font-mono">✕</button>
       </div>
       <p class="text-xs text-rc-muted">Choose the operational specialty track you wish to apply for:</p>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -995,7 +996,7 @@
   </div>
 
   <!-- 2. DEDICATED ROLE APPLICATION POPUP -->
-  <div id="modalRoleApplication" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div id="modalRoleApplication" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="w-full max-w-2xl boxy-card p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto custom-scrollbar">
       <div class="flex justify-between items-center border-b border-rc-border pb-4">
         <div>
@@ -1044,8 +1045,8 @@
             I agree to RC Esports <span class="text-rc-red font-bold">7-Day Strike Policy</span> and operational standards.
           </label>
         </div>
-        <div class="flex gap-3 pt-2">
-          <button type="button" onclick="backToOpenPositions()" class="w-1/3 py-3 rounded-xl bg-rc-surface hover:bg-rc-border border border-rc-border text-rc-text font-bold text-xs transition-all font-mono">
+        <div class="flex gap-3 pt-2 font-mono">
+          <button type="button" onclick="backToOpenPositions()" class="w-1/3 py-3 rounded-xl bg-rc-surface hover:bg-rc-border border border-rc-border text-rc-text font-bold text-xs transition-all">
             ← Back
           </button>
           <button type="submit" class="w-2/3 py-3 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-black text-xs transition-all shadow-lg shadow-rc-red/25">
@@ -1057,21 +1058,21 @@
   </div>
 
   <!-- 3. EMPLOYEE ANNOUNCEMENTS MODAL -->
-  <div id="modalStaffAnnouncements" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div id="modalStaffAnnouncements" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="w-full max-w-2xl boxy-card p-6 sm:p-8 space-y-6 max-h-[85vh] overflow-y-auto custom-scrollbar">
       <div class="flex justify-between items-center border-b border-rc-border pb-4">
         <div>
           <span class="text-[10px] font-black text-rc-red uppercase tracking-widest block font-mono">NOTICEBOARD STREAM</span>
           <h3 class="text-lg font-black text-rc-text">Official Broadcasts & Alerts</h3>
         </div>
-        <button onclick="closeModal('staffAnnouncements')" class="text-rc-muted hover:text-rc-text text-lg font-bold">✕</button>
+        <button onclick="closeModal('staffAnnouncements')" class="text-rc-muted hover:text-rc-text text-lg font-bold font-mono">✕</button>
       </div>
       <div id="staffAnnouncementsList" class="space-y-4"></div>
     </div>
   </div>
 
   <!-- 4. EMPLOYEE CHAT MODAL -->
-  <div id="modalStaffChat" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div id="modalStaffChat" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="w-full max-w-lg boxy-card p-6 space-y-4">
       <div class="flex justify-between items-center border-b border-rc-border pb-4">
         <div class="flex items-center gap-3">
@@ -1081,12 +1082,12 @@
             <span class="text-[11px] text-rc-emerald font-mono">● Official Direct Channel</span>
           </div>
         </div>
-        <button onclick="closeModal('staffChat')" class="text-rc-muted hover:text-rc-text text-lg font-bold">✕</button>
+        <button onclick="closeModal('staffChat')" class="text-rc-muted hover:text-rc-text text-lg font-bold font-mono">✕</button>
       </div>
       <div id="staffChatStream" class="h-64 overflow-y-auto space-y-3 pr-2 custom-scrollbar font-mono text-xs"></div>
-      <form onsubmit="handleSendStaffMsg(event)" class="flex gap-2 pt-2">
+      <form onsubmit="handleSendStaffMsg(event)" class="flex gap-2 pt-2 font-mono">
         <input required type="text" id="staffMsgInput" placeholder="Type query for Head Staff..." class="flex-grow px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none">
-        <button type="submit" class="px-5 py-2.5 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-bold text-xs transition-colors font-mono">
+        <button type="submit" class="px-5 py-2.5 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-bold text-xs transition-colors">
           Send
         </button>
       </form>
@@ -1094,26 +1095,26 @@
   </div>
 
   <!-- 5. EMPLOYEE LEAVE APPLICATION MODAL -->
-  <div id="modalStaffLeave" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div id="modalStaffLeave" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="w-full max-w-md boxy-card p-6 space-y-6">
       <div class="flex justify-between items-center border-b border-rc-border pb-4">
         <div>
           <span class="text-[10px] font-black text-rc-emerald uppercase tracking-widest block font-mono">ATTENDANCE PROTOCOL</span>
           <h3 class="text-lg font-black text-rc-text">Schedule Operational Leave</h3>
         </div>
-        <button onclick="closeModal('staffLeave')" class="text-rc-muted hover:text-rc-text text-lg font-bold">✕</button>
+        <button onclick="closeModal('staffLeave')" class="text-rc-muted hover:text-rc-text text-lg font-bold font-mono">✕</button>
       </div>
-      <form onsubmit="handleLeaveSubmit(event)" class="space-y-4">
+      <form onsubmit="handleLeaveSubmit(event)" class="space-y-4 font-mono">
         <div>
           <label class="text-xs font-bold text-rc-text block mb-1">Leave Date Range *</label>
-          <input required type="text" placeholder="e.g. 01 Sep 2026 – 04 Sep 2026" id="leaveDates" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-mono focus:border-rc-red focus:outline-none">
+          <input required type="text" placeholder="e.g. 01 Sep 2026 – 04 Sep 2026" id="leaveDates" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none">
         </div>
         <div>
           <label class="text-xs font-bold text-rc-text block mb-1">Reason for Leave *</label>
           <textarea required id="leaveReason" rows="3" placeholder="State reason for absence..." class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none"></textarea>
         </div>
-        <p class="text-[11px] text-rc-muted">Note: Submitting leave will immediately move your profile to the On-Leave section.</p>
-        <button type="submit" class="w-full py-3 rounded-xl bg-rc-emerald text-black font-bold text-xs tracking-wider hover:bg-emerald-400 transition-colors font-mono">
+        <p class="text-[11px] text-rc-muted font-sans">Note: Submitting leave will immediately move your profile to the On-Leave section.</p>
+        <button type="submit" class="w-full py-3 rounded-xl bg-rc-emerald text-black font-bold text-xs tracking-wider hover:bg-emerald-400 transition-colors">
           Submit Leave
         </button>
       </form>
@@ -1121,14 +1122,14 @@
   </div>
 
   <!-- 6. RULEBOOK MODAL -->
-  <div id="modalStaffRules" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div id="modalStaffRules" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="w-full max-w-lg boxy-card p-6 sm:p-8 space-y-6 max-h-[85vh] overflow-y-auto custom-scrollbar">
       <div class="flex justify-between items-center border-b border-rc-border pb-4">
         <div>
           <span class="text-[10px] font-black text-rc-red uppercase tracking-widest block font-mono">OPERATIONAL STANDARDS</span>
           <h3 class="text-lg font-black text-rc-text">Staff Conduct Rulebook</h3>
         </div>
-        <button onclick="closeModal('staffRules')" class="text-gray-400 hover:text-white text-lg font-bold">✕</button>
+        <button onclick="closeModal('staffRules')" class="text-gray-400 hover:text-white text-lg font-bold font-mono">✕</button>
       </div>
       <div class="space-y-4 text-xs text-rc-muted leading-relaxed">
         <div class="p-3.5 rounded-xl bg-rc-surface border border-rc-border">
@@ -1151,22 +1152,22 @@
     </div>
   </div>
 
-  <!-- 7. SECRET HR ACCESS MODAL (CONFIDENTIAL) -->
-  <div id="modalSecretHR" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-4">
+  <!-- 7. SECRET HR ACCESS MODAL -->
+  <div id="modalSecretHR" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-4">
     <div class="w-full max-w-md boxy-card border-rc-red p-6 sm:p-8 space-y-6 shadow-2xl">
       <div class="flex justify-between items-center border-b border-rc-border pb-4">
         <div>
           <span class="text-[10px] font-black text-rc-red uppercase tracking-widest block font-mono">ROOT CLEARANCE</span>
           <h3 class="text-lg font-black text-rc-text">HR Terminal Authorization</h3>
         </div>
-        <button onclick="closeModal('secretHR')" class="text-rc-muted hover:text-rc-text text-lg font-bold">✕</button>
+        <button onclick="closeModal('secretHR')" class="text-rc-muted hover:text-rc-text text-lg font-bold font-mono">✕</button>
       </div>
-      <form onsubmit="handleSecretHRAuth(event)" class="space-y-4">
+      <form onsubmit="handleSecretHRAuth(event)" class="space-y-4 font-mono">
         <div>
           <label class="text-xs font-bold text-gray-300 block mb-1">Master Security Access Key *</label>
-          <input required type="password" id="hrSecretKey" placeholder="••••••••••••" class="w-full px-4 py-3 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-mono focus:border-rc-red focus:outline-none">
+          <input required type="password" id="hrSecretKey" placeholder="••••••••••••" class="w-full px-4 py-3 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none">
         </div>
-        <button type="submit" class="w-full py-3 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-black text-xs uppercase tracking-wider transition-all shadow-lg shadow-rc-red/25 font-mono">
+        <button type="submit" class="w-full py-3 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-black text-xs uppercase tracking-wider transition-all shadow-lg shadow-rc-red/25">
           Authorize Root Terminal
         </button>
       </form>
@@ -1174,41 +1175,41 @@
   </div>
 
   <!-- 8. EMPLOYEE DOSSIER FULL INFO MODAL -->
-  <div id="modalEmployeeInfo" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="w-full max-w-lg boxy-card p-6 sm:p-8 space-y-6">
+  <div id="modalEmployeeInfo" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="w-full max-w-lg boxy-card p-6 sm:p-8 space-y-6 max-h-[88vh] overflow-y-auto custom-scrollbar">
       <div class="flex justify-between items-center border-b border-rc-border pb-4">
         <div>
           <span class="text-[10px] font-black text-rc-red uppercase tracking-widest block font-mono">PERSONNEL FILE</span>
           <h3 class="text-lg font-black text-rc-text">Employee Dossier</h3>
         </div>
-        <button onclick="closeModal('employeeInfo')" class="text-rc-muted hover:text-rc-text text-lg font-bold">✕</button>
+        <button onclick="closeModal('employeeInfo')" class="text-rc-muted hover:text-rc-text text-lg font-bold font-mono">✕</button>
       </div>
       <div id="employeeInfoContent" class="space-y-4 text-xs font-mono"></div>
     </div>
   </div>
 
   <!-- 9. AUTH MODAL (SIGN IN / CREATE ACCOUNT) -->
-  <div id="modalAuth" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div id="modalAuth" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="w-full max-w-md boxy-card p-6 sm:p-8 space-y-6">
       <div class="flex justify-between items-center">
         <div>
           <span class="text-[10px] font-black text-rc-red uppercase tracking-widest block font-mono">AUTHENTICATION</span>
           <h3 id="authModalTitle" class="text-xl font-black text-rc-text">Sign In to Your Account</h3>
         </div>
-        <button onclick="closeModal('auth')" class="text-rc-muted hover:text-rc-text text-lg font-bold">✕</button>
+        <button onclick="closeModal('auth')" class="text-rc-muted hover:text-rc-text text-lg font-bold font-mono">✕</button>
       </div>
       <div class="grid grid-cols-2 p-1 rounded-xl bg-rc-surface border border-rc-border text-xs font-bold font-mono">
         <button type="button" onclick="setAuthMode('signin')" id="authTabSignIn" class="py-2 rounded-lg bg-rc-red text-white transition-all">Sign In</button>
         <button type="button" onclick="setAuthMode('signup')" id="authTabSignUp" class="py-2 rounded-lg text-rc-muted hover:text-rc-text transition-all">Create Account</button>
       </div>
-      <form onsubmit="handleAuthSubmit(event)" class="space-y-4">
+      <form onsubmit="handleAuthSubmit(event)" class="space-y-4 font-mono">
         <div>
           <label class="text-xs font-bold text-rc-text block mb-1">Email Address *</label>
           <input required type="email" id="authEmail" placeholder="yourname@gmail.com" class="w-full px-4 py-3 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none">
         </div>
         <div id="authUsernameRow" class="hidden">
           <label class="text-xs font-bold text-rc-text block mb-1">Create Unique Username / Callsign *</label>
-          <input type="text" id="authUsername" placeholder="e.g. RC_Alpha" class="w-full px-4 py-3 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-mono focus:border-rc-red focus:outline-none">
+          <input type="text" id="authUsername" placeholder="e.g. RC_Alpha" class="w-full px-4 py-3 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none">
         </div>
         <div>
           <label class="text-xs font-bold text-rc-text block mb-1">Password *</label>
@@ -1221,18 +1222,18 @@
     </div>
   </div>
 
-  <!-- 10. PROFILE MODAL (FIXED HR SUPERADMIN DOSSIER) -->
-  <div id="modalProfile" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="w-full max-w-lg boxy-card p-6 sm:p-8 space-y-6">
-      <div class="flex justify-between items-center border-b border-rc-border pb-4">
+  <!-- 10. PROFILE MODAL -->
+  <div id="modalProfile" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="w-[94%] sm:w-full max-w-lg boxy-card p-5 sm:p-7 space-y-5 max-h-[86vh] overflow-y-auto custom-scrollbar">
+      <div class="flex justify-between items-center border-b border-rc-border pb-3">
         <div>
-          <span class="text-[10px] font-black text-rc-red uppercase tracking-widest block font-mono">AUTHENTICATED IDENTITY</span>
-          <h3 id="profCardUsername" class="text-lg font-black text-rc-text font-mono">Personal Profile</h3>
+          <span class="text-[10px] font-black text-rc-red uppercase tracking-widest block font-mono">ACCOUNT DETAILS</span>
+          <h3 id="profCardUsername" class="text-base sm:text-lg font-black text-rc-text font-mono truncate max-w-[220px] sm:max-w-none">Personal Profile</h3>
         </div>
-        <button onclick="closeModal('profile')" class="text-rc-muted hover:text-rc-text text-lg font-bold">✕</button>
+        <button onclick="closeModal('profile')" class="text-rc-muted hover:text-rc-text text-lg font-bold font-mono">✕</button>
       </div>
 
-      <div id="profDetailsContainer" class="p-4 rounded-2xl bg-rc-surface border border-rc-border space-y-2.5 text-xs font-mono"></div>
+      <div id="profDetailsContainer" class="p-4 rounded-2xl bg-rc-surface border border-rc-border space-y-3 text-xs font-mono"></div>
 
       <button onclick="handleLogout()" class="w-full py-2.5 rounded-xl bg-rc-red/10 border border-rc-red text-rc-red font-bold text-xs hover:bg-rc-red hover:text-white transition-all font-mono">
         Sign Out of Account
@@ -1240,40 +1241,34 @@
     </div>
   </div>
 
-  <!-- ================= EXPANDED PROFESSIONAL FOOTER ================= -->
+  <!-- ================= EXPANDED FOOTER ================= -->
   <footer class="border-t border-rc-border bg-rc-card/90 py-8 px-4 sm:px-6 lg:px-8 text-xs text-rc-muted font-mono select-none space-y-6">
     <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-6 text-center sm:text-left border-b border-rc-border pb-6">
-      
-      <!-- Contact Details -->
       <div class="space-y-1">
-        <span class="text-[10px] font-bold text-rc-red uppercase tracking-wider block">Official Contact</span>
+        <span class="text-[10px] font-bold text-rc-red uppercase tracking-wider block font-mono">Official Contact</span>
         <a href="mailto:rcesports786@gmail.com" class="text-rc-text font-bold hover:text-rc-red transition-colors block text-xs truncate">
           rcesports786@gmail.com
         </a>
-        <span class="text-[11px] text-rc-muted block">Support & Staff Operations</span>
+        <span class="text-[11px] text-rc-muted block">Support & Management Inquiries</span>
       </div>
 
-      <!-- Operational Base -->
       <div class="space-y-1">
-        <span class="text-[10px] font-bold text-rc-emerald uppercase tracking-wider block">Headquarters</span>
+        <span class="text-[10px] font-bold text-rc-emerald uppercase tracking-wider block font-mono">Headquarters</span>
         <span class="text-rc-text font-bold block text-xs uppercase">
           BANGALORE, INDIA
         </span>
         <span class="text-[11px] text-rc-muted block">National Management Hub</span>
       </div>
 
-      <!-- Foundation Record -->
       <div class="space-y-1">
-        <span class="text-[10px] font-bold text-rc-discord uppercase tracking-wider block">Founding Date</span>
+        <span class="text-[10px] font-bold text-rc-discord uppercase tracking-wider block font-mono">Founding Record</span>
         <span class="text-rc-text font-bold block text-xs uppercase">
           FOUNDED ON 8 OCTOBER 2021
         </span>
         <span class="text-[11px] text-rc-muted block">5+ Years of Competitive Excellence</span>
       </div>
-
     </div>
 
-    <!-- Triple-click (c) for secret HR gateway -->
     <div class="max-w-7xl mx-auto text-center text-[11px]">
       <p><span onclick="handleFooterSecretClick()" class="cursor-pointer hover:text-rc-red transition-colors" title="RC Esports">©</span> 2026 RC Esports Management Hub. All rights reserved.</p>
     </div>
@@ -1281,7 +1276,7 @@
 
   <!-- ================= JAVASCRIPT STATE ENGINE ================= -->
   <script>
-    const DB_KEY = 'rc_esports_database_v9';
+    const DB_KEY = 'rc_esports_database_v10';
     let footerClickCount = 0;
     let footerClickTimer = null;
 
@@ -1299,10 +1294,10 @@
           author: '@HR_SuperAdmin',
           time: '1h ago',
           title: 'Welcome to the Official RC Esports Management Desk',
-          body: 'All staff duty assignments and scrim room coordinates will be published through this console. Verify your assigned shifts in your active desk.',
+          body: 'All staff duty assignments, scrim room coordinates, and tournament allocations are managed through this portal. Verify your assigned shifts in your active desk.',
           link: 'https://linktr.ee/rc_esports',
           reactions: { fire: 14, heart: 8, thumbs: 22, trophy: 6 },
-          hasUnreadAlert: true // Blinks until reacted
+          hasUnreadAlert: true
         }
       ],
       roster: [],
@@ -1311,7 +1306,7 @@
         { sender: 'Head Operator', isSelf: false, time: '12:00 PM', text: 'Welcome to the direct RC support desk. Use this channel for match questions or urgent schedule coordination.' }
       ],
       auditLogs: [],
-      activeDuties: {} // key -> { time, startTimestamp, endTimestamp, tier, dispatcher, expiresAt, status, availability }
+      activeDuties: {}
     };
 
     let db = defaultState;
@@ -1339,7 +1334,25 @@
       }
     }
 
-    // --- 3-MODE SMOOTH SLIDING THEME ENGINE ---
+    // --- WELCOME SPLASH CONTROLLER ---
+    function dismissWelcomeSplash() {
+      const splash = document.getElementById('welcomeSplash');
+      if (splash && !splash.classList.contains('hidden')) {
+        splash.classList.add('pointer-events-none');
+        splash.style.opacity = '0';
+        setTimeout(() => {
+          splash.classList.add('hidden');
+        }, 650);
+      }
+    }
+
+    function initWelcomeSplash() {
+      setTimeout(() => {
+        dismissWelcomeSplash();
+      }, 2500);
+    }
+
+    // --- 3-MODE THEME ENGINE ---
     function setTheme(themeName) {
       db.currentTheme = themeName;
       document.documentElement.className = `theme-${themeName}`;
@@ -1372,7 +1385,7 @@
 
     function initTheme() {
       const active = db.currentTheme || 'dark';
-      setTimeout(() => { setTheme(active); }, 50);
+      setTimeout(() => { setTheme(active); }, 60);
     }
 
     // --- STEALTH HR GATEWAY TRIGGERS ---
@@ -1436,8 +1449,10 @@
         secretHR: 'modalSecretHR',
         employeeInfo: 'modalEmployeeInfo'
       };
-      if (document.getElementById(map[id])) {
-        document.getElementById(map[id]).classList.remove('hidden');
+      const targetId = map[id] || id;
+      const el = document.getElementById(targetId);
+      if (el) {
+        el.classList.remove('hidden');
       }
     }
     function closeModal(id) {
@@ -1454,8 +1469,10 @@
         secretHR: 'modalSecretHR',
         employeeInfo: 'modalEmployeeInfo'
       };
-      if (document.getElementById(map[id])) {
-        document.getElementById(map[id]).classList.add('hidden');
+      const targetId = map[id] || id;
+      const el = document.getElementById(targetId);
+      if (el) {
+        el.classList.add('hidden');
       }
     }
 
@@ -1575,7 +1592,7 @@
       }
     }
 
-    // --- REDESIGNED AUTH NAV & LOGGED IN PROFILE ---
+    // --- TOP PROFILE NAV & LOGGED IN BUTTON ---
     function updateNavAuth() {
       const area = document.getElementById('authNavArea');
       if (!db.currentUser) {
@@ -1599,7 +1616,7 @@
                 <span>${db.currentUser.isHR ? 'HR Console' : 'Terminal'}</span>
               </button>
             ` : ''}
-            <button onclick="openUserProfileDossier()" title="Click to view full personal dossier" class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-rc-surface border border-rc-border hover:border-rc-red text-xs font-mono font-bold text-rc-text transition-all shadow-md">
+            <button onclick="openUserProfileDossier()" title="Click to view personal profile" class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-rc-surface border border-rc-border hover:border-rc-red text-xs font-mono font-bold text-rc-text transition-all shadow-md">
               <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-rc-red flex items-center justify-center text-[9px] sm:text-[10px] font-black text-white shrink-0">
                 ${initials}
               </span>
@@ -1611,7 +1628,7 @@
       }
     }
 
-    // --- FIXED HR SUPERADMIN PROFILE DOSSIER ---
+    // --- ACCURATE ROLE-BASED PROFILE DOSSIER ---
     function openUserProfileDossier() {
       if (!db.currentUser) return;
       document.getElementById('profCardUsername').innerText = `${db.currentUser.username} [Profile File]`;
@@ -1621,13 +1638,13 @@
 
       if (isHR) {
         container.innerHTML = `
-          <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
             <div class="p-2.5 rounded-lg bg-rc-card border border-rc-border">
               <span class="text-[10px] text-rc-muted block uppercase font-bold">Identity</span>
               <span class="text-rc-text font-bold">${db.currentUser.name || 'Root Administrator'}</span>
             </div>
             <div class="p-2.5 rounded-lg bg-rc-card border border-rc-border">
-              <span class="text-[10px] text-rc-muted block uppercase font-bold">Clearance Level</span>
+              <span class="text-[10px] text-rc-muted block uppercase font-bold">Clearance</span>
               <span class="text-rc-red font-bold">Root HR Administrator</span>
             </div>
             <div class="p-2.5 rounded-lg bg-rc-card border border-rc-border">
@@ -1638,31 +1655,31 @@
               <span class="text-[10px] text-rc-muted block uppercase font-bold">Executive Code</span>
               <span class="text-rc-emerald font-bold font-mono">RC-001 (Root)</span>
             </div>
-            <div class="p-2.5 rounded-lg bg-rc-card border border-rc-border col-span-2">
-              <span class="text-[10px] text-rc-muted block uppercase font-bold">Executive Authority</span>
-              <span class="text-rc-text font-bold">Full System Governance, Shift Dispatch, Staff Moderation</span>
+            <div class="p-2.5 rounded-lg bg-rc-card border border-rc-border col-span-1 sm:col-span-2">
+              <span class="text-[10px] text-rc-muted block uppercase font-bold">Governance Level</span>
+              <span class="text-rc-text font-bold">Full Executive Oversight, Roster Control, Disciplinary Authority</span>
             </div>
           </div>
-          <div class="pt-2">
+          <div class="pt-1">
             <button onclick="closeModal('profile'); switchView('terminal'); renderTerminal();" class="w-full py-2.5 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-bold text-xs uppercase tracking-wider transition-all font-mono shadow-md">
               Launch Command Terminal ⚡
             </button>
           </div>
         `;
-      } else {
+      } else if (db.currentUser.status === 'approved') {
         const app = db.currentUser.application || {};
         container.innerHTML = `
-          <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
             <div class="p-2.5 rounded-lg bg-rc-card border border-rc-border">
               <span class="text-[10px] text-rc-muted block uppercase font-bold">Full Name</span>
               <span class="text-rc-text font-bold">${app.name || db.currentUser.name || 'N/A'}</span>
             </div>
             <div class="p-2.5 rounded-lg bg-rc-card border border-rc-border">
               <span class="text-[10px] text-rc-muted block uppercase font-bold">Staff ID Code</span>
-              <span class="text-rc-red font-bold">${db.currentUser.staffCode || 'Pending Assignment'}</span>
+              <span class="text-rc-red font-bold">${db.currentUser.staffCode || 'RC-101'}</span>
             </div>
             <div class="p-2.5 rounded-lg bg-rc-card border border-rc-border">
-              <span class="text-[10px] text-rc-muted block uppercase font-bold">Email Address</span>
+              <span class="text-[10px] text-rc-muted block uppercase font-bold">Registered Email</span>
               <span class="text-rc-text font-bold truncate block">${db.currentUser.email}</span>
             </div>
             <div class="p-2.5 rounded-lg bg-rc-card border border-rc-border">
@@ -1674,12 +1691,12 @@
               <span class="text-rc-text font-bold">${app.discDisplay || 'N/A'}</span>
             </div>
             <div class="p-2.5 rounded-lg bg-rc-card border border-rc-border">
-              <span class="text-[10px] text-rc-muted block uppercase font-bold">Discord Username</span>
+              <span class="text-[10px] text-rc-muted block uppercase font-bold">Discord User</span>
               <span class="text-rc-discord font-bold">${app.discUser || 'N/A'}</span>
             </div>
             <div class="p-2.5 rounded-lg bg-rc-card border border-rc-border">
               <span class="text-[10px] text-rc-muted block uppercase font-bold">Assigned Track</span>
-              <span class="text-rc-emerald font-bold">${db.currentUser.role || 'Applicant'}</span>
+              <span class="text-rc-emerald font-bold">${db.currentUser.role || 'Staff Member'}</span>
             </div>
             <div class="p-2.5 rounded-lg bg-rc-card border border-rc-border">
               <span class="text-[10px] text-rc-muted block uppercase font-bold">7-Day Strikes</span>
@@ -1688,25 +1705,68 @@
           </div>
           ${app.details ? `
             <div class="pt-2 border-t border-rc-border">
-              <span class="text-[10px] text-rc-muted block font-bold">Slot Preferences & Credentials:</span>
+              <span class="text-[10px] text-rc-muted block font-bold">Preferences & Timings:</span>
               <span class="text-rc-text font-medium block">${app.details}</span>
             </div>
           ` : ''}
+        `;
+      } else if (db.currentUser.status === 'pending') {
+        const app = db.currentUser.application || {};
+        container.innerHTML = `
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <div class="p-2.5 rounded-lg bg-rc-card border border-rc-border">
+              <span class="text-[10px] text-rc-muted block uppercase font-bold">Candidate Name</span>
+              <span class="text-rc-text font-bold">${app.name || db.currentUser.name}</span>
+            </div>
+            <div class="p-2.5 rounded-lg bg-rc-card border border-rc-border">
+              <span class="text-[10px] text-rc-muted block uppercase font-bold">Status</span>
+              <span class="text-amber-400 font-bold">Under HR Review</span>
+            </div>
+            <div class="p-2.5 rounded-lg bg-rc-card border border-rc-border">
+              <span class="text-[10px] text-rc-muted block uppercase font-bold">Applied Track</span>
+              <span class="text-rc-emerald font-bold">${db.currentUser.role || 'Applicant'}</span>
+            </div>
+            <div class="p-2.5 rounded-lg bg-rc-card border border-rc-border">
+              <span class="text-[10px] text-rc-muted block uppercase font-bold">Registered Email</span>
+              <span class="text-rc-text font-bold truncate block">${db.currentUser.email}</span>
+            </div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-rc-card border border-rc-border text-center text-rc-muted">
+            ℹ️ Candidate docket is currently being evaluated by Head Staff.
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <div class="p-2.5 rounded-lg bg-rc-card border border-rc-border">
+              <span class="text-[10px] text-rc-muted block uppercase font-bold">Account Name</span>
+              <span class="text-rc-text font-bold">${db.currentUser.name}</span>
+            </div>
+            <div class="p-2.5 rounded-lg bg-rc-card border border-rc-border">
+              <span class="text-[10px] text-rc-muted block uppercase font-bold">Account Type</span>
+              <span class="text-rc-text font-bold">Registered Member</span>
+            </div>
+            <div class="p-2.5 rounded-lg bg-rc-card border border-rc-border col-span-1 sm:col-span-2">
+              <span class="text-[10px] text-rc-muted block uppercase font-bold">Email Address</span>
+              <span class="text-rc-text font-bold truncate block">${db.currentUser.email}</span>
+            </div>
+            <div class="p-2.5 rounded-lg bg-rc-card border border-rc-border col-span-1 sm:col-span-2">
+              <span class="text-[10px] text-rc-muted block uppercase font-bold">Staff Status</span>
+              <span class="text-rc-muted">Not enrolled on active staff roster</span>
+            </div>
+          </div>
+          <div class="pt-1">
+            <button onclick="closeModal('profile'); openModal('openPositions');" class="w-full py-2.5 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-bold text-xs uppercase tracking-wider transition-all font-mono shadow-md">
+              Apply For Staff Position →
+            </button>
+          </div>
         `;
       }
 
       openModal('profile');
     }
 
-    function handleLogout() {
-      db.currentUser = null;
-      saveDB();
-      closeModal('profile');
-      updateNavAuth();
-      switchView('landing');
-    }
-
-    // --- POSITIONS & APPLICATION FLOW ---
+    // --- APPLY FOR STAFF CLICK HANDLER ---
     function handleApplyStaffClick() {
       if (!db.currentUser) {
         setAuthMode('signup');
@@ -1897,8 +1957,8 @@
         </div>
         <div class="grid grid-cols-2 gap-2 text-xs pt-1">
           <div><span class="text-rc-muted">Applicant:</span> <span class="text-rc-text font-bold">${app.name}</span></div>
-          <div><span class="text-rc-muted">Callsign:</span> <span class="text-rc-discord font-bold">${app.username}</span></div>
-          <div><span class="text-rc-muted">Track:</span> <span class="text-rc-emerald font-bold">${app.role}</span></div>
+          <div><span class="text-rc-discord">Callsign:</span> <span class="text-rc-discord font-bold">${app.username}</span></div>
+          <div><span class="text-rc-emerald">Track:</span> <span class="text-rc-emerald font-bold">${app.role}</span></div>
           <div><span class="text-rc-muted">Phone:</span> <span class="text-rc-text">${app.phone}</span></div>
         </div>
         <div class="text-xs pt-1 text-rc-muted"><span class="text-rc-muted font-bold">Details:</span> ${app.details}</div>
@@ -2105,7 +2165,7 @@
           <div class="p-8 rounded-2xl bg-rc-surface border border-rc-border text-center space-y-3 font-mono">
             <span class="text-xs font-mono font-bold text-rc-emerald uppercase tracking-wider block">[Duty Standby]</span>
             <h4 class="text-base font-bold text-rc-text">No Active Duty Shift Dispatched</h4>
-            <p class="text-xs text-rc-muted max-w-sm mx-auto">Head Staff has not assigned today's match window yet. Your staff code is <span class="text-rc-red font-mono font-bold">${db.currentUser.staffCode || 'RC-101'}</span>.</p>
+            <p class="text-xs text-rc-muted max-w-sm mx-auto">Head Staff has not assigned today's match window yet. Your staff code is <span class="text-rc-red font-bold">${db.currentUser.staffCode || 'RC-101'}</span>.</p>
           </div>
         `;
         document.getElementById('staffShiftSnippet').innerText = 'Awaiting Dispatch';
@@ -2127,7 +2187,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
               <div>
                 <span class="text-xs font-bold text-rc-muted uppercase tracking-wider block font-mono">Shift Hosting Window</span>
-                <span class="text-xl sm:text-2xl font-black text-rc-text mt-1 block font-mono">${duty.time}</span>
+                <span class="text-2xl font-black text-rc-text mt-1 block font-mono">${duty.time}</span>
                 <span class="text-xs text-rc-emerald font-semibold">● Verified Slot</span>
               </div>
               <div>
@@ -2178,7 +2238,6 @@
       renderStaffDutyCard();
     }
 
-    // --- NOTICEBOARD WITH BLINKING ALERT UNTIL REACTED ---
     function renderStaffAnnouncements() {
       const container = document.getElementById('staffAnnouncementsList');
       if (db.announcements.length === 0) {
@@ -2283,7 +2342,6 @@
       renderAuditTable();
     }
 
-    // BOXY CARDS FOR ACTIVE ROSTER
     function renderRosterBoxyCards() {
       const grid = document.getElementById('rosterCardsGrid');
       const isHR = (db.currentUser && db.currentUser.isHR);
@@ -2306,8 +2364,6 @@
 
         return `
           <div class="boxy-card p-5 space-y-4 font-mono">
-            
-            <!-- Header -->
             <div class="flex items-start justify-between border-b border-rc-border pb-3">
               <div>
                 <span class="px-2.5 py-0.5 rounded bg-rc-red/20 text-rc-red font-mono font-black text-xs">${m.code}</span>
@@ -2324,7 +2380,6 @@
               </div>
             </div>
 
-            <!-- Role & Strikes Grid -->
             <div class="grid grid-cols-2 gap-2 text-xs font-mono">
               <div class="p-2.5 rounded-lg bg-rc-surface border border-rc-border">
                 <span class="text-[10px] font-bold text-rc-muted uppercase block">Track Role</span>
@@ -2336,7 +2391,6 @@
               </div>
             </div>
 
-            <!-- Clearance Status -->
             <div class="flex items-center justify-between text-xs pt-1">
               <span class="text-rc-muted font-mono">Clearance:</span>
               <span class="font-bold ${m.isHeadStaff ? 'text-rc-red font-mono' : 'text-rc-muted'}">
@@ -2344,7 +2398,6 @@
               </span>
             </div>
 
-            <!-- PROMINENT INFO BUTTON & ACTION CONTROLS -->
             <div class="pt-3 border-t border-rc-border space-y-2">
               <button onclick="openEmployeeInfoModal(${rawIdx})" class="w-full py-2 rounded-xl bg-rc-surface hover:bg-rc-border border border-rc-border text-rc-text text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
                 <span>ℹ️</span> <span>View Full Dossier / Info</span>
@@ -2367,7 +2420,6 @@
                 </button>
               </div>
             </div>
-
           </div>
         `;
       }).join('');
@@ -2694,7 +2746,6 @@
         return;
       }
 
-      // Calculate timestamps
       const now = new Date();
       const [sH, sM] = startTimeStr.split(':');
       const [eH, eM] = endTimeStr.split(':');
@@ -2715,7 +2766,7 @@
           endTimestamp: endDate.getTime(),
           tier: tier,
           dispatcher: db.currentUser.username,
-          expiresAt: Date.now() + (12 * 60 * 60 * 1000), // 12-hour reset cycle
+          expiresAt: Date.now() + (12 * 60 * 60 * 1000),
           status: 'Active',
           availability: 'Available'
         };
@@ -2828,7 +2879,6 @@
       if (duty && duty.status === 'Active') {
         const now = Date.now();
 
-        // 12-hour overall lifecycle check
         if (now >= duty.expiresAt) {
           duty.status = 'Done';
           if (el) el.innerText = 'Shift Concluded (Auto-Cleared)';
@@ -2838,7 +2888,6 @@
           return;
         }
 
-        // Scenario 1: Pre-Shift Countdown
         if (duty.startTimestamp && now < duty.startTimestamp) {
           const diff = duty.startTimestamp - now;
           const h = Math.floor(diff / (1000 * 60 * 60));
@@ -2848,7 +2897,6 @@
           if (el) el.innerText = timeStr;
           if (snippetEl) snippetEl.innerText = `Starts in: ${h}h ${m}m`;
         }
-        // Scenario 2: Live Match in Progress
         else if (duty.endTimestamp && now >= duty.startTimestamp && now <= duty.endTimestamp) {
           const diff = duty.endTimestamp - now;
           const h = Math.floor(diff / (1000 * 60 * 60));
@@ -2858,7 +2906,6 @@
           if (el) el.innerText = timeStr;
           if (snippetEl) snippetEl.innerText = `Live: ${h}h ${m}m left`;
         }
-        // Scenario 3: Inside 12-hour auto-reset window
         else {
           const diff = duty.expiresAt - now;
           const h = Math.floor(diff / (1000 * 60 * 60));
@@ -2874,8 +2921,9 @@
     window.addEventListener('DOMContentLoaded', () => {
       loadDB();
       initTheme();
+      initWelcomeSplash();
       updateNavAuth();
     });
   </script>
 </body>
-            </html>
+  </html>
