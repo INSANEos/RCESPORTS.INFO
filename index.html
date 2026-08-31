@@ -319,7 +319,7 @@
             <div class="relative rounded-3xl bg-rc-surface p-6 border border-rc-border flex flex-col items-center justify-center text-center overflow-hidden group">
               <div class="absolute w-56 h-56 bg-rc-red/20 rounded-full blur-2xl animate-pulse-glow pointer-events-none"></div>
               
-              <!-- Dargon.gif Mascot Replacement -->
+              <!-- Dargon.gif Mascot Replacement with Resilient Auto-Fallbacks -->
               <div class="relative z-10 animate-float-mascot cursor-pointer w-40 sm:w-44 h-40 sm:h-44 flex items-center justify-center" onclick="handleApplyStaffClick()">
                 <img 
                   src="Dargon.gif" 
@@ -680,6 +680,7 @@
           <div id="leavesCardsStream" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </div>
 
+        <!-- INTAKE QUEUE PANEL -->
         <div id="termPanelIntake" class="hidden space-y-4">
           <div class="flex justify-between items-center">
             <h3 class="text-xs sm:text-sm font-black text-rc-text uppercase tracking-wider font-mono">Candidate Intake Queue</h3>
@@ -952,7 +953,7 @@
     </div>
   </div>
 
-  <!-- ================= POPUP MODALS (ELEVATED TO Z-[100]) ================= -->
+  <!-- ================= POPUP MODALS ================= -->
 
   <!-- 1. OPEN POSITIONS SELECTION MODAL -->
   <div id="modalOpenPositions" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
@@ -1279,7 +1280,7 @@
 
   <!-- ================= JAVASCRIPT STATE ENGINE ================= -->
   <script>
-    const DB_KEY = 'rc_esports_database_v12';
+    const DB_KEY = 'rc_esports_database_v14';
     let footerClickCount = 0;
     let footerClickTimer = null;
 
@@ -1327,6 +1328,10 @@
         const stored = localStorage.getItem(DB_KEY);
         if (stored) {
           db = JSON.parse(stored);
+          db.applicants = Array.isArray(db.applicants) ? db.applicants.filter(Boolean) : [];
+          db.roster = Array.isArray(db.roster) ? db.roster.filter(Boolean) : [];
+          db.accounts = Array.isArray(db.accounts) ? db.accounts.filter(Boolean) : [];
+          db.chatMessages = Array.isArray(db.chatMessages) ? db.chatMessages.filter(Boolean) : [];
         } else {
           db = defaultState;
           saveDB();
@@ -1916,32 +1921,40 @@
         const e1 = document.getElementById('mHostSlot1End')?.value || '06:00';
         detailsSummary = `Slot 1: ${s1} to ${e1} (Exp: ${document.getElementById('mHostExp')?.value || 0}m)`;
       } else if (db.selectedRole === 'mod') {
-        detailsSummary = `Daily: ${document.getElementById('mModDailyTime')?.value} | Block: ${document.getElementById('mModBlock')?.value}`;
+        detailsSummary = `Daily: ${document.getElementById('mModDailyTime')?.value || '2h'} | Block: ${document.getElementById('mModBlock')?.value || 'General'}`;
       } else if (db.selectedRole === 'pt') {
-        detailsSummary = `Tool: ${document.getElementById('mPtTool')?.value}`;
+        detailsSummary = `Tool: ${document.getElementById('mPtTool')?.value || 'Tournify'}`;
       } else {
-        detailsSummary = `Exp: ${document.getElementById('mSocExp')?.value} | Link: ${document.getElementById('mSocLink')?.value}`;
+        detailsSummary = `Exp: ${document.getElementById('mSocExp')?.value || '1y'} | Link: ${document.getElementById('mSocLink')?.value || 'N/A'}`;
       }
 
       const applicantEntry = {
         id: `#APP-${Math.floor(100 + Math.random() * 900)}`,
-        name: document.getElementById('mRecName').value,
+        name: document.getElementById('mRecName').value.trim(),
         username: db.currentUser.username,
-        discDisplay: document.getElementById('mRecDiscDisplay').value,
-        discUser: document.getElementById('mRecDiscUser').value,
-        phone: document.getElementById('mRecPhone').value,
-        insta: document.getElementById('mRecInsta').value || 'N/A',
-        age: document.getElementById('mRecAge').value,
+        discDisplay: document.getElementById('mRecDiscDisplay').value.trim(),
+        discUser: document.getElementById('mRecDiscUser').value.trim(),
+        phone: document.getElementById('mRecPhone').value.trim(),
+        insta: document.getElementById('mRecInsta').value.trim() || 'N/A',
+        age: document.getElementById('mRecAge').value.trim(),
         role: selectedRoleTitle,
         details: detailsSummary,
         email: db.currentUser.email
       };
 
       triggerLoading('Submitting Candidate File to HR...', () => {
+        if (!Array.isArray(db.applicants)) db.applicants = [];
         db.applicants.push(applicantEntry);
         db.currentUser.status = 'pending';
         db.currentUser.role = selectedRoleTitle;
         db.currentUser.application = applicantEntry;
+
+        const acc = db.accounts.find(a => a.username === db.currentUser.username || a.email === db.currentUser.email);
+        if (acc) {
+          acc.status = 'pending';
+          acc.role = selectedRoleTitle;
+          acc.application = applicantEntry;
+        }
 
         db.auditLogs.unshift({
           time: 'Just now',
@@ -1960,20 +1973,20 @@
     function renderPendingDashboard() {
       const box = document.getElementById('pendingSummaryBox');
       const app = db.currentUser?.application;
-      if (!app) return;
+      if (!app || !box) return;
 
       box.innerHTML = `
         <div class="flex justify-between items-center text-xs border-b border-rc-border pb-2">
           <span class="text-rc-muted">Application Docket:</span>
-          <span class="font-mono text-rc-red font-bold">${app.id}</span>
+          <span class="font-mono text-rc-red font-bold">${app.id || '#APP-101'}</span>
         </div>
         <div class="grid grid-cols-2 gap-2 text-xs pt-1">
-          <div><span class="text-rc-muted">Applicant:</span> <span class="text-rc-text font-bold">${app.name}</span></div>
-          <div><span class="text-rc-discord">Callsign:</span> <span class="text-rc-discord font-bold">${app.username}</span></div>
-          <div><span class="text-rc-emerald">Track:</span> <span class="text-rc-emerald font-bold">${app.role}</span></div>
-          <div><span class="text-rc-muted">Phone:</span> <span class="text-rc-text">${app.phone}</span></div>
+          <div><span class="text-rc-muted">Applicant:</span> <span class="text-rc-text font-bold">${app.name || 'N/A'}</span></div>
+          <div><span class="text-rc-discord">Callsign:</span> <span class="text-rc-discord font-bold">${app.username || 'N/A'}</span></div>
+          <div><span class="text-rc-emerald">Track:</span> <span class="text-rc-emerald font-bold">${app.role || 'N/A'}</span></div>
+          <div><span class="text-rc-muted">Phone:</span> <span class="text-rc-text">${app.phone || 'N/A'}</span></div>
         </div>
-        <div class="text-xs pt-1 text-rc-muted"><span class="text-rc-muted font-bold">Details:</span> ${app.details}</div>
+        <div class="text-xs pt-1 text-rc-muted"><span class="text-rc-muted font-bold">Details:</span> ${app.details || 'Standard Entry'}</div>
       `;
     }
 
@@ -2252,6 +2265,7 @@
 
     function renderStaffAnnouncements() {
       const container = document.getElementById('staffAnnouncementsList');
+      if (!container) return;
       if (db.announcements.length === 0) {
         container.innerHTML = `<div class="p-6 rounded-xl bg-rc-surface text-center text-rc-muted text-xs font-mono">No announcements right now.</div>`;
         return;
@@ -2416,6 +2430,9 @@
     }
 
     function renderTerminal() {
+      db.roster = Array.isArray(db.roster) ? db.roster.filter(Boolean) : [];
+      db.applicants = Array.isArray(db.applicants) ? db.applicants.filter(Boolean) : [];
+
       const onLeaveCount = db.roster.filter(m => m.onLeave).length;
       document.getElementById('termLeavesCount').innerText = onLeaveCount;
       document.getElementById('termIntakeCount').innerText = db.applicants.length;
@@ -2437,8 +2454,9 @@
 
     function renderRosterBoxyCards() {
       const grid = document.getElementById('rosterCardsGrid');
+      if (!grid) return;
       const isHR = (db.currentUser && db.currentUser.isHR);
-      const activeStaff = db.roster.filter(m => !m.onLeave);
+      const activeStaff = (db.roster || []).filter(m => m && !m.onLeave);
 
       if (activeStaff.length === 0) {
         grid.innerHTML = `<div class="col-span-full p-8 rounded-2xl bg-rc-surface border border-rc-border text-center text-rc-muted text-xs font-mono">No active staff personnel registered in directory.</div>`;
@@ -2446,10 +2464,10 @@
       }
 
       grid.innerHTML = activeStaff.map((m) => {
-        const rawIdx = db.roster.findIndex(x => x.code === m.code);
+        const rawIdx = db.roster.findIndex(x => x && x.code === m.code);
         let strikeBlocks = '';
         for (let i = 0; i < 3; i++) {
-          strikeBlocks += `<span class="w-3.5 h-3.5 rounded ${i < m.strikes ? 'bg-rc-red shadow-sm shadow-rc-red' : 'bg-rc-border'} inline-block"></span>`;
+          strikeBlocks += `<span class="w-3.5 h-3.5 rounded ${i < (m.strikes || 0) ? 'bg-rc-red shadow-sm shadow-rc-red' : 'bg-rc-border'} inline-block"></span>`;
         }
 
         const duty = db.activeDuties[m.code] || db.activeDuties[m.username];
@@ -2465,7 +2483,7 @@
               </div>
               <div class="text-right space-y-1">
                 <span class="px-2.5 py-1 rounded text-[10px] font-black ${m.dutyState === 'Active' ? 'bg-rc-emerald/20 text-rc-emerald' : 'bg-gray-700 text-rc-muted'} block">
-                  ${m.dutyState}
+                  ${m.dutyState || 'Active'}
                 </span>
                 <span class="text-[9px] font-bold ${availStatus === 'Available' ? 'text-rc-emerald' : 'text-rc-red'} block">
                   Avail: ${availStatus}
@@ -2479,7 +2497,7 @@
                 <span class="text-rc-emerald font-bold truncate block font-sans">${m.role}</span>
               </div>
               <div class="p-2.5 rounded-lg bg-rc-surface border border-rc-border">
-                <span class="text-[10px] font-bold text-rc-muted uppercase block font-sans">Strikes [${m.strikes}/3]</span>
+                <span class="text-[10px] font-bold text-rc-muted uppercase block font-sans">Strikes [${m.strikes || 0}/3]</span>
                 <div class="flex gap-1 mt-1">${strikeBlocks}</div>
               </div>
             </div>
@@ -2518,12 +2536,119 @@
       }).join('');
     }
 
+    // --- ROBUST INTAKE QUEUE RENDERER ---
+    function renderIntakeQueue() {
+      const container = document.getElementById('intakeCardsStream');
+      if (!container) return;
+
+      db.applicants = Array.isArray(db.applicants) ? db.applicants.filter(a => a && typeof a === 'object') : [];
+      const countEl = document.getElementById('termIntakeCount');
+      if (countEl) countEl.innerText = db.applicants.length;
+
+      if (db.applicants.length === 0) {
+        container.innerHTML = `<div class="col-span-full p-8 rounded-2xl bg-rc-surface border border-rc-border text-center text-rc-muted text-xs font-mono">No pending applications in queue right now.</div>`;
+        return;
+      }
+
+      container.innerHTML = db.applicants.map((a, idx) => `
+        <div class="boxy-card p-5 space-y-3 font-mono">
+          <div class="flex items-center justify-between border-b border-rc-border pb-2">
+            <div>
+              <span class="font-bold text-rc-text text-sm font-sans">${a.name || 'Candidate'}</span>
+              <span class="text-rc-discord text-xs font-mono block">${a.username || '@applicant'}</span>
+            </div>
+            <span class="px-2 py-0.5 rounded bg-rc-red/20 text-rc-red text-[10px] font-black">${a.role || 'Staff'}</span>
+          </div>
+          <div class="text-xs space-y-1 text-rc-muted font-sans">
+            <div><span class="text-rc-muted font-mono">Phone:</span> ${a.phone || 'N/A'} | <span class="text-rc-muted font-mono">Insta:</span> ${a.insta || 'N/A'}</div>
+            <div><span class="text-rc-muted font-mono">Details:</span> ${a.details || 'Standard Submission'}</div>
+            <div class="text-[11px] text-rc-muted font-mono">Age: ${a.age || '18'} • Email: ${a.email || 'N/A'}</div>
+          </div>
+          <div class="flex gap-2 pt-1 border-t border-rc-border font-mono">
+            <button onclick="acceptApplicant(${idx})" class="w-1/2 py-2 rounded-xl bg-rc-emerald hover:bg-emerald-600 text-black font-bold text-xs transition-all">Accept Staff</button>
+            <button onclick="rejectApplicant(${idx})" class="w-1/2 py-2 rounded-xl bg-rc-red/20 text-rc-red border border-rc-red hover:bg-rc-red hover:text-white font-bold text-xs transition-all">Reject</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function acceptApplicant(idx) {
+      const cand = db.applicants[idx];
+      if (!cand) return;
+      const shortCode = `RC-${101 + db.roster.length}`;
+
+      triggerLoading(`Approving ${cand.name || 'Candidate'} with Code ${shortCode}...`, () => {
+        const staffMember = {
+          code: shortCode,
+          name: cand.name || 'Staff Member',
+          username: cand.username || `@staff_${101 + db.roster.length}`,
+          phone: cand.phone || 'N/A',
+          insta: cand.insta || 'N/A',
+          discDisplay: cand.discDisplay || cand.name || 'Staff',
+          discUser: cand.discUser || cand.username || 'Staff',
+          age: cand.age || '18',
+          role: cand.role || 'Staff Member',
+          details: cand.details || 'Approved by HR',
+          dutyState: 'Active',
+          strikes: 0,
+          isHeadStaff: false,
+          onLeave: false,
+          leaveDates: '',
+          leaveReason: '',
+          leaveOver: false
+        };
+
+        db.roster.push(staffMember);
+
+        const acc = db.accounts.find(a => (cand.email && a.email && a.email.toLowerCase() === cand.email.toLowerCase()) || (cand.username && a.username === cand.username));
+        if (acc) {
+          acc.status = 'approved';
+          acc.staffCode = shortCode;
+          acc.role = cand.role || 'Staff Member';
+          acc.strikes = 0;
+        }
+
+        if (db.currentUser && ((cand.email && db.currentUser.email === cand.email) || (cand.username && db.currentUser.username === cand.username))) {
+          db.currentUser.status = 'approved';
+          db.currentUser.staffCode = shortCode;
+          db.currentUser.role = cand.role || 'Staff Member';
+        }
+
+        db.auditLogs.unshift({
+          time: 'Just now',
+          actor: db.currentUser ? db.currentUser.username : '@HR',
+          action: 'APPLICANT_ACCEPTED',
+          target: `${cand.name || 'Candidate'} (${shortCode})`,
+          details: `Cleared into ${cand.role || 'Staff Member'}`
+        });
+
+        db.applicants.splice(idx, 1);
+        saveDB();
+        renderTerminal();
+      });
+    }
+
+    function rejectApplicant(idx) {
+      const cand = db.applicants[idx];
+      if (!cand) return;
+      db.auditLogs.unshift({
+        time: 'Just now',
+        actor: db.currentUser ? db.currentUser.username : '@HR',
+        action: 'APPLICANT_REJECTED',
+        target: `${cand.name || 'Candidate'} (${cand.username || '@user'})`,
+        details: `Declined application`
+      });
+      db.applicants.splice(idx, 1);
+      saveDB();
+      renderTerminal();
+    }
+
     // --- AUTOMATIC 3-STRIKE DELETION & REVOKE ENGINE ---
     function giveStrike(rawIdx) {
       const target = db.roster[rawIdx];
       if (!target) return;
 
-      target.strikes++;
+      target.strikes = (target.strikes || 0) + 1;
       
       const acc = db.accounts.find(a => a.username === target.username || a.staffCode === target.code);
       if (acc) acc.strikes = target.strikes;
@@ -2538,7 +2663,6 @@
         const staffName = target.name;
         const staffUser = target.username;
 
-        // Revoke credentials & delete staff ID
         if (acc) {
           acc.status = 'terminated';
           acc.staffCode = null;
@@ -2551,19 +2675,17 @@
 
         db.auditLogs.unshift({
           time: 'Just now',
-          actor: db.currentUser.username,
+          actor: db.currentUser ? db.currentUser.username : '@HR',
           action: 'AUTO_TERMINATED (3/3 STRIKES)',
           target: `${staffName} (${staffCode})`,
           details: 'Automatic system termination: 3 strikes threshold reached. Staff ID revoked and erased from directory.'
         });
 
-        // Remove from roster
         db.roster.splice(rawIdx, 1);
         saveDB();
 
-        alert(`⚠️ AUTOMATIC REMOVAL: ${staffName} has reached 3/3 strikes! Their Staff ID (${staffCode}) has been automatically revoked and deleted from the active roster.`);
+        alert(`⚠️ AUTOMATIC REMOVAL: ${staffName} has reached 3/3 strikes! Staff ID (${staffCode}) has been revoked and removed from the active directory.`);
 
-        // If the penalized user is currently logged in, force workspace reset
         if (db.currentUser && (db.currentUser.username === staffUser || db.currentUser.staffCode === staffCode)) {
           db.currentUser.status = 'terminated';
           db.currentUser.staffCode = null;
@@ -2577,7 +2699,7 @@
 
       db.auditLogs.unshift({
         time: 'Just now',
-        actor: db.currentUser.username,
+        actor: db.currentUser ? db.currentUser.username : '@HR',
         action: 'STRIKE_ISSUED (+1)',
         target: `${target.name} (${target.code})`,
         details: `Active strikes: ${target.strikes}/3`
@@ -2591,23 +2713,24 @@
     }
 
     function revokeStrike(rawIdx) {
-      if (db.roster[rawIdx].strikes > 0) {
-        db.roster[rawIdx].strikes--;
+      const target = db.roster[rawIdx];
+      if (target && target.strikes > 0) {
+        target.strikes--;
 
-        const acc = db.accounts.find(a => a.username === db.roster[rawIdx].username || a.staffCode === db.roster[rawIdx].code);
-        if (acc) acc.strikes = db.roster[rawIdx].strikes;
+        const acc = db.accounts.find(a => a.username === target.username || a.staffCode === target.code);
+        if (acc) acc.strikes = target.strikes;
 
-        if (db.currentUser && (db.currentUser.username === db.roster[rawIdx].username || db.currentUser.staffCode === db.roster[rawIdx].code)) {
-          db.currentUser.strikes = db.roster[rawIdx].strikes;
+        if (db.currentUser && (db.currentUser.username === target.username || db.currentUser.staffCode === target.code)) {
+          db.currentUser.strikes = target.strikes;
           renderStaffStrikes();
         }
 
         db.auditLogs.unshift({
           time: 'Just now',
-          actor: db.currentUser.username,
+          actor: db.currentUser ? db.currentUser.username : '@HR',
           action: 'STRIKE_REVOKED (-1)',
-          target: `${db.roster[rawIdx].name} (${db.roster[rawIdx].code})`,
-          details: `Active strikes: ${db.roster[rawIdx].strikes}/3`
+          target: `${target.name} (${target.code})`,
+          details: `Active strikes: ${target.strikes}/3`
         });
         saveDB();
         renderTerminal();
@@ -2640,15 +2763,134 @@
       renderTerminal();
     }
 
+    function terminateStaff(rawIdx) {
+      const target = db.roster[rawIdx];
+      if (!confirm(`Are you sure you want to PERMANENTLY TERMINATE ${target.name} (${target.code})? Their staff credentials will be revoked immediately.`)) {
+        return;
+      }
+
+      triggerLoading(`Revoking Staff ID for ${target.name}...`, () => {
+        const acc = db.accounts.find(a => a.username === target.username || a.staffCode === target.code);
+        if (acc) {
+          acc.status = 'terminated';
+          acc.staffCode = null;
+          acc.role = 'Terminated';
+          acc.isHeadStaff = false;
+        }
+
+        delete db.activeDuties[target.username];
+        delete db.activeDuties[target.code];
+
+        db.auditLogs.unshift({
+          time: 'Just now',
+          actor: db.currentUser.username,
+          action: 'TERMINATE_STAFF',
+          target: `${target.name} (${target.code})`,
+          details: 'Account revoked and removed from directory.'
+        });
+
+        db.roster.splice(rawIdx, 1);
+        saveDB();
+        renderTerminal();
+      });
+    }
+
+    function openEmployeeInfoModal(idx) {
+      const m = db.roster[idx];
+      const content = document.getElementById('employeeInfoContent');
+      if (!m || !content) return;
+
+      content.innerHTML = `
+        <div class="p-4 rounded-2xl bg-rc-surface border border-rc-border space-y-3 font-mono">
+          <div class="flex justify-between items-center border-b border-rc-border pb-2">
+            <div>
+              <span class="text-base font-black text-rc-text font-sans">${m.name}</span>
+              <span class="text-xs text-rc-discord block font-mono">${m.username}</span>
+            </div>
+            <span class="px-3 py-1 rounded bg-rc-red/20 text-rc-red font-mono font-black text-sm">${m.code}</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div><span class="text-rc-muted font-sans">Track Role:</span> <span class="text-rc-emerald font-bold font-sans">${m.role}</span></div>
+            <div><span class="text-rc-muted font-sans">Clearance:</span> <span class="text-rc-text font-bold font-sans">${m.isHeadStaff ? 'Head Staff' : 'Staff Member'}</span></div>
+            <div><span class="text-rc-muted font-sans">WhatsApp:</span> <a href="https://wa.me/${m.phone.replace(/[^0-9]/g, '')}" target="_blank" class="text-rc-emerald font-bold underline">${m.phone} ↗</a></div>
+            <div><span class="text-rc-muted font-sans">Instagram:</span> <span class="text-rc-text font-sans">${m.insta || 'N/A'}</span></div>
+            <div><span class="text-rc-muted font-sans">Discord Display:</span> <span class="text-rc-text font-sans">${m.discDisplay || m.name}</span></div>
+            <div><span class="text-rc-muted font-sans">Discord User:</span> <span class="text-rc-discord font-mono">${m.discUser || m.username}</span></div>
+            <div><span class="text-rc-muted font-sans">Age:</span> <span class="text-rc-text font-sans">${m.age || 'N/A'}</span></div>
+            <div><span class="text-rc-muted font-sans">Active Strikes:</span> <span class="text-rc-red font-bold font-mono">${m.strikes || 0} / 3</span></div>
+          </div>
+
+          <div class="pt-2 border-t border-rc-border font-sans">
+            <span class="text-rc-muted block mb-1">Application Details / Preferences:</span>
+            <span class="text-rc-text font-medium block">${m.details || 'Standard Entry'}</span>
+          </div>
+        </div>
+      `;
+
+      openModal('employeeInfo');
+    }
+
+    function renderLeavesTab() {
+      const container = document.getElementById('leavesCardsStream');
+      if (!container) return;
+      const onLeaveList = (db.roster || []).filter(m => m && m.onLeave);
+
+      if (onLeaveList.length === 0) {
+        container.innerHTML = `<div class="col-span-full p-8 rounded-2xl bg-rc-surface text-center text-rc-muted text-xs font-mono">No staff members currently on leave.</div>`;
+        return;
+      }
+
+      container.innerHTML = onLeaveList.map((m) => {
+        const rawIdx = db.roster.findIndex(x => x && x.code === m.code);
+        return `
+          <div class="boxy-card p-5 space-y-3 font-mono">
+            <div class="flex items-center justify-between border-b border-rc-border pb-2">
+              <div>
+                <span class="px-2 py-0.5 rounded bg-rc-red/20 text-rc-red font-mono font-bold text-xs">${m.code}</span>
+                <span class="font-bold text-rc-text ml-2 text-sm font-sans">${m.name}</span>
+              </div>
+              <span class="px-2 py-0.5 rounded bg-rc-emerald/20 text-rc-emerald text-[10px] font-bold font-sans">On Leave</span>
+            </div>
+            <div class="text-xs space-y-1 text-rc-muted font-sans">
+              <div><span class="text-rc-muted">Scheduled Dates:</span> <span class="text-rc-emerald font-bold">${m.leaveDates || 'Active'}</span></div>
+              <div><span class="text-rc-muted">Reason:</span> ${m.leaveReason || 'Operational Leave'}</div>
+            </div>
+            <button onclick="markStaffLeaveOver(${rawIdx})" class="w-full py-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold text-xs hover:bg-amber-500 hover:text-black transition-all font-sans">
+              Trigger "Leave Over" Warning
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function markStaffLeaveOver(rawIdx) {
+      const m = db.roster[rawIdx];
+      if (!m) return;
+      m.leaveOver = true;
+
+      const acc = db.accounts.find(a => a.username === m.username || a.staffCode === m.code);
+      if (acc) acc.leaveOver = true;
+
+      if (db.currentUser && (db.currentUser.username === m.username || db.currentUser.staffCode === m.code)) {
+        db.currentUser.leaveOver = true;
+      }
+
+      saveDB();
+      alert(`"Leave Over" red alert pushed to ${m.name}'s account.`);
+    }
+
     function autoLookupUser(val) {
       const notice = document.getElementById('dispLookupNotice');
       const v = val.trim().toLowerCase();
       if (!v) { notice.innerText = ''; return; }
 
       const found = db.roster.find(r => 
-        r.username.toLowerCase().includes(v) || 
-        r.name.toLowerCase().includes(v) || 
-        (r.code && r.code.toLowerCase().includes(v))
+        r && (
+          (r.username && r.username.toLowerCase().includes(v)) || 
+          (r.name && r.name.toLowerCase().includes(v)) || 
+          (r.code && r.code.toLowerCase().includes(v))
+        )
       );
 
       if (found) {
@@ -2668,9 +2910,11 @@
 
       const v = searchKey.toLowerCase();
       const found = db.roster.find(r => 
-        r.username.toLowerCase().includes(v) || 
-        r.name.toLowerCase().includes(v) || 
-        (r.code && r.code.toLowerCase().includes(v))
+        r && (
+          (r.username && r.username.toLowerCase().includes(v)) || 
+          (r.name && r.name.toLowerCase().includes(v)) || 
+          (r.code && r.code.toLowerCase().includes(v))
+        )
       );
 
       if (!found) {
@@ -2724,6 +2968,7 @@
 
     function renderTermAnnouncements() {
       const container = document.getElementById('termAnnouncementsList');
+      if (!container) return;
       if (db.announcements.length === 0) {
         container.innerHTML = `<div class="p-6 rounded-xl bg-rc-surface text-center text-rc-muted text-xs font-mono">No active announcements.</div>`;
         return;
@@ -2770,6 +3015,7 @@
 
     function deleteAnnouncement(idx) {
       const notice = db.announcements[idx];
+      if (!notice) return;
       db.auditLogs.unshift({
         time: 'Just now',
         actor: db.currentUser.username,
@@ -2785,6 +3031,7 @@
 
     function renderAuditTable() {
       const tbody = document.getElementById('auditTableBody');
+      if (!tbody) return;
       if (db.auditLogs.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-rc-muted font-sans">No activity logged yet.</td></tr>`;
         return;
@@ -2859,4 +3106,3 @@
   </script>
 </body>
 </html>
-
