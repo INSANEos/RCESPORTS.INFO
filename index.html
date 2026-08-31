@@ -7,10 +7,10 @@
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts -->
+  <!-- Google Fonts (Inter & JetBrains Mono) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,800;1,900&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <script>
     tailwind.config = {
@@ -21,8 +21,8 @@
             'xs': '400px',
           },
           fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
+            sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
           },
           colors: {
             rc: {
@@ -111,7 +111,7 @@
     html, body {
       background-color: var(--bg-dark);
       color: var(--text-main);
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
       overflow-x: hidden;
       min-height: 100vh;
       transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -215,14 +215,14 @@
           <span class="text-lg sm:text-2xl font-black italic tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-rc-text via-slate-200 to-rc-red uppercase drop-shadow-[0_0_15px_var(--accent-glow)]">
             RC <span class="text-rc-red">ESPORTS</span>
           </span>
-          <span ondblclick="openSecretHRModal()" title="RC Management Hub" class="block text-[9px] sm:text-[10px] font-mono font-extrabold tracking-[0.2em] sm:tracking-[0.25em] text-rc-muted uppercase mt-0.5 hover:text-rc-red transition-colors">
+          <span ondblclick="openSecretHRModal()" title="Double click for HR Authorization" class="block text-[9px] sm:text-[10px] font-mono font-extrabold tracking-[0.2em] sm:tracking-[0.25em] text-rc-muted uppercase mt-0.5 hover:text-rc-red transition-colors">
             MANAGEMENT HUB
           </span>
         </div>
       </div>
 
       <!-- Navigation Links (Desktop) -->
-      <nav class="hidden lg:flex items-center gap-6 text-xs font-bold text-rc-muted">
+      <nav class="hidden lg:flex items-center gap-6 text-xs font-bold text-rc-muted font-sans">
         <button onclick="switchView('landing')" class="hover:text-rc-text transition-colors">Overview</button>
         <button onclick="openDrawer('about')" class="hover:text-rc-text transition-colors">About Staff</button>
         <button onclick="openDrawer('whyJoin')" class="hover:text-rc-text transition-colors">Why Join Us</button>
@@ -265,7 +265,7 @@
               Manage. Host. <span class="text-rc-red">Scale.</span>
             </h1>
 
-            <p class="text-rc-muted text-sm sm:text-base max-w-xl leading-relaxed">
+            <p class="text-rc-muted text-sm sm:text-base max-w-xl leading-relaxed font-sans">
               Join India’s premier esports operational ecosystem. Lead tournaments from <span class="text-rc-text font-bold">1K to 100K lobbies & daily scrims</span> in a professional environment with a 100K+ community.
             </p>
 
@@ -283,24 +283,24 @@
                   <div class="w-7 h-7 rounded-lg bg-rc-red/15 text-rc-red flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                   </div>
-                  <span class="font-bold text-rc-text text-xs block group-hover:text-rc-red">About Staff</span>
-                  <span class="text-[10px] text-rc-muted">Charter & Standards</span>
+                  <span class="font-bold text-rc-text text-xs block group-hover:text-rc-red font-sans">About Staff</span>
+                  <span class="text-[10px] text-rc-muted font-sans">Charter & Standards</span>
                 </button>
 
                 <button onclick="openDrawer('whyJoin')" class="p-3.5 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-emerald text-left transition-all group">
                   <div class="w-7 h-7 rounded-lg bg-rc-emerald/15 text-rc-emerald flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                   </div>
-                  <span class="font-bold text-rc-text text-xs block group-hover:text-rc-emerald">Why Join Us</span>
-                  <span class="text-[10px] text-rc-muted">6 Key Growth Points</span>
+                  <span class="font-bold text-rc-text text-xs block group-hover:text-rc-emerald font-sans">Why Join Us</span>
+                  <span class="text-[10px] text-rc-muted font-sans">6 Key Growth Points</span>
                 </button>
 
                 <button onclick="openDrawer('social')" class="p-3.5 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-discord text-left transition-all group">
                   <div class="w-7 h-7 rounded-lg bg-rc-discord/15 text-rc-discord flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
                   </div>
-                  <span class="font-bold text-rc-text text-xs block group-hover:text-rc-discord">Official Socials</span>
-                  <span class="text-[10px] text-rc-muted">20K+ Insta & 10K+ YT</span>
+                  <span class="font-bold text-rc-text text-xs block group-hover:text-rc-discord font-sans">Official Socials</span>
+                  <span class="text-[10px] text-rc-muted font-sans">20K+ Insta & 10K+ YT</span>
                 </button>
               </div>
             </div>
@@ -360,7 +360,7 @@
                   <span class="w-2 h-2 rounded-full bg-rc-red animate-ping"></span>
                   RC Official Mascot
                 </div>
-                <p class="text-[11px] text-rc-muted">Powering Competitive Scrims & Tournament Lobbies</p>
+                <p class="text-[11px] text-rc-muted font-sans">Powering Competitive Scrims & Tournament Lobbies</p>
               </div>
             </div>
 
@@ -370,32 +370,32 @@
                 <div class="w-7 h-7 rounded-lg bg-rc-red/15 text-rc-red flex items-center justify-center mb-1">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z"></path></svg>
                 </div>
-                <h4 class="font-bold text-rc-text text-xs mt-1">1. Host</h4>
-                <p class="text-[10px] text-rc-emerald">1K-100K Scrims</p>
+                <h4 class="font-bold text-rc-text text-xs mt-1 font-sans">1. Host</h4>
+                <p class="text-[10px] text-rc-emerald font-sans">1K-100K Scrims</p>
               </div>
 
               <div onclick="openRoleModal('mod')" class="p-3.5 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-discord cursor-pointer transition-all hover:scale-[1.02]">
                 <div class="w-7 h-7 rounded-lg bg-rc-discord/15 text-rc-discord flex items-center justify-center mb-1">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
                 </div>
-                <h4 class="font-bold text-rc-text text-xs mt-1">2. Moderator</h4>
-                <p class="text-[10px] text-rc-muted">VC & Text Rules</p>
+                <h4 class="font-bold text-rc-text text-xs mt-1 font-sans">2. Moderator</h4>
+                <p class="text-[10px] text-rc-muted font-sans">VC & Text Rules</p>
               </div>
 
               <div onclick="openRoleModal('pt')" class="p-3.5 rounded-2xl bg-rc-surface border border-rc-border hover:border-sky-500 cursor-pointer transition-all hover:scale-[1.02]">
                 <div class="w-7 h-7 rounded-lg bg-sky-500/15 text-sky-400 flex items-center justify-center mb-1">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                 </div>
-                <h4 class="font-bold text-rc-text text-xs mt-1">3. PT Maker</h4>
-                <p class="text-[10px] text-rc-muted">Stats & Graphics</p>
+                <h4 class="font-bold text-rc-text text-xs mt-1 font-sans">3. PT Maker</h4>
+                <p class="text-[10px] text-rc-muted font-sans">Stats & Graphics</p>
               </div>
 
               <div onclick="openRoleModal('social')" class="p-3.5 rounded-2xl bg-rc-surface border border-rc-border hover:border-amber-500 cursor-pointer transition-all hover:scale-[1.02]">
                 <div class="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center mb-1">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
                 </div>
-                <h4 class="font-bold text-rc-text text-xs mt-1">4. Socials</h4>
-                <p class="text-[10px] text-rc-muted">PR & Reach</p>
+                <h4 class="font-bold text-rc-text text-xs mt-1 font-sans">4. Socials</h4>
+                <p class="text-[10px] text-rc-muted font-sans">PR & Reach</p>
               </div>
             </div>
 
@@ -413,7 +413,7 @@
             <h3 class="text-2xl sm:text-4xl font-black text-rc-text">
               ₹15,00,000+ <span class="text-rc-red font-mono">Prize Volume</span>
             </h3>
-            <p class="text-xs sm:text-sm text-rc-muted max-w-xl leading-relaxed">
+            <p class="text-xs sm:text-sm text-rc-muted max-w-xl leading-relaxed font-sans">
               Successfully organized, managed, and executed esports tournaments and prime scrims with over 15 Lakhs INR cumulative prize pools across top gaming titles.
             </p>
           </div>
@@ -441,8 +441,8 @@
                 <span class="w-8 h-8 rounded-lg bg-rc-red/15 text-rc-red flex items-center justify-center font-bold text-xs font-mono">P</span>
                 <span class="text-[10px] font-mono text-rc-emerald font-bold uppercase">Official Partner</span>
               </div>
-              <h4 class="font-bold text-rc-text text-base group-hover:text-rc-red transition-colors">Playden</h4>
-              <p class="text-xs text-rc-muted leading-relaxed">Strategic partnership for competitive matchmaking, scrim hosting, and tournament operations.</p>
+              <h4 class="font-bold text-rc-text text-base group-hover:text-rc-red transition-colors font-sans">Playden</h4>
+              <p class="text-xs text-rc-muted leading-relaxed font-sans">Strategic partnership for competitive matchmaking, scrim hosting, and tournament operations.</p>
             </div>
 
             <div class="p-5 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-discord/60 transition-all space-y-2 group">
@@ -450,14 +450,14 @@
                 <span class="w-8 h-8 rounded-lg bg-rc-discord/15 text-rc-discord flex items-center justify-center font-bold text-xs font-mono">G</span>
                 <span class="text-[10px] font-mono text-rc-discord font-bold uppercase">Ecosystem Partner</span>
               </div>
-              <h4 class="font-bold text-rc-text text-base group-hover:text-rc-discord transition-colors">Gamorite</h4>
-              <p class="text-xs text-rc-muted leading-relaxed">Collaborative tournament execution, point table infrastructure, and community scaling.</p>
+              <h4 class="font-bold text-rc-text text-base group-hover:text-rc-discord transition-colors font-sans">Gamorite</h4>
+              <p class="text-xs text-rc-muted leading-relaxed font-sans">Collaborative tournament execution, point table infrastructure, and community scaling.</p>
             </div>
 
             <div class="p-5 rounded-2xl bg-rc-surface border border-dashed border-rc-border flex flex-col justify-center space-y-1.5 text-center sm:text-left">
               <span class="text-xs font-mono font-bold text-amber-500 uppercase tracking-wider block">⚡ More Coming Soon</span>
-              <h4 class="font-bold text-rc-text text-sm">Tier-1 Alliances in Pipeline</h4>
-              <p class="text-[11px] text-rc-muted">Expanding partnerships across top Indian gaming publishers and tournament platforms.</p>
+              <h4 class="font-bold text-rc-text text-sm font-sans">Tier-1 Alliances in Pipeline</h4>
+              <p class="text-[11px] text-rc-muted font-sans">Expanding partnerships across top Indian gaming publishers and tournament platforms.</p>
             </div>
           </div>
         </div>
@@ -476,14 +476,14 @@
             Application Status: Under Review
           </span>
           <h2 class="text-xl sm:text-2xl font-black text-rc-text mt-3">Candidate Evaluation In Progress</h2>
-          <p class="text-xs sm:text-sm text-rc-muted mt-2 max-w-md mx-auto">
+          <p class="text-xs sm:text-sm text-rc-muted mt-2 max-w-md mx-auto font-sans">
             Your candidate submission has been delivered and is stored in our database for evaluation by our Head Staff and HR Team.
           </p>
         </div>
 
         <div id="pendingSummaryBox" class="p-4 sm:p-5 rounded-2xl bg-rc-surface border border-rc-border text-left space-y-3 font-mono"></div>
 
-        <div class="p-3.5 rounded-xl bg-rc-surface border border-rc-border text-xs text-rc-muted text-left">
+        <div class="p-3.5 rounded-xl bg-rc-surface border border-rc-border text-xs text-rc-muted text-left font-sans">
           When approved, signing into your account will automatically load your <span class="text-rc-text font-bold">Staff Workspace Dashboard</span>.
         </div>
 
@@ -530,7 +530,7 @@
         </div>
         <div>
           <h3 class="text-lg font-black text-white">LEAVE PERIOD EXPIRED / OVER LEAVE</h3>
-          <p class="text-xs text-gray-300 mt-1">Your registered leave duration has concluded. You must confirm your return to resume active lobby duties.</p>
+          <p class="text-xs text-gray-300 mt-1 font-sans">Your registered leave duration has concluded. You must confirm your return to resume active lobby duties.</p>
         </div>
         <button onclick="confirmReturnFromLeave()" class="px-8 py-3 rounded-xl bg-rc-red text-white font-black text-xs tracking-wider shadow-lg shadow-rc-red/40 animate-pulse font-mono">
           Confirm Return to Active Duty →
@@ -585,7 +585,7 @@
           <div class="bg-rc-surface p-4 rounded-2xl border border-rc-border">
             <span class="text-[10px] font-black uppercase text-rc-muted tracking-wider font-mono">Staff ID Code</span>
             <span id="staffCodeSnippet" class="text-base sm:text-lg font-mono font-black text-rc-red mt-1 block">RC-101</span>
-            <span class="text-xs text-rc-muted">Search Code for Duty</span>
+            <span class="text-xs text-rc-muted font-sans">Search Code for Duty</span>
           </div>
         </div>
 
@@ -594,32 +594,32 @@
             <div class="w-8 h-8 rounded-lg bg-rc-red/15 text-rc-red flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
             </div>
-            <span class="font-bold text-rc-text text-xs block group-hover:text-rc-red">Announcements</span>
-            <span class="text-[10px] text-rc-muted">Noticeboard Updates</span>
+            <span class="font-bold text-rc-text text-xs block group-hover:text-rc-red font-sans">Announcements</span>
+            <span class="text-[10px] text-rc-muted font-sans">Noticeboard Updates</span>
           </button>
           
           <button onclick="openModal('staffChat')" class="p-3.5 sm:p-4 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-discord text-left transition-all group">
             <div class="w-8 h-8 rounded-lg bg-rc-discord/15 text-rc-discord flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
             </div>
-            <span class="font-bold text-rc-text text-xs block group-hover:text-rc-discord">Direct Inquiries</span>
-            <span class="text-[10px] text-rc-muted">Head Staff Desk</span>
+            <span class="font-bold text-rc-text text-xs block group-hover:text-rc-discord font-sans">Direct Inquiries</span>
+            <span class="text-[10px] text-rc-muted font-sans">Head Staff Desk</span>
           </button>
 
           <button onclick="openModal('staffLeave')" class="p-3.5 sm:p-4 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-emerald text-left transition-all group">
             <div class="w-8 h-8 rounded-lg bg-rc-emerald/15 text-rc-emerald flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
             </div>
-            <span class="font-bold text-rc-text text-xs block group-hover:text-rc-emerald">File Leave</span>
-            <span class="text-[10px] text-rc-muted">Schedule Absence</span>
+            <span class="font-bold text-rc-text text-xs block group-hover:text-rc-emerald font-sans">File Leave</span>
+            <span class="text-[10px] text-rc-muted font-sans">Schedule Absence</span>
           </button>
 
           <button onclick="openModal('staffRules')" class="p-3.5 sm:p-4 rounded-2xl bg-rc-surface border border-rc-border hover:border-amber-500 text-left transition-all group">
             <div class="w-8 h-8 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
             </div>
-            <span class="font-bold text-rc-text text-xs block group-hover:text-amber-400">Rulebook</span>
-            <span class="text-[10px] text-rc-muted">Conduct Standards</span>
+            <span class="font-bold text-rc-text text-xs block group-hover:text-amber-400 font-sans">Rulebook</span>
+            <span class="text-[10px] text-rc-muted font-sans">Conduct Standards</span>
           </button>
         </div>
 
@@ -639,7 +639,7 @@
             <h2 class="text-xl sm:text-2xl font-black text-rc-text mt-1">Operational Command Terminal</h2>
           </div>
 
-          <div class="flex flex-wrap gap-2 font-mono">
+          <div class="flex flex-wrap items-center gap-2 font-mono">
             <button onclick="switchTerminalTab('roster')" id="termTabBtnRoster" class="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-black bg-rc-red text-white transition-all">
               Active Staff
             </button>
@@ -657,6 +657,10 @@
             </button>
             <button onclick="switchTerminalTab('audit')" id="termTabBtnAudit" class="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold bg-rc-surface border border-rc-border text-rc-muted hover:text-rc-text transition-all">
               Audit Log
+            </button>
+            <!-- EXIT / SIGN OUT BUTTON -->
+            <button onclick="handleLogout()" class="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold bg-rc-red/10 border border-rc-red text-rc-red hover:bg-rc-red hover:text-white transition-all">
+              Sign Out ✕
             </button>
           </div>
         </div>
@@ -690,29 +694,29 @@
             <div>
               <span class="px-2.5 py-1 rounded bg-rc-emerald/20 text-rc-emerald text-[10px] font-black font-mono">12-HOUR DUTY ENGINE</span>
               <h3 class="text-base sm:text-lg font-black text-rc-text mt-2">Search Staff Code / Name & Assign Shift</h3>
-              <p class="text-xs text-rc-muted">Type staff code (e.g. <span class="text-rc-red font-mono font-bold">RC-101</span>) or name to dispatch duty with real pre-shift clocks.</p>
+              <p class="text-xs text-rc-muted font-sans">Type staff code (e.g. <span class="text-rc-red font-mono font-bold">RC-101</span>) or name to dispatch duty with real pre-shift clocks.</p>
             </div>
 
             <form onsubmit="handleDispatchSubmit(event)" class="space-y-4">
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label class="text-xs font-bold text-rc-text block mb-1">Search Staff Code or Name *</label>
-                  <input required type="text" id="dispSearchUser" placeholder="e.g. RC-101 or @username" oninput="autoLookupUser(this.value)" class="w-full px-4 py-3 rounded-xl bg-rc-card border border-rc-border text-rc-text text-sm focus:border-rc-red focus:outline-none">
+                  <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Search Staff Code or Name *</label>
+                  <input required type="text" id="dispSearchUser" placeholder="e.g. RC-101 or @username" oninput="autoLookupUser(this.value)" class="w-full px-4 py-3 rounded-xl bg-rc-card border border-rc-border text-rc-text text-sm focus:border-rc-red focus:outline-none font-sans">
                   <span id="dispLookupNotice" class="text-[11px] text-rc-emerald block mt-1 font-semibold font-mono"></span>
                 </div>
                 <div>
-                  <label class="text-xs font-bold text-rc-text block mb-1">Shift Start Time (e.g. 04:00 PM) *</label>
+                  <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Shift Start Time (e.g. 04:00 PM) *</label>
                   <input required type="time" id="dispStartTime" class="w-full px-4 py-3 rounded-xl bg-rc-card border border-rc-border text-rc-text font-mono text-sm focus:border-rc-red focus:outline-none">
                 </div>
                 <div>
-                  <label class="text-xs font-bold text-rc-text block mb-1">Shift End Time (e.g. 06:00 PM) *</label>
+                  <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Shift End Time (e.g. 06:00 PM) *</label>
                   <input required type="time" id="dispEndTime" class="w-full px-4 py-3 rounded-xl bg-rc-card border border-rc-border text-rc-text font-mono text-sm focus:border-rc-red focus:outline-none">
                 </div>
               </div>
 
               <div>
-                <label class="text-xs font-bold text-rc-text block mb-1">Tournament / Scrim Tier *</label>
-                <input required type="text" id="dispTier" placeholder="Tier 1 Prime Scrims (Group A)" class="w-full px-4 py-3 rounded-xl bg-rc-card border border-rc-border text-rc-text text-sm focus:border-rc-red focus:outline-none">
+                <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Tournament / Scrim Tier *</label>
+                <input required type="text" id="dispTier" placeholder="Tier 1 Prime Scrims (Group A)" class="w-full px-4 py-3 rounded-xl bg-rc-card border border-rc-border text-rc-text text-sm focus:border-rc-red focus:outline-none font-sans">
               </div>
 
               <button type="submit" class="w-full py-3.5 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-black text-sm tracking-wide transition-all shadow-lg shadow-rc-red/30 font-mono">
@@ -728,15 +732,15 @@
               <h3 class="text-sm font-black text-rc-text uppercase tracking-wider font-mono">Publish Notice</h3>
               <form onsubmit="handlePublishAnnouncement(event)" class="space-y-3">
                 <div>
-                  <label class="text-xs font-bold text-rc-text block mb-1">Headline *</label>
-                  <input required type="text" id="pubTitle" placeholder="e.g. Scrim Schedule Update" class="w-full px-4 py-2.5 rounded-xl bg-rc-card border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none">
+                  <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Headline *</label>
+                  <input required type="text" id="pubTitle" placeholder="e.g. Scrim Schedule Update" class="w-full px-4 py-2.5 rounded-xl bg-rc-card border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
                 </div>
                 <div>
-                  <label class="text-xs font-bold text-rc-text block mb-1">Body Message *</label>
-                  <textarea required id="pubBody" rows="3" placeholder="Enter details..." class="w-full px-4 py-2.5 rounded-xl bg-rc-card border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none"></textarea>
+                  <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Body Message *</label>
+                  <textarea required id="pubBody" rows="3" placeholder="Enter details..." class="w-full px-4 py-2.5 rounded-xl bg-rc-card border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans"></textarea>
                 </div>
                 <div>
-                  <label class="text-xs font-bold text-rc-text block mb-1">Attached Link (Optional)</label>
+                  <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Attached Link (Optional)</label>
                   <input type="url" id="pubLink" placeholder="https://linktr.ee/rc_esports" class="w-full px-4 py-2.5 rounded-xl bg-rc-card border border-rc-border text-rc-discord text-xs font-mono focus:border-rc-red focus:outline-none">
                 </div>
                 <button type="submit" class="w-full py-3 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-bold text-xs tracking-wider font-mono">
@@ -756,14 +760,14 @@
           <div class="flex justify-between items-center">
             <div>
               <h3 class="text-sm font-black text-rc-text uppercase tracking-wider font-mono">Immutable Security Ledger</h3>
-              <p class="text-xs text-rc-muted">Real-time log of every strike, duty dispatch, promotion, leave, termination, and deletion.</p>
+              <p class="text-xs text-rc-muted font-sans">Real-time log of every strike, duty dispatch, promotion, leave, termination, and deletion.</p>
             </div>
             <span class="px-3 py-1 rounded bg-rc-surface border border-rc-border text-xs text-rc-emerald font-bold font-mono">● Live Sync</span>
           </div>
 
           <div class="overflow-x-auto rounded-2xl border border-rc-border">
             <table class="w-full text-left text-xs">
-              <thead class="bg-rc-surface text-rc-muted font-bold uppercase border-b border-rc-border">
+              <thead class="bg-rc-surface text-rc-muted font-bold uppercase border-b border-rc-border font-mono">
                 <tr>
                   <th class="p-3.5">Timestamp</th>
                   <th class="p-3.5">Operator</th>
@@ -793,8 +797,8 @@
         
         <h3 class="text-xl font-black text-rc-text">Staff & Management</h3>
         
-        <div class="space-y-4 text-xs text-rc-muted leading-relaxed">
-          <h4 class="font-bold text-rc-text uppercase text-xs">Building the Organization Behind the Competition</h4>
+        <div class="space-y-4 text-xs text-rc-muted leading-relaxed font-sans">
+          <h4 class="font-bold text-rc-text uppercase text-xs font-sans">Building the Organization Behind the Competition</h4>
           <p>At <span class="text-rc-text font-bold">RC Esports</span>, our staff is the foundation of our organization. We are committed to building a structured, professional, and performance-driven environment where players, creators, and operational personnel develop and achieve their full potential.</p>
           <p>Our staff team operates across key areas including <span class="text-rc-text font-bold">tournament hosting, lobby coordination, voice & chat moderation, statistical calculations, and social reach</span>.</p>
           
@@ -822,9 +826,9 @@
         </div>
         
         <h3 class="text-xl font-black text-rc-text">Why Join RC Esports</h3>
-        <p class="text-xs text-rc-muted">More Than a Team. A Platform to Grow.</p>
+        <p class="text-xs text-rc-muted font-sans">More Than a Team. A Platform to Grow.</p>
 
-        <div class="space-y-3 text-xs text-rc-muted">
+        <div class="space-y-3 text-xs text-rc-muted font-sans">
           <div class="p-3.5 rounded-xl bg-rc-surface border border-rc-border">
             <h5 class="font-bold text-rc-red uppercase text-[11px] font-mono">1. Competitive Environment</h5>
             <p class="mt-1 text-rc-muted">Work alongside ambitious players and staff focused on performance, discipline, and continuous execution.</p>
@@ -872,7 +876,7 @@
           <button onclick="closeDrawer('social')" class="text-rc-muted hover:text-rc-text text-xl font-mono">✕</button>
         </div>
 
-        <p class="text-xs text-rc-muted leading-relaxed">Connect directly with RC Esports across all verified Instagram, YouTube, and Discord handles:</p>
+        <p class="text-xs text-rc-muted leading-relaxed font-sans">Connect directly with RC Esports across all verified Instagram, YouTube, and Discord handles:</p>
 
         <div class="space-y-2">
           <div class="flex items-center justify-between text-xs font-mono font-bold text-pink-500 pb-1">
@@ -936,7 +940,7 @@
         </div>
 
         <a href="https://linktr.ee/rc_esports" target="_blank" rel="noopener noreferrer" class="p-4 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-red transition-all flex items-center justify-between group">
-          <span class="font-bold text-rc-text text-xs">RC Esports Master Linktree</span>
+          <span class="font-bold text-rc-text text-xs font-sans">RC Esports Master Linktree</span>
           <span class="text-rc-red font-bold font-mono">linktr.ee/rc_esports ↗</span>
         </a>
       </div>
@@ -961,35 +965,35 @@
         </div>
         <button onclick="closeModal('openPositions')" class="text-rc-muted hover:text-rc-text text-lg font-bold font-mono">✕</button>
       </div>
-      <p class="text-xs text-rc-muted">Choose the operational specialty track you wish to apply for:</p>
+      <p class="text-xs text-rc-muted font-sans">Choose the operational specialty track you wish to apply for:</p>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <button onclick="openRoleModalFromPositions('host')" class="p-4 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-red text-left transition-all group">
           <div class="w-8 h-8 rounded-lg bg-rc-red/15 text-rc-red flex items-center justify-center mb-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z"></path></svg>
           </div>
-          <h4 class="font-bold text-rc-text text-sm group-hover:text-rc-red">1. Tournament Host</h4>
-          <p class="text-[11px] text-rc-emerald font-semibold">1K–100K Lobbies & Scrims</p>
+          <h4 class="font-bold text-rc-text text-sm group-hover:text-rc-red font-sans">1. Tournament Host</h4>
+          <p class="text-[11px] text-rc-emerald font-semibold font-sans">1K–100K Lobbies & Scrims</p>
         </button>
         <button onclick="openRoleModalFromPositions('mod')" class="p-4 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-discord text-left transition-all group">
           <div class="w-8 h-8 rounded-lg bg-rc-discord/15 text-rc-discord flex items-center justify-center mb-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
           </div>
-          <h4 class="font-bold text-rc-text text-sm group-hover:text-rc-discord">2. VC & Chat Moderator</h4>
-          <p class="text-[11px] text-rc-muted">Voice & Text Rule Enforcement</p>
+          <h4 class="font-bold text-rc-text text-sm group-hover:text-rc-discord font-sans">2. VC & Chat Moderator</h4>
+          <p class="text-[11px] text-rc-muted font-sans">Voice & Text Rule Enforcement</p>
         </button>
         <button onclick="openRoleModalFromPositions('pt')" class="p-4 rounded-2xl bg-rc-surface border border-rc-border hover:border-sky-500 text-left transition-all group">
           <div class="w-8 h-8 rounded-lg bg-sky-500/15 text-sky-400 flex items-center justify-center mb-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
           </div>
-          <h4 class="font-bold text-rc-text text-sm group-hover:text-sky-400">3. Points Table Maker</h4>
-          <p class="text-[11px] text-rc-muted">Tournify, Spreadsheets & Stats</p>
+          <h4 class="font-bold text-rc-text text-sm group-hover:text-sky-400 font-sans">3. Points Table Maker</h4>
+          <p class="text-[11px] text-rc-muted font-sans">Tournify, Spreadsheets & Stats</p>
         </button>
         <button onclick="openRoleModalFromPositions('social')" class="p-4 rounded-2xl bg-rc-surface border border-rc-border hover:border-amber-500 text-left transition-all group">
           <div class="w-8 h-8 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center mb-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
           </div>
-          <h4 class="font-bold text-rc-text text-sm group-hover:text-amber-400">4. Social Media Expert</h4>
-          <p class="text-[11px] text-rc-muted">Media, PR & Community Growth</p>
+          <h4 class="font-bold text-rc-text text-sm group-hover:text-amber-400 font-sans">4. Social Media Expert</h4>
+          <p class="text-[11px] text-rc-muted font-sans">Media, PR & Community Growth</p>
         </button>
       </div>
     </div>
@@ -1010,38 +1014,38 @@
       <form id="roleAppForm" onsubmit="handleDedicatedRoleSubmit(event)" class="space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="text-xs font-bold text-rc-text block mb-1">Full Name *</label>
-            <input required type="text" id="mRecName" placeholder="e.g. Rahul Sharma" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none">
+            <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Full Name *</label>
+            <input required type="text" id="mRecName" placeholder="e.g. Rahul Sharma" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
           </div>
           <div>
-            <label class="text-xs font-bold text-rc-text block mb-1">Age *</label>
-            <input required type="number" min="14" max="50" id="mRecAge" placeholder="18" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none">
+            <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Age *</label>
+            <input required type="number" min="14" max="50" id="mRecAge" placeholder="18" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
           </div>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="text-xs font-bold text-rc-text block mb-1">Discord Display Name *</label>
-            <input required type="text" id="mRecDiscDisplay" placeholder="e.g. RC_Rahul" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none">
+            <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Discord Display Name *</label>
+            <input required type="text" id="mRecDiscDisplay" placeholder="e.g. RC_Rahul" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
           </div>
           <div>
-            <label class="text-xs font-bold text-rc-text block mb-1">Discord Unique Username *</label>
+            <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Discord Unique Username *</label>
             <input required type="text" id="mRecDiscUser" placeholder="e.g. @rahul_dev_01" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-mono focus:border-rc-red focus:outline-none">
           </div>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="text-xs font-bold text-rc-text block mb-1">WhatsApp Contact Number *</label>
+            <label class="text-xs font-bold text-rc-text block mb-1 font-sans">WhatsApp Contact Number *</label>
             <input required type="tel" id="mRecPhone" placeholder="+91 98765 43210" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-mono focus:border-rc-red focus:outline-none">
           </div>
           <div>
-            <label class="text-xs font-bold text-rc-text block mb-1">Instagram ID (Optional)</label>
-            <input type="text" id="mRecInsta" placeholder="@your_insta" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none">
+            <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Instagram ID (Optional)</label>
+            <input type="text" id="mRecInsta" placeholder="@your_insta" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
           </div>
         </div>
         <div id="modalRoleSpecificInputs" class="pt-2 border-t border-rc-border space-y-4"></div>
         <div class="p-3 rounded-xl bg-rc-surface border border-rc-border flex items-start gap-2.5">
           <input required type="checkbox" id="mRecAgree" class="mt-0.5 accent-rc-red w-4 h-4 rounded">
-          <label for="mRecAgree" class="text-[11px] text-rc-muted leading-relaxed">
+          <label for="mRecAgree" class="text-[11px] text-rc-muted leading-relaxed font-sans">
             I agree to RC Esports <span class="text-rc-red font-bold">7-Day Strike Policy</span> and operational standards.
           </label>
         </div>
@@ -1086,7 +1090,7 @@
       </div>
       <div id="staffChatStream" class="h-64 overflow-y-auto space-y-3 pr-2 custom-scrollbar font-mono text-xs"></div>
       <form onsubmit="handleSendStaffMsg(event)" class="flex gap-2 pt-2 font-mono">
-        <input required type="text" id="staffMsgInput" placeholder="Type query for Head Staff..." class="flex-grow px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none">
+        <input required type="text" id="staffMsgInput" placeholder="Type query for Head Staff..." class="flex-grow px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
         <button type="submit" class="px-5 py-2.5 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-bold text-xs transition-colors">
           Send
         </button>
@@ -1106,12 +1110,12 @@
       </div>
       <form onsubmit="handleLeaveSubmit(event)" class="space-y-4 font-mono">
         <div>
-          <label class="text-xs font-bold text-rc-text block mb-1">Leave Date Range *</label>
-          <input required type="text" placeholder="e.g. 01 Sep 2026 – 04 Sep 2026" id="leaveDates" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none">
+          <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Leave Date Range *</label>
+          <input required type="text" placeholder="e.g. 01 Sep 2026 – 04 Sep 2026" id="leaveDates" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
         </div>
         <div>
-          <label class="text-xs font-bold text-rc-text block mb-1">Reason for Leave *</label>
-          <textarea required id="leaveReason" rows="3" placeholder="State reason for absence..." class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none"></textarea>
+          <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Reason for Leave *</label>
+          <textarea required id="leaveReason" rows="3" placeholder="State reason for absence..." class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans"></textarea>
         </div>
         <p class="text-[11px] text-rc-muted font-sans">Note: Submitting leave will immediately move your profile to the On-Leave section.</p>
         <button type="submit" class="w-full py-3 rounded-xl bg-rc-emerald text-black font-bold text-xs tracking-wider hover:bg-emerald-400 transition-colors">
@@ -1131,7 +1135,7 @@
         </div>
         <button onclick="closeModal('staffRules')" class="text-gray-400 hover:text-white text-lg font-bold font-mono">✕</button>
       </div>
-      <div class="space-y-4 text-xs text-rc-muted leading-relaxed">
+      <div class="space-y-4 text-xs text-rc-muted leading-relaxed font-sans">
         <div class="p-3.5 rounded-xl bg-rc-surface border border-rc-border">
           <h5 class="font-bold text-rc-text mb-1 font-mono">1. Match Lobby Punctuality</h5>
           <p>Lobbies must be generated and verified exactly 15 minutes prior to match schedule. Unexcused absence logs 1 active strike.</p>
@@ -1164,7 +1168,7 @@
       </div>
       <form onsubmit="handleSecretHRAuth(event)" class="space-y-4 font-mono">
         <div>
-          <label class="text-xs font-bold text-gray-300 block mb-1">Master Security Access Key *</label>
+          <label class="text-xs font-bold text-gray-300 block mb-1 font-sans">Master Security Access Key *</label>
           <input required type="password" id="hrSecretKey" placeholder="••••••••••••" class="w-full px-4 py-3 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none">
         </div>
         <button type="submit" class="w-full py-3 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-black text-xs uppercase tracking-wider transition-all shadow-lg shadow-rc-red/25">
@@ -1204,16 +1208,16 @@
       </div>
       <form onsubmit="handleAuthSubmit(event)" class="space-y-4 font-mono">
         <div>
-          <label class="text-xs font-bold text-rc-text block mb-1">Email Address *</label>
-          <input required type="email" id="authEmail" placeholder="yourname@gmail.com" class="w-full px-4 py-3 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none">
+          <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Email Address *</label>
+          <input required type="email" id="authEmail" placeholder="yourname@gmail.com" class="w-full px-4 py-3 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
         </div>
         <div id="authUsernameRow" class="hidden">
-          <label class="text-xs font-bold text-rc-text block mb-1">Create Unique Username / Callsign *</label>
-          <input type="text" id="authUsername" placeholder="e.g. RC_Alpha" class="w-full px-4 py-3 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none">
+          <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Create Unique Username / Callsign *</label>
+          <input type="text" id="authUsername" placeholder="e.g. RC_Alpha" class="w-full px-4 py-3 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
         </div>
         <div>
-          <label class="text-xs font-bold text-rc-text block mb-1">Password *</label>
-          <input required type="password" id="authPassword" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none">
+          <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Password *</label>
+          <input required type="password" id="authPassword" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
         </div>
         <button type="submit" id="authSubmitBtn" class="w-full py-3.5 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-bold text-xs transition-all font-mono">
           Sign In to Portal →
@@ -1246,26 +1250,26 @@
     <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-6 text-center sm:text-left border-b border-rc-border pb-6">
       <div class="space-y-1">
         <span class="text-[10px] font-bold text-rc-red uppercase tracking-wider block font-mono">Official Contact</span>
-        <a href="mailto:rcesports786@gmail.com" class="text-rc-text font-bold hover:text-rc-red transition-colors block text-xs truncate">
+        <a href="mailto:rcesports786@gmail.com" class="text-rc-text font-bold hover:text-rc-red transition-colors block text-xs truncate font-sans">
           rcesports786@gmail.com
         </a>
-        <span class="text-[11px] text-rc-muted block">Support & Management Inquiries</span>
+        <span class="text-[11px] text-rc-muted block font-sans">Support & Management Inquiries</span>
       </div>
 
       <div class="space-y-1">
         <span class="text-[10px] font-bold text-rc-emerald uppercase tracking-wider block font-mono">Headquarters</span>
-        <span class="text-rc-text font-bold block text-xs uppercase">
+        <span class="text-rc-text font-bold block text-xs uppercase font-sans">
           BANGALORE, INDIA
         </span>
-        <span class="text-[11px] text-rc-muted block">National Management Hub</span>
+        <span class="text-[11px] text-rc-muted block font-sans">National Management Hub</span>
       </div>
 
       <div class="space-y-1">
         <span class="text-[10px] font-bold text-rc-discord uppercase tracking-wider block font-mono">Founding Record</span>
-        <span class="text-rc-text font-bold block text-xs uppercase">
+        <span class="text-rc-text font-bold block text-xs uppercase font-sans">
           FOUNDED ON 8 OCTOBER 2021
         </span>
-        <span class="text-[11px] text-rc-muted block">5+ Years of Competitive Excellence</span>
+        <span class="text-[11px] text-rc-muted block font-sans">5+ Years of Competitive Excellence</span>
       </div>
     </div>
 
@@ -1276,7 +1280,7 @@
 
   <!-- ================= JAVASCRIPT STATE ENGINE ================= -->
   <script>
-    const DB_KEY = 'rc_esports_database_v10';
+    const DB_KEY = 'rc_esports_database_v11';
     let footerClickCount = 0;
     let footerClickTimer = null;
 
@@ -1332,6 +1336,18 @@
         console.error('Failed to load state from localStorage:', err);
         db = defaultState;
       }
+    }
+
+    // --- LOGOUT ENGINE ---
+    function handleLogout() {
+      triggerLoading('Signing Out...', () => {
+        db.currentUser = null;
+        saveDB();
+        closeModal('profile');
+        closeModal('secretHR');
+        updateNavAuth();
+        switchView('landing');
+      }, 300);
     }
 
     // --- WELCOME SPLASH CONTROLLER ---
@@ -1580,8 +1596,13 @@
           updateNavAuth();
 
           if (account.status === 'approved') {
-            switchView('staff');
-            renderStaffWorkspace();
+            if (account.isHR) {
+              switchView('terminal');
+              renderTerminal();
+            } else {
+              switchView('staff');
+              renderStaffWorkspace();
+            }
           } else if (account.status === 'pending') {
             renderPendingDashboard();
             switchView('pending');
@@ -1731,7 +1752,7 @@
               <span class="text-rc-text font-bold truncate block">${db.currentUser.email}</span>
             </div>
           </div>
-          <div class="p-2.5 rounded-lg bg-rc-card border border-rc-border text-center text-rc-muted">
+          <div class="p-2.5 rounded-lg bg-rc-card border border-rc-border text-center text-rc-muted font-sans">
             ℹ️ Candidate docket is currently being evaluated by Head Staff.
           </div>
         `;
@@ -1772,15 +1793,7 @@
         setAuthMode('signup');
         openModal('auth');
       } else {
-        if (db.currentUser.status === 'approved') {
-          switchView('staff');
-          renderStaffWorkspace();
-        } else if (db.currentUser.status === 'pending') {
-          renderPendingDashboard();
-          switchView('pending');
-        } else {
-          openModal('openPositions');
-        }
+        openModal('openPositions');
       }
     }
 
@@ -1820,26 +1833,26 @@
             HOST TIMING RULE: Slot 1 and Slot 2 must have a minimum duration difference of 1 Hr 15 Mins.
           </div>
           <div>
-            <label class="text-xs font-bold text-rc-text block mb-1">Hosting Experience (Months, can be 0) *</label>
-            <input required type="number" min="0" id="mHostExp" placeholder="e.g. 6" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none">
+            <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Hosting Experience (Months, can be 0) *</label>
+            <input required type="number" min="0" id="mHostExp" placeholder="e.g. 6" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="text-xs font-bold text-rc-text block mb-1">Slot 1: Start Time *</label>
+              <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Slot 1: Start Time *</label>
               <input required type="time" id="mHostSlot1Start" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-mono focus:border-rc-red focus:outline-none">
             </div>
             <div>
-              <label class="text-xs font-bold text-rc-text block mb-1">Slot 1: End Time *</label>
+              <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Slot 1: End Time *</label>
               <input required type="time" id="mHostSlot1End" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-mono focus:border-rc-red focus:outline-none">
             </div>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="text-xs font-bold text-rc-text block mb-1">Slot 2: Start Time (Optional)</label>
+              <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Slot 2: Start Time (Optional)</label>
               <input type="time" id="mHostSlot2Start" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-mono focus:border-rc-red focus:outline-none">
             </div>
             <div>
-              <label class="text-xs font-bold text-rc-text block mb-1">Slot 2: End Time (Optional)</label>
+              <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Slot 2: End Time (Optional)</label>
               <input type="time" id="mHostSlot2End" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-mono focus:border-rc-red focus:outline-none">
             </div>
           </div>
@@ -1848,23 +1861,23 @@
         container.innerHTML = `
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="text-xs font-bold text-rc-text block mb-1">Experience (Months) *</label>
-              <input required type="number" min="0" id="mModExp" placeholder="e.g. 12" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none">
+              <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Experience (Months) *</label>
+              <input required type="number" min="0" id="mModExp" placeholder="e.g. 12" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
             </div>
             <div>
-              <label class="text-xs font-bold text-rc-text block mb-1">Daily Active Time (Min 2 Hrs) *</label>
-              <input required type="text" id="mModDailyTime" placeholder="e.g. 3-4 Hours" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none">
+              <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Daily Active Time (Min 2 Hrs) *</label>
+              <input required type="text" id="mModDailyTime" placeholder="e.g. 3-4 Hours" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
             </div>
           </div>
           <div>
-            <label class="text-xs font-bold text-rc-text block mb-1">Preferred Moderation Audit Block (Min 2 Hours) *</label>
-            <input required type="text" id="mModBlock" placeholder="e.g. 06:00 PM – 10:00 PM IST" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none">
+            <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Preferred Moderation Audit Block (Min 2 Hours) *</label>
+            <input required type="text" id="mModBlock" placeholder="e.g. 06:00 PM – 10:00 PM IST" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
           </div>
         `;
       } else if (role === 'pt') {
         container.innerHTML = `
           <div>
-            <label class="text-xs font-bold text-rc-text block mb-1">What calculative tool do you use? *</label>
+            <label class="text-xs font-bold text-rc-text block mb-1 font-sans">What calculative tool do you use? *</label>
             <select required id="mPtTool" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-mono">
               <option value="Tournify / eSportsWeb">Tournify / eSportsWeb</option>
               <option value="Points Table Maker">Points Table Maker</option>
@@ -1876,15 +1889,15 @@
       } else {
         container.innerHTML = `
           <div>
-            <label class="text-xs font-bold text-rc-text block mb-1">Years of Experience in Social Media Management *</label>
-            <input required type="text" id="mSocExp" placeholder="e.g. 2 Years" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none">
+            <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Years of Experience in Social Media Management *</label>
+            <input required type="text" id="mSocExp" placeholder="e.g. 2 Years" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
           </div>
           <div>
-            <label class="text-xs font-bold text-rc-text block mb-1">Platforms Managed (e.g. YouTube, Insta, X) *</label>
-            <input required type="text" id="mSocPlat" placeholder="YouTube, Instagram, X" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none">
+            <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Platforms Managed (e.g. YouTube, Insta, X) *</label>
+            <input required type="text" id="mSocPlat" placeholder="YouTube, Instagram, X" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
           </div>
           <div>
-            <label class="text-xs font-bold text-rc-text block mb-1">Portfolio or Managed Accounts Link *</label>
+            <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Portfolio or Managed Accounts Link *</label>
             <input required type="url" id="mSocLink" placeholder="https://linktr.ee/your_portfolio" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-discord text-xs font-mono focus:border-rc-red focus:outline-none">
           </div>
         `;
@@ -2165,7 +2178,7 @@
           <div class="p-8 rounded-2xl bg-rc-surface border border-rc-border text-center space-y-3 font-mono">
             <span class="text-xs font-mono font-bold text-rc-emerald uppercase tracking-wider block">[Duty Standby]</span>
             <h4 class="text-base font-bold text-rc-text">No Active Duty Shift Dispatched</h4>
-            <p class="text-xs text-rc-muted max-w-sm mx-auto">Head Staff has not assigned today's match window yet. Your staff code is <span class="text-rc-red font-bold">${db.currentUser.staffCode || 'RC-101'}</span>.</p>
+            <p class="text-xs text-rc-muted max-w-sm mx-auto font-sans">Head Staff has not assigned today's match window yet. Your staff code is <span class="text-rc-red font-bold font-mono">${db.currentUser.staffCode || 'RC-101'}</span>.</p>
           </div>
         `;
         document.getElementById('staffShiftSnippet').innerText = 'Awaiting Dispatch';
@@ -2188,11 +2201,11 @@
               <div>
                 <span class="text-xs font-bold text-rc-muted uppercase tracking-wider block font-mono">Shift Hosting Window</span>
                 <span class="text-2xl font-black text-rc-text mt-1 block font-mono">${duty.time}</span>
-                <span class="text-xs text-rc-emerald font-semibold">● Verified Slot</span>
+                <span class="text-xs text-rc-emerald font-semibold font-sans">● Verified Slot</span>
               </div>
               <div>
                 <span class="text-xs font-bold text-rc-muted uppercase tracking-wider block font-mono">Tournament / Scrim Tier</span>
-                <span class="text-lg font-black text-rc-text mt-1 block">${duty.tier}</span>
+                <span class="text-lg font-black text-rc-text mt-1 block font-sans">${duty.tier}</span>
               </div>
               <div>
                 <span class="text-xs font-bold text-rc-muted uppercase tracking-wider block font-mono">Dispatched By</span>
@@ -2202,7 +2215,7 @@
 
             <div class="pt-4 border-t border-rc-border flex flex-wrap gap-3 items-center justify-between font-mono">
               <div class="flex items-center gap-2">
-                <span class="text-xs text-rc-muted font-bold">Mark Availability:</span>
+                <span class="text-xs text-rc-muted font-bold font-sans">Mark Availability:</span>
                 <button onclick="toggleDutyAvailability('Available')" class="px-3 py-1.5 rounded-lg text-xs font-bold ${isAvail ? 'bg-rc-emerald text-black' : 'bg-rc-card border border-rc-border text-rc-muted'}">
                   ✓ Available
                 </button>
@@ -2256,8 +2269,8 @@
               </div>
               <span class="text-xs font-mono text-rc-muted">By ${a.author} • ${a.time}</span>
             </div>
-            <h4 class="font-bold text-rc-text text-sm">${a.title}</h4>
-            <p class="text-xs text-rc-muted leading-relaxed">${a.body}</p>
+            <h4 class="font-bold text-rc-text text-sm font-sans">${a.title}</h4>
+            <p class="text-xs text-rc-muted leading-relaxed font-sans">${a.body}</p>
             ${a.link ? `<a href="${a.link}" target="_blank" class="inline-block text-rc-discord text-xs font-bold hover:underline font-mono">Attached Resource ↗</a>` : ''}
             
             <div class="pt-2 border-t border-rc-border flex flex-wrap gap-2 text-xs font-mono">
@@ -2294,7 +2307,7 @@
             <span class="font-bold ${m.isSelf ? 'text-rc-text' : 'text-rc-red'}">${m.sender}</span>
             <span class="text-rc-muted">${m.time}</span>
           </div>
-          <p class="text-xs text-rc-text">${m.text}</p>
+          <p class="text-xs text-rc-text font-sans">${m.text}</p>
         </div>
       `).join('');
       stream.scrollTop = stream.scrollHeight;
@@ -2382,24 +2395,24 @@
 
             <div class="grid grid-cols-2 gap-2 text-xs font-mono">
               <div class="p-2.5 rounded-lg bg-rc-surface border border-rc-border">
-                <span class="text-[10px] font-bold text-rc-muted uppercase block">Track Role</span>
-                <span class="text-rc-emerald font-bold truncate block">${m.role}</span>
+                <span class="text-[10px] font-bold text-rc-muted uppercase block font-sans">Track Role</span>
+                <span class="text-rc-emerald font-bold truncate block font-sans">${m.role}</span>
               </div>
               <div class="p-2.5 rounded-lg bg-rc-surface border border-rc-border">
-                <span class="text-[10px] font-bold text-rc-muted uppercase block">Strikes [${m.strikes}/3]</span>
+                <span class="text-[10px] font-bold text-rc-muted uppercase block font-sans">Strikes [${m.strikes}/3]</span>
                 <div class="flex gap-1 mt-1">${strikeBlocks}</div>
               </div>
             </div>
 
             <div class="flex items-center justify-between text-xs pt-1">
-              <span class="text-rc-muted font-mono">Clearance:</span>
-              <span class="font-bold ${m.isHeadStaff ? 'text-rc-red font-mono' : 'text-rc-muted'}">
+              <span class="text-rc-muted font-sans">Clearance:</span>
+              <span class="font-bold ${m.isHeadStaff ? 'text-rc-red font-mono' : 'text-rc-muted font-sans'}">
                 ${m.isHeadStaff ? '⚡ Head Staff' : 'Standard Member'}
               </span>
             </div>
 
             <div class="pt-3 border-t border-rc-border space-y-2">
-              <button onclick="openEmployeeInfoModal(${rawIdx})" class="w-full py-2 rounded-xl bg-rc-surface hover:bg-rc-border border border-rc-border text-rc-text text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
+              <button onclick="openEmployeeInfoModal(${rawIdx})" class="w-full py-2 rounded-xl bg-rc-surface hover:bg-rc-border border border-rc-border text-rc-text text-xs font-bold flex items-center justify-center gap-1.5 transition-all font-sans">
                 <span>ℹ️</span> <span>View Full Dossier / Info</span>
               </button>
 
@@ -2415,7 +2428,7 @@
                   </button>
                 ` : ''}
 
-                <button onclick="terminateStaff(${rawIdx})" class="px-3 py-1 rounded-lg bg-red-950/60 hover:bg-rc-red border border-rc-red text-rc-red hover:text-white text-xs font-bold transition-all">
+                <button onclick="terminateStaff(${rawIdx})" class="px-3 py-1 rounded-lg bg-red-950/60 hover:bg-rc-red border border-rc-red text-rc-red hover:text-white text-xs font-bold transition-all font-sans">
                   Terminate ✕
                 </button>
               </div>
@@ -2469,17 +2482,17 @@
           </div>
 
           <div class="grid grid-cols-2 gap-2.5">
-            <div><span class="text-rc-muted">Track Role:</span> <span class="text-rc-emerald font-bold">${m.role}</span></div>
-            <div><span class="text-rc-muted">Clearance:</span> <span class="text-rc-text font-bold">${m.isHeadStaff ? 'Head Staff' : 'Staff Member'}</span></div>
-            <div><span class="text-rc-muted">WhatsApp:</span> <a href="https://wa.me/${m.phone.replace(/[^0-9]/g, '')}" target="_blank" class="text-rc-emerald font-bold underline">${m.phone} ↗</a></div>
-            <div><span class="text-rc-muted">Instagram:</span> <span class="text-rc-text">${m.insta || 'N/A'}</span></div>
-            <div><span class="text-rc-muted">Discord Display:</span> <span class="text-rc-text">${m.discDisplay || m.name}</span></div>
-            <div><span class="text-rc-muted">Discord User:</span> <span class="text-rc-discord">${m.discUser || m.username}</span></div>
-            <div><span class="text-rc-muted">Age:</span> <span class="text-rc-text">${m.age || 'N/A'}</span></div>
-            <div><span class="text-rc-muted">Active Strikes:</span> <span class="text-rc-red font-bold">${m.strikes} / 3</span></div>
+            <div><span class="text-rc-muted font-sans">Track Role:</span> <span class="text-rc-emerald font-bold font-sans">${m.role}</span></div>
+            <div><span class="text-rc-muted font-sans">Clearance:</span> <span class="text-rc-text font-bold font-sans">${m.isHeadStaff ? 'Head Staff' : 'Staff Member'}</span></div>
+            <div><span class="text-rc-muted font-sans">WhatsApp:</span> <a href="https://wa.me/${m.phone.replace(/[^0-9]/g, '')}" target="_blank" class="text-rc-emerald font-bold underline">${m.phone} ↗</a></div>
+            <div><span class="text-rc-muted font-sans">Instagram:</span> <span class="text-rc-text font-sans">${m.insta || 'N/A'}</span></div>
+            <div><span class="text-rc-muted font-sans">Discord Display:</span> <span class="text-rc-text font-sans">${m.discDisplay || m.name}</span></div>
+            <div><span class="text-rc-muted font-sans">Discord User:</span> <span class="text-rc-discord font-mono">${m.discUser || m.username}</span></div>
+            <div><span class="text-rc-muted font-sans">Age:</span> <span class="text-rc-text font-sans">${m.age || 'N/A'}</span></div>
+            <div><span class="text-rc-muted font-sans">Active Strikes:</span> <span class="text-rc-red font-bold font-mono">${m.strikes} / 3</span></div>
           </div>
 
-          <div class="pt-2 border-t border-rc-border">
+          <div class="pt-2 border-t border-rc-border font-sans">
             <span class="text-rc-muted block mb-1">Application Details / Preferences:</span>
             <span class="text-rc-text font-medium block">${m.details || 'Standard Entry'}</span>
           </div>
@@ -2507,13 +2520,13 @@
                 <span class="px-2 py-0.5 rounded bg-rc-red/20 text-rc-red font-mono font-bold text-xs">${m.code}</span>
                 <span class="font-bold text-rc-text ml-2 text-sm font-sans">${m.name}</span>
               </div>
-              <span class="px-2 py-0.5 rounded bg-rc-emerald/20 text-rc-emerald text-[10px] font-bold">On Leave</span>
+              <span class="px-2 py-0.5 rounded bg-rc-emerald/20 text-rc-emerald text-[10px] font-bold font-sans">On Leave</span>
             </div>
-            <div class="text-xs space-y-1 text-rc-muted">
+            <div class="text-xs space-y-1 text-rc-muted font-sans">
               <div><span class="text-rc-muted">Scheduled Dates:</span> <span class="text-rc-emerald font-bold">${m.leaveDates || 'Active'}</span></div>
               <div><span class="text-rc-muted">Reason:</span> ${m.leaveReason || 'Operational Leave'}</div>
             </div>
-            <button onclick="markStaffLeaveOver(${rawIdx})" class="w-full py-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold text-xs hover:bg-amber-500 hover:text-black transition-all">
+            <button onclick="markStaffLeaveOver(${rawIdx})" class="w-full py-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold text-xs hover:bg-amber-500 hover:text-black transition-all font-sans">
               Trigger "Leave Over" Warning
             </button>
           </div>
@@ -2552,14 +2565,14 @@
             </div>
             <span class="px-2 py-0.5 rounded bg-rc-red/20 text-rc-red text-[10px] font-black">${a.role}</span>
           </div>
-          <div class="text-xs space-y-1 text-rc-muted">
+          <div class="text-xs space-y-1 text-rc-muted font-sans">
             <div><span class="text-rc-muted">Phone:</span> ${a.phone} | <span class="text-rc-muted">Insta:</span> ${a.insta}</div>
             <div><span class="text-rc-muted">Details:</span> ${a.details}</div>
-            <div class="text-[11px] text-rc-muted">Age: ${a.age} • Email: ${a.email}</div>
+            <div class="text-[11px] text-rc-muted font-mono">Age: ${a.age} • Email: ${a.email}</div>
           </div>
           <div class="flex gap-2 pt-1 border-t border-rc-border">
-            <button onclick="acceptApplicant(${idx})" class="w-1/2 py-2 rounded-xl bg-rc-emerald hover:bg-emerald-600 text-black font-bold text-xs transition-all">Accept Staff</button>
-            <button onclick="rejectApplicant(${idx})" class="w-1/2 py-2 rounded-xl bg-rc-red/20 text-rc-red border border-rc-red hover:bg-rc-red hover:text-white font-bold text-xs transition-all">Reject</button>
+            <button onclick="acceptApplicant(${idx})" class="w-1/2 py-2 rounded-xl bg-rc-emerald hover:bg-emerald-600 text-black font-bold text-xs transition-all font-mono">Accept Staff</button>
+            <button onclick="rejectApplicant(${idx})" class="w-1/2 py-2 rounded-xl bg-rc-red/20 text-rc-red border border-rc-red hover:bg-rc-red hover:text-white font-bold text-xs transition-all font-mono">Reject</button>
           </div>
         </div>
       `).join('');
@@ -2800,12 +2813,12 @@
       container.innerHTML = db.announcements.map((a, idx) => `
         <div class="p-4 rounded-xl bg-rc-surface border border-rc-border space-y-2 font-mono">
           <div class="flex justify-between items-start">
-            <span class="font-bold text-rc-text text-xs">${a.title}</span>
+            <span class="font-bold text-rc-text text-xs font-sans">${a.title}</span>
             <button onclick="deleteAnnouncement(${idx})" class="px-2.5 py-1 rounded bg-rc-red/20 text-rc-red hover:bg-rc-red hover:text-white text-[10px] font-bold transition-all">
               Delete ✕
             </button>
           </div>
-          <p class="text-[11px] text-rc-muted line-clamp-2">${a.body}</p>
+          <p class="text-[11px] text-rc-muted line-clamp-2 font-sans">${a.body}</p>
         </div>
       `).join('');
     }
@@ -2854,7 +2867,7 @@
     function renderAuditTable() {
       const tbody = document.getElementById('auditTableBody');
       if (db.auditLogs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-rc-muted">No activity logged yet.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-rc-muted font-sans">No activity logged yet.</td></tr>`;
         return;
       }
       tbody.innerHTML = db.auditLogs.map(l => `
@@ -2862,7 +2875,7 @@
           <td class="p-3 text-rc-muted whitespace-nowrap">${l.time}</td>
           <td class="p-3 text-rc-red font-bold">${l.actor}</td>
           <td class="p-3"><span class="px-2 py-0.5 rounded bg-rc-surface border border-rc-border text-rc-text">${l.action}</span></td>
-          <td class="p-3 text-rc-text font-semibold">${l.target}</td>
+          <td class="p-3 text-rc-text font-semibold font-sans">${l.target}</td>
           <td class="p-3 text-rc-muted text-[11px] font-sans">${l.details}</td>
         </tr>
       `).join('');
@@ -2926,4 +2939,5 @@
     });
   </script>
 </body>
-  </html>
+</html>
+
