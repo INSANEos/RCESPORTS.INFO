@@ -327,32 +327,9 @@
             <div class="relative rounded-3xl bg-rc-surface p-6 border border-rc-border flex flex-col items-center justify-center text-center overflow-hidden group">
               <div class="absolute w-56 h-56 bg-rc-red/20 rounded-full blur-2xl animate-pulse-glow pointer-events-none"></div>
               
+              <!-- Dargon.gif Mascot Replacement -->
               <div class="relative z-10 animate-float-mascot cursor-pointer w-40 sm:w-44 h-40 sm:h-44 flex items-center justify-center" onclick="handleApplyStaffClick()">
-                <svg viewBox="0 0 160 160" width="100%" height="100%" class="drop-shadow-[0_0_25px_var(--accent-glow)]">
-                  <g class="dragon-wing" fill="#ea580c" stroke="#c2410c" stroke-width="1.5">
-                    <path d="M 38 52 C 20 22, 50 10, 62 26 C 52 35, 45 42, 38 52 Z"/>
-                    <path d="M 42 48 C 30 32, 48 24, 56 32" fill="#fed7aa"/>
-                  </g>
-                  <g class="dragon-tail">
-                    <path d="M 85 105 C 105 115, 125 118, 138 108 C 132 100, 115 95, 95 95 Z" fill="#f97316"/>
-                    <polygon points="135,108 148,114 140,102" fill="#fbbf24"/>
-                    <polygon points="128,112 136,118 132,108" fill="#e11d48"/>
-                  </g>
-                  <path d="M 52 65 C 42 85, 48 118, 78 122 C 102 124, 112 102, 98 80 C 90 70, 80 62, 70 60 Z" fill="#f97316"/>
-                  <polygon points="46,82 38,86 48,92" fill="#e11d48"/>
-                  <polygon points="50,95 42,101 53,106" fill="#e11d48"/>
-                  <polygon points="58,110 52,118 64,120" fill="#e11d48"/>
-                  <path d="M 62 68 C 55 82, 58 108, 76 114 C 92 115, 98 98, 88 80 C 80 72, 72 68, 62 68 Z" fill="#fef08a"/>
-                  <path d="M 68 55 C 62 45, 75 32, 92 35 C 108 38, 115 48, 108 58 C 98 68, 78 65, 68 55 Z" fill="#f97316"/>
-                  <circle cx="102" cy="46" r="2.5" fill="#7c2d12"/>
-                  <polygon points="76,38 72,24 82,34" fill="#fbbf24"/>
-                  <polygon points="84,36 85,22 92,34" fill="#fbbf24"/>
-                  <ellipse cx="88" cy="44" rx="5" ry="6" fill="#ffffff"/>
-                  <circle cx="89" cy="44" r="2.5" fill="#0f172a"/>
-                  <circle cx="90.5" cy="42.5" r="1" fill="#ffffff"/>
-                  <path d="M 94 56 Q 102 58 106 52" stroke="#7c2d12" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-                  <path d="M 85 82 Q 95 85 92 90" stroke="#f97316" stroke-width="4" stroke-linecap="round" fill="none"/>
-                </svg>
+                <img src="Dargon.gif" alt="RC Official Mascot" class="w-full h-full object-contain filter drop-shadow-[0_0_25px_var(--accent-glow)] select-none">
               </div>
 
               <div class="relative z-10 mt-2 space-y-1">
@@ -445,7 +422,7 @@
               <p class="text-xs text-rc-muted leading-relaxed font-sans">Strategic partnership for competitive matchmaking, scrim hosting, and tournament operations.</p>
             </div>
 
-            <div class="p-5 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-discord/60 transition-all space-y-2 group">
+            <div class="p-5 rounded-2xl bg-rc-surface border border-rc-discord/60 transition-all space-y-2 group">
               <div class="flex items-center justify-between">
                 <span class="w-8 h-8 rounded-lg bg-rc-discord/15 text-rc-discord flex items-center justify-center font-bold text-xs font-mono">G</span>
                 <span class="text-[10px] font-mono text-rc-discord font-bold uppercase">Ecosystem Partner</span>
@@ -643,6 +620,9 @@
             <button onclick="switchTerminalTab('roster')" id="termTabBtnRoster" class="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-black bg-rc-red text-white transition-all">
               Active Staff
             </button>
+            <button onclick="switchTerminalTab('inquiries')" id="termTabBtnInquiries" class="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold bg-rc-surface border border-rc-border text-rc-muted hover:text-rc-text transition-all">
+              Inquiries (<span id="termInquiriesCount">0</span>)
+            </button>
             <button onclick="switchTerminalTab('leaves')" id="termTabBtnLeaves" class="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold bg-rc-surface border border-rc-border text-rc-muted hover:text-rc-text transition-all">
               On-Leave (<span id="termLeavesCount">0</span>)
             </button>
@@ -671,6 +651,28 @@
             <span class="text-xs text-rc-muted font-mono">Boxy Dossier View</span>
           </div>
           <div id="rosterCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </div>
+
+        <!-- DIRECT INQUIRIES DESK FOR HR & HEAD STAFF -->
+        <div id="termPanelInquiries" class="hidden space-y-4">
+          <div class="flex justify-between items-center">
+            <div>
+              <h3 class="text-xs sm:text-sm font-black text-rc-text uppercase tracking-wider font-mono">Direct Support & Staff Inquiries</h3>
+              <p class="text-xs text-rc-muted font-sans">Incoming questions and match reports submitted from the employee desk.</p>
+            </div>
+            <span class="text-xs text-rc-discord font-mono font-bold">● Active Support Channel</span>
+          </div>
+
+          <div class="boxy-card p-4 sm:p-6 space-y-4">
+            <div id="termInquiriesChatStream" class="h-80 overflow-y-auto space-y-3 pr-2 custom-scrollbar font-mono text-xs"></div>
+            
+            <form onsubmit="handleSendHRReply(event)" class="flex gap-2 pt-2 border-t border-rc-border font-mono">
+              <input required type="text" id="hrReplyInput" placeholder="Type official HR / Head Staff response..." class="flex-grow px-4 py-3 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
+              <button type="submit" class="px-6 py-3 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-bold text-xs transition-colors">
+                Send Reply ↗
+              </button>
+            </form>
+          </div>
         </div>
 
         <div id="termPanelLeaves" class="hidden space-y-4">
@@ -1075,7 +1077,7 @@
     </div>
   </div>
 
-  <!-- 4. EMPLOYEE CHAT MODAL -->
+  <!-- 4. EMPLOYEE CHAT / INQUIRY MODAL (FOR REGULAR STAFF) -->
   <div id="modalStaffChat" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="w-full max-w-lg boxy-card p-6 space-y-4">
       <div class="flex justify-between items-center border-b border-rc-border pb-4">
@@ -1090,7 +1092,7 @@
       </div>
       <div id="staffChatStream" class="h-64 overflow-y-auto space-y-3 pr-2 custom-scrollbar font-mono text-xs"></div>
       <form onsubmit="handleSendStaffMsg(event)" class="flex gap-2 pt-2 font-mono">
-        <input required type="text" id="staffMsgInput" placeholder="Type query for Head Staff..." class="flex-grow px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
+        <input required type="text" id="staffMsgInput" placeholder="Type query for Head Staff & HR..." class="flex-grow px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
         <button type="submit" class="px-5 py-2.5 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-bold text-xs transition-colors">
           Send
         </button>
@@ -1142,7 +1144,7 @@
         </div>
         <div class="p-3.5 rounded-xl bg-rc-surface border border-rc-border">
           <h5 class="font-bold text-rc-text mb-1 font-mono">2. 7-Day Rolling Strike Policy</h5>
-          <p>Accumulating 3 strikes within any 7-day rolling window leads to automatic staff removal. Strikes clear automatically after 7 days.</p>
+          <p>Accumulating 3 strikes results in automated removal of your Staff ID and permanent deletion from the active roster.</p>
         </div>
         <div class="p-3.5 rounded-xl bg-rc-surface border border-rc-border">
           <h5 class="font-bold text-rc-text mb-1 font-mono">3. Leave Notification</h5>
@@ -1280,7 +1282,7 @@
 
   <!-- ================= JAVASCRIPT STATE ENGINE ================= -->
   <script>
-    const DB_KEY = 'rc_esports_database_v11';
+    const DB_KEY = 'rc_esports_database_v12';
     let footerClickCount = 0;
     let footerClickTimer = null;
 
@@ -1307,7 +1309,7 @@
       roster: [],
       applicants: [],
       chatMessages: [
-        { sender: 'Head Operator', isSelf: false, time: '12:00 PM', text: 'Welcome to the direct RC support desk. Use this channel for match questions or urgent schedule coordination.' }
+        { sender: 'Head Staff & HR Support', roleType: 'hr', time: '12:00 PM', text: 'Welcome to the official RC support desk. Use this channel to ask questions, report schedule issues, or contact Head Staff.' }
       ],
       auditLogs: [],
       activeDuties: {}
@@ -1898,7 +1900,7 @@
           </div>
           <div>
             <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Portfolio or Managed Accounts Link *</label>
-            <input required type="url" id="mSocLink" placeholder="https://linktr.ee/your_portfolio" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-discord text-xs font-mono focus:border-rc-red focus:outline-none">
+            <input required type="url" id="mSocLink" placeholder="https://linktr.ee/your_portfolio" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-discord text-xs font-mono focus:border-rc-red focus:outline-none">
           </div>
         `;
       }
@@ -2299,17 +2301,58 @@
       renderStaffAnnouncements();
     }
 
+    // --- DIRECT INQUIRIES & CHAT FOR BOTH STAFF AND HR ---
     function renderStaffChat() {
       const stream = document.getElementById('staffChatStream');
-      stream.innerHTML = db.chatMessages.map(m => `
-        <div class="p-3 rounded-xl ${m.isSelf ? 'bg-rc-red/15 border border-rc-red/30 ml-8' : 'bg-rc-card border border-rc-border mr-8'} space-y-1">
-          <div class="flex justify-between items-center text-[10px] font-mono">
-            <span class="font-bold ${m.isSelf ? 'text-rc-text' : 'text-rc-red'}">${m.sender}</span>
-            <span class="text-rc-muted">${m.time}</span>
+      if (!stream) return;
+      
+      stream.innerHTML = db.chatMessages.map(m => {
+        const isHRMessage = m.roleType === 'hr';
+        const isMyMsg = (db.currentUser && m.sender === db.currentUser.username);
+        
+        return `
+          <div class="p-3.5 rounded-xl ${isMyMsg ? 'bg-rc-surface border border-rc-red/40 ml-6' : isHRMessage ? 'bg-rc-red/10 border border-rc-red/30 mr-6' : 'bg-rc-surface border border-rc-border mr-6'} space-y-1 font-mono">
+            <div class="flex justify-between items-center text-[10px]">
+              <span class="font-bold ${isHRMessage ? 'text-rc-red flex items-center gap-1' : 'text-rc-text'}">
+                ${isHRMessage ? '⚡ [HR / Head Staff Desk]' : m.sender}
+              </span>
+              <span class="text-rc-muted">${m.time}</span>
+            </div>
+            <p class="text-xs text-rc-text font-sans leading-relaxed">${m.text}</p>
           </div>
-          <p class="text-xs text-rc-text font-sans">${m.text}</p>
-        </div>
-      `).join('');
+        `;
+      }).join('');
+      stream.scrollTop = stream.scrollHeight;
+    }
+
+    function renderTermInquiries() {
+      const stream = document.getElementById('termInquiriesChatStream');
+      const countEl = document.getElementById('termInquiriesCount');
+      if (countEl) countEl.innerText = db.chatMessages.filter(m => m.roleType !== 'hr').length;
+      if (!stream) return;
+
+      if (db.chatMessages.length === 0) {
+        stream.innerHTML = `<div class="p-8 text-center text-rc-muted text-xs font-mono">No inquiries logged yet.</div>`;
+        return;
+      }
+
+      stream.innerHTML = db.chatMessages.map(m => {
+        const isHRMessage = m.roleType === 'hr';
+        return `
+          <div class="p-4 rounded-xl ${isHRMessage ? 'bg-rc-card border border-rc-red/50 ml-10' : 'bg-rc-surface border border-rc-border mr-10'} space-y-1 font-mono">
+            <div class="flex justify-between items-center text-[10px]">
+              <div class="flex items-center gap-2">
+                <span class="font-bold ${isHRMessage ? 'text-rc-red' : 'text-rc-discord'}">
+                  ${isHRMessage ? '⚡ ' + m.sender : m.sender}
+                </span>
+                ${!isHRMessage ? `<span class="px-2 py-0.5 rounded bg-rc-surface border border-rc-border text-rc-emerald text-[9px]">Staff Inquiry</span>` : ''}
+              </div>
+              <span class="text-rc-muted">${m.time}</span>
+            </div>
+            <p class="text-xs text-rc-text font-sans leading-relaxed mt-1">${m.text}</p>
+          </div>
+        `;
+      }).join('');
       stream.scrollTop = stream.scrollHeight;
     }
 
@@ -2317,33 +2360,67 @@
       e.preventDefault();
       const input = document.getElementById('staffMsgInput');
       if (input.value.trim()) {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
         db.chatMessages.push({
-          sender: db.currentUser ? db.currentUser.username : 'Staff Member',
-          isSelf: true,
-          time: 'Just now',
+          sender: db.currentUser ? `${db.currentUser.name} (${db.currentUser.staffCode || db.currentUser.username})` : 'Staff Member',
+          roleType: 'staff',
+          time: timeStr,
           text: input.value.trim()
         });
         input.value = '';
         saveDB();
+        renderStaffChat();
+        renderTermInquiries();
+      }
+    }
+
+    function handleSendHRReply(e) {
+      e.preventDefault();
+      const input = document.getElementById('hrReplyInput');
+      if (input.value.trim()) {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        db.chatMessages.push({
+          sender: db.currentUser ? db.currentUser.username : '@HR_Desk',
+          roleType: 'hr',
+          time: timeStr,
+          text: input.value.trim()
+        });
+        input.value = '';
+        saveDB();
+        renderTermInquiries();
         renderStaffChat();
       }
     }
 
     // --- OPERATOR COMMAND TERMINAL ---
     function switchTerminalTab(tab) {
-      ['roster', 'leaves', 'intake', 'dispatch', 'broadcast', 'audit'].forEach(t => {
-        document.getElementById(`termPanel${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.toggle('hidden', t !== tab);
+      ['roster', 'inquiries', 'leaves', 'intake', 'dispatch', 'broadcast', 'audit'].forEach(t => {
+        const panel = document.getElementById(`termPanel${t.charAt(0).toUpperCase() + t.slice(1)}`);
+        if (panel) panel.classList.toggle('hidden', t !== tab);
         const btn = document.getElementById(`termTabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`);
-        btn.className = (t === tab)
-          ? 'px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-black bg-rc-red text-white transition-all font-mono'
-          : 'px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold bg-rc-surface border border-rc-border text-rc-muted hover:text-rc-text transition-all font-mono';
+        if (btn) {
+          btn.className = (t === tab)
+            ? 'px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-black bg-rc-red text-white transition-all font-mono'
+            : 'px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold bg-rc-surface border border-rc-border text-rc-muted hover:text-rc-text transition-all font-mono';
+        }
       });
+      if (tab === 'inquiries') {
+        renderTermInquiries();
+      }
     }
 
     function renderTerminal() {
       const onLeaveCount = db.roster.filter(m => m.onLeave).length;
       document.getElementById('termLeavesCount').innerText = onLeaveCount;
       document.getElementById('termIntakeCount').innerText = db.applicants.length;
+      
+      const inquiryCount = db.chatMessages.filter(m => m.roleType !== 'hr').length;
+      const countEl = document.getElementById('termInquiriesCount');
+      if (countEl) countEl.innerText = inquiryCount;
 
       const isHR = (db.currentUser && db.currentUser.isHR);
       document.getElementById('terminalRoleBadge').innerText = isHR ? 'ROOT HR COMMAND' : 'HEAD STAFF TERMINAL';
@@ -2351,6 +2428,7 @@
       renderRosterBoxyCards();
       renderLeavesTab();
       renderIntakeQueue();
+      renderTermInquiries();
       renderTermAnnouncements();
       renderAuditTable();
     }
@@ -2438,236 +2516,75 @@
       }).join('');
     }
 
-    function terminateStaff(rawIdx) {
+    // --- AUTOMATIC 3-STRIKE DELETION & REVOKE ENGINE ---
+    function giveStrike(rawIdx) {
       const target = db.roster[rawIdx];
-      if (!confirm(`Are you sure you want to PERMANENTLY TERMINATE ${target.name} (${target.code})? Their account will be deleted from the database.`)) {
-        return;
+      if (!target) return;
+
+      target.strikes++;
+      
+      const acc = db.accounts.find(a => a.username === target.username || a.staffCode === target.code);
+      if (acc) acc.strikes = target.strikes;
+
+      if (db.currentUser && (db.currentUser.username === target.username || db.currentUser.staffCode === target.code)) {
+        db.currentUser.strikes = target.strikes;
       }
 
-      triggerLoading(`Purging Account for ${target.name}...`, () => {
-        const accIdx = db.accounts.findIndex(a => a.username === target.username || a.staffCode === target.code);
-        if (accIdx !== -1) {
-          db.accounts.splice(accIdx, 1);
+      // Check for 3 strikes limit
+      if (target.strikes >= 3) {
+        const staffCode = target.code;
+        const staffName = target.name;
+        const staffUser = target.username;
+
+        // Revoke credentials & delete staff ID
+        if (acc) {
+          acc.status = 'terminated';
+          acc.staffCode = null;
+          acc.role = 'Terminated (3 Strikes)';
+          acc.isHeadStaff = false;
         }
 
-        delete db.activeDuties[target.username];
-        delete db.activeDuties[target.code];
+        delete db.activeDuties[staffUser];
+        delete db.activeDuties[staffCode];
 
         db.auditLogs.unshift({
           time: 'Just now',
           actor: db.currentUser.username,
-          action: 'TERMINATE_STAFF',
-          target: `${target.name} (${target.code})`,
-          details: 'Account permanently purged from database.'
+          action: 'AUTO_TERMINATED (3/3 STRIKES)',
+          target: `${staffName} (${staffCode})`,
+          details: 'Automatic system termination: 3 strikes threshold reached. Staff ID revoked and erased from directory.'
         });
 
+        // Remove from roster
         db.roster.splice(rawIdx, 1);
         saveDB();
+
+        alert(`⚠️ AUTOMATIC REMOVAL: ${staffName} has reached 3/3 strikes! Their Staff ID (${staffCode}) has been automatically revoked and deleted from the active roster.`);
+
+        // If the penalized user is currently logged in, force workspace reset
+        if (db.currentUser && (db.currentUser.username === staffUser || db.currentUser.staffCode === staffCode)) {
+          db.currentUser.status = 'terminated';
+          db.currentUser.staffCode = null;
+          db.currentUser.role = 'Terminated (3 Strikes)';
+          switchView('landing');
+        }
+
         renderTerminal();
-      });
-    }
-
-    function openEmployeeInfoModal(idx) {
-      const m = db.roster[idx];
-      const content = document.getElementById('employeeInfoContent');
-
-      content.innerHTML = `
-        <div class="p-4 rounded-2xl bg-rc-surface border border-rc-border space-y-3 font-mono">
-          <div class="flex justify-between items-center border-b border-rc-border pb-2">
-            <div>
-              <span class="text-base font-black text-rc-text font-sans">${m.name}</span>
-              <span class="text-xs text-rc-discord block font-mono">${m.username}</span>
-            </div>
-            <span class="px-3 py-1 rounded bg-rc-red/20 text-rc-red font-mono font-black text-sm">${m.code}</span>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2.5">
-            <div><span class="text-rc-muted font-sans">Track Role:</span> <span class="text-rc-emerald font-bold font-sans">${m.role}</span></div>
-            <div><span class="text-rc-muted font-sans">Clearance:</span> <span class="text-rc-text font-bold font-sans">${m.isHeadStaff ? 'Head Staff' : 'Staff Member'}</span></div>
-            <div><span class="text-rc-muted font-sans">WhatsApp:</span> <a href="https://wa.me/${m.phone.replace(/[^0-9]/g, '')}" target="_blank" class="text-rc-emerald font-bold underline">${m.phone} ↗</a></div>
-            <div><span class="text-rc-muted font-sans">Instagram:</span> <span class="text-rc-text font-sans">${m.insta || 'N/A'}</span></div>
-            <div><span class="text-rc-muted font-sans">Discord Display:</span> <span class="text-rc-text font-sans">${m.discDisplay || m.name}</span></div>
-            <div><span class="text-rc-muted font-sans">Discord User:</span> <span class="text-rc-discord font-mono">${m.discUser || m.username}</span></div>
-            <div><span class="text-rc-muted font-sans">Age:</span> <span class="text-rc-text font-sans">${m.age || 'N/A'}</span></div>
-            <div><span class="text-rc-muted font-sans">Active Strikes:</span> <span class="text-rc-red font-bold font-mono">${m.strikes} / 3</span></div>
-          </div>
-
-          <div class="pt-2 border-t border-rc-border font-sans">
-            <span class="text-rc-muted block mb-1">Application Details / Preferences:</span>
-            <span class="text-rc-text font-medium block">${m.details || 'Standard Entry'}</span>
-          </div>
-        </div>
-      `;
-
-      openModal('employeeInfo');
-    }
-
-    function renderLeavesTab() {
-      const container = document.getElementById('leavesCardsStream');
-      const onLeaveList = db.roster.filter(m => m.onLeave);
-
-      if (onLeaveList.length === 0) {
-        container.innerHTML = `<div class="col-span-full p-8 rounded-2xl bg-rc-surface text-center text-rc-muted text-xs font-mono">No staff members currently on leave.</div>`;
         return;
       }
 
-      container.innerHTML = onLeaveList.map((m) => {
-        const rawIdx = db.roster.findIndex(x => x.code === m.code);
-        return `
-          <div class="boxy-card p-5 space-y-3 font-mono">
-            <div class="flex items-center justify-between border-b border-rc-border pb-2">
-              <div>
-                <span class="px-2 py-0.5 rounded bg-rc-red/20 text-rc-red font-mono font-bold text-xs">${m.code}</span>
-                <span class="font-bold text-rc-text ml-2 text-sm font-sans">${m.name}</span>
-              </div>
-              <span class="px-2 py-0.5 rounded bg-rc-emerald/20 text-rc-emerald text-[10px] font-bold font-sans">On Leave</span>
-            </div>
-            <div class="text-xs space-y-1 text-rc-muted font-sans">
-              <div><span class="text-rc-muted">Scheduled Dates:</span> <span class="text-rc-emerald font-bold">${m.leaveDates || 'Active'}</span></div>
-              <div><span class="text-rc-muted">Reason:</span> ${m.leaveReason || 'Operational Leave'}</div>
-            </div>
-            <button onclick="markStaffLeaveOver(${rawIdx})" class="w-full py-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold text-xs hover:bg-amber-500 hover:text-black transition-all font-sans">
-              Trigger "Leave Over" Warning
-            </button>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function markStaffLeaveOver(rawIdx) {
-      const m = db.roster[rawIdx];
-      m.leaveOver = true;
-
-      const acc = db.accounts.find(a => a.username === m.username || a.staffCode === m.code);
-      if (acc) acc.leaveOver = true;
-
-      if (db.currentUser && (db.currentUser.username === m.username || db.currentUser.staffCode === m.code)) {
-        db.currentUser.leaveOver = true;
-      }
-
-      saveDB();
-      alert(`"Leave Over" red alert pushed to ${m.name}'s account.`);
-    }
-
-    function renderIntakeQueue() {
-      const container = document.getElementById('intakeCardsStream');
-      if (db.applicants.length === 0) {
-        container.innerHTML = `<div class="col-span-full p-8 rounded-2xl bg-rc-surface text-center text-rc-muted text-xs font-mono">No pending applications right now.</div>`;
-        return;
-      }
-
-      container.innerHTML = db.applicants.map((a, idx) => `
-        <div class="boxy-card p-5 space-y-3 font-mono">
-          <div class="flex items-center justify-between border-b border-rc-border pb-2">
-            <div>
-              <span class="font-bold text-rc-text text-sm font-sans">${a.name}</span>
-              <span class="text-rc-discord text-xs font-mono block">${a.username}</span>
-            </div>
-            <span class="px-2 py-0.5 rounded bg-rc-red/20 text-rc-red text-[10px] font-black">${a.role}</span>
-          </div>
-          <div class="text-xs space-y-1 text-rc-muted font-sans">
-            <div><span class="text-rc-muted">Phone:</span> ${a.phone} | <span class="text-rc-muted">Insta:</span> ${a.insta}</div>
-            <div><span class="text-rc-muted">Details:</span> ${a.details}</div>
-            <div class="text-[11px] text-rc-muted font-mono">Age: ${a.age} • Email: ${a.email}</div>
-          </div>
-          <div class="flex gap-2 pt-1 border-t border-rc-border">
-            <button onclick="acceptApplicant(${idx})" class="w-1/2 py-2 rounded-xl bg-rc-emerald hover:bg-emerald-600 text-black font-bold text-xs transition-all font-mono">Accept Staff</button>
-            <button onclick="rejectApplicant(${idx})" class="w-1/2 py-2 rounded-xl bg-rc-red/20 text-rc-red border border-rc-red hover:bg-rc-red hover:text-white font-bold text-xs transition-all font-mono">Reject</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function acceptApplicant(idx) {
-      const cand = db.applicants[idx];
-      const shortCode = `RC-${101 + db.roster.length}`;
-
-      triggerLoading(`Approving ${cand.name} with Code ${shortCode}...`, () => {
-        const staffMember = {
-          code: shortCode,
-          name: cand.name,
-          username: cand.username,
-          phone: cand.phone,
-          insta: cand.insta,
-          discDisplay: cand.discDisplay,
-          discUser: cand.discUser,
-          age: cand.age,
-          role: cand.role,
-          details: cand.details,
-          dutyState: 'Active',
-          strikes: 0,
-          isHeadStaff: false,
-          onLeave: false,
-          leaveDates: '',
-          leaveReason: '',
-          leaveOver: false
-        };
-
-        db.roster.push(staffMember);
-
-        const acc = db.accounts.find(a => a.email.toLowerCase() === cand.email.toLowerCase() || a.username === cand.username);
-        if (acc) {
-          acc.status = 'approved';
-          acc.staffCode = shortCode;
-          acc.role = cand.role;
-          acc.strikes = 0;
-        }
-
-        if (db.currentUser && (db.currentUser.email === cand.email || db.currentUser.username === cand.username)) {
-          db.currentUser.status = 'approved';
-          db.currentUser.staffCode = shortCode;
-          db.currentUser.role = cand.role;
-        }
-
-        db.auditLogs.unshift({
-          time: 'Just now',
-          actor: db.currentUser.username,
-          action: 'APPLICANT_ACCEPTED',
-          target: `${cand.name} (${shortCode})`,
-          details: `Cleared into ${cand.role}`
-        });
-
-        db.applicants.splice(idx, 1);
-        saveDB();
-        renderTerminal();
-      });
-    }
-
-    function rejectApplicant(idx) {
-      const cand = db.applicants[idx];
       db.auditLogs.unshift({
         time: 'Just now',
         actor: db.currentUser.username,
-        action: 'APPLICANT_REJECTED',
-        target: `${cand.name} (${cand.username})`,
-        details: `Declined application`
+        action: 'STRIKE_ISSUED (+1)',
+        target: `${target.name} (${target.code})`,
+        details: `Active strikes: ${target.strikes}/3`
       });
-      db.applicants.splice(idx, 1);
+
       saveDB();
       renderTerminal();
-    }
-
-    function giveStrike(rawIdx) {
-      if (db.roster[rawIdx].strikes < 3) {
-        db.roster[rawIdx].strikes++;
-        
-        const acc = db.accounts.find(a => a.username === db.roster[rawIdx].username || a.staffCode === db.roster[rawIdx].code);
-        if (acc) acc.strikes = db.roster[rawIdx].strikes;
-
-        if (db.currentUser && (db.currentUser.username === db.roster[rawIdx].username || db.currentUser.staffCode === db.roster[rawIdx].code)) {
-          db.currentUser.strikes = db.roster[rawIdx].strikes;
-          renderStaffStrikes();
-        }
-
-        db.auditLogs.unshift({
-          time: 'Just now',
-          actor: db.currentUser.username,
-          action: 'STRIKE_ISSUED (+1)',
-          target: `${db.roster[rawIdx].name} (${db.roster[rawIdx].code})`,
-          details: `Active strikes: ${db.roster[rawIdx].strikes}/3`
-        });
-        saveDB();
-        renderTerminal();
+      if (db.currentUser && (db.currentUser.username === target.username || db.currentUser.staffCode === target.code)) {
+        renderStaffStrikes();
       }
     }
 
@@ -2940,4 +2857,3 @@
   </script>
 </body>
 </html>
-
