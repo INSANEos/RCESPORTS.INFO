@@ -133,14 +133,6 @@
     .mesh-glow {
       background: radial-gradient(circle at 50% 0%, var(--accent-glow) 0%, transparent 70%);
     }
-    .dragon-wing {
-      transform-origin: 35px 55px;
-      animation: wingFlap 1.5s ease-in-out infinite;
-    }
-    .dragon-tail {
-      transform-origin: 90px 105px;
-      animation: tailWag 2s ease-in-out infinite;
-    }
     .boxy-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
@@ -329,7 +321,12 @@
               
               <!-- Dargon.gif Mascot Replacement -->
               <div class="relative z-10 animate-float-mascot cursor-pointer w-40 sm:w-44 h-40 sm:h-44 flex items-center justify-center" onclick="handleApplyStaffClick()">
-                <img src="Dargon.gif" alt="RC Official Mascot" class="w-full h-full object-contain filter drop-shadow-[0_0_25px_var(--accent-glow)] select-none">
+                <img 
+                  src="Dargon.gif" 
+                  onerror="this.onerror=null; this.src='Dragon.gif'; this.onerror=() => { this.src='dragon.gif'; this.onerror=() => { this.src='Dragon.jpg'; }; };" 
+                  alt="RC Official Mascot" 
+                  class="w-full h-full object-contain filter drop-shadow-[0_0_25px_var(--accent-glow)] select-none"
+                >
               </div>
 
               <div class="relative z-10 mt-2 space-y-1">
@@ -1009,7 +1006,7 @@
           <span class="text-[10px] font-black text-rc-red uppercase tracking-widest block font-mono">Role Intake Wizard</span>
           <h3 id="roleModalTitle" class="text-xl font-black text-rc-text">Apply for Position</h3>
         </div>
-        <button onclick="backToOpenPositions()" class="px-3 py-1 rounded-lg bg-rc-surface border border-rc-border text-xs font-bold text-rc-muted hover:text-rc-text transition-all font-mono">
+        <button onclick="backToOpenPositions()" class="px-3 py-1.5 rounded-lg bg-rc-surface border border-rc-border text-xs font-bold text-rc-muted hover:text-rc-text transition-all font-mono">
           ← Back to Positions
         </button>
       </div>
@@ -2408,9 +2405,14 @@
             : 'px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold bg-rc-surface border border-rc-border text-rc-muted hover:text-rc-text transition-all font-mono';
         }
       });
-      if (tab === 'inquiries') {
-        renderTermInquiries();
-      }
+      
+      // Auto-refresh data streams on tab click
+      if (tab === 'intake') renderIntakeQueue();
+      if (tab === 'inquiries') renderTermInquiries();
+      if (tab === 'roster') renderRosterBoxyCards();
+      if (tab === 'leaves') renderLeavesTab();
+      if (tab === 'broadcast') renderTermAnnouncements();
+      if (tab === 'audit') renderAuditTable();
     }
 
     function renderTerminal() {
@@ -2857,3 +2859,4 @@
   </script>
 </body>
 </html>
+
