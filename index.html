@@ -1280,13 +1280,12 @@
   </footer>
 
   <!-- ================= JAVASCRIPT STATE ENGINE ================= -->
-    <script>
+  <script>
     // ==========================================
     // SUPABASE INITIALIZATION & CONFIGURATION
     // ==========================================
     const supabaseUrl = 'https://mzonzmbsygoleottuxjk.supabase.co';
     const supabaseKey = 'sb_publishable__RHYgCO1JVDtbO9sGkhZxw_-Nmqcj9P';
-    // Renamed to rcClient to avoid conflicting with the CDN's global 'supabase' variable
     const rcClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
     let footerClickCount = 0;
@@ -1299,12 +1298,27 @@
     };
 
     // ==========================================
+    // PROFESSIONAL TOAST NOTIFICATIONS
+    // ==========================================
+    function showToast(message, isError = false) {
+      const existing = document.getElementById('rc-toast');
+      if (existing) existing.remove();
+      
+      const toast = document.createElement('div');
+      toast.id = 'rc-toast';
+      toast.className = `fixed top-6 left-1/2 transform -translate-x-1/2 z-[9999] px-6 py-3 rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.5)] border font-mono text-xs font-bold transition-all duration-300 flex items-center gap-2 ${isError ? 'bg-red-950/95 border-rc-red text-white' : 'bg-rc-emerald/15 border-rc-emerald text-rc-emerald backdrop-blur-md'}`;
+      toast.innerHTML = isError ? `<span>⚠️</span> <span>${message}</span>` : `<span>✓</span> <span>${message}</span>`;
+      
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3500);
+    }
+
+    // ==========================================
     // MASTER DATA LOADER
     // ==========================================
     async function loadDB() {
       try {
         const { data: { session } } = await rcClient.auth.getSession();
-        
         if (session) {
           const { data: profile } = await rcClient.from('profiles').select('*').eq('id', session.user.id).single();
           if (profile) {
@@ -1333,21 +1347,35 @@
 
     async function refreshWorkspaceData() {
       if (!db.currentUser) return;
+      
       const { data: duties } = await rcClient.from('active_duties').select('*').eq('status', 'Active');
       db.activeDuties = {};
       (duties || []).forEach(d => { db.activeDuties[d.staff_code] = { time: d.time_str, startTimestamp: d.start_timestamp, endTimestamp: d.end_timestamp, tier: d.tier, dispatcher: d.dispatcher, expiresAt: d.expires_at, status: d.status, availability: d.availability }; });
 
       const { data: notices } = await rcClient.from('announcements').select('*').order('created_at', { ascending: false });
       db.announcements = notices || [];
+      if (db.announcements.length === 0) {
+        db.announcements.push({ id: 'ANN-402', tag: 'WELCOME', author_username: '@HR_SuperAdmin', time: 'System Default', title: 'Welcome to the Official RC Esports Management Desk', body: 'All staff duty assignments, scrim room coordinates, and tournament allocations are managed through this portal. Verify your assigned shifts in your active desk.', link: 'https://linktr.ee/rc_esports', reactions: { fire: 14, heart: 8, thumbs: 22, trophy: 6 }, hasUnreadAlert: true });
+      }
       
       const { data: chats } = await rcClient.from('chat_messages').select('*').order('created_at', { ascending: true });
       db.chatMessages = (chats || []).map(c => ({ sender: c.sender, roleType: c.role_type, time: new Date(c.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), text: c.text }));
+      if (db.chatMessages.length === 0) {
+        db.chatMessages.push({ sender: 'Head Staff & HR Support', roleType: 'hr', time: 'System', text: 'Welcome to the official RC support desk. Use this channel to ask questions, report schedule issues, or contact Head Staff.' });
+      }
 
       if (db.currentUser.isHeadStaff) {
         const { data: allProfiles } = await rcClient.from('profiles').select('*').eq('status', 'approved');
-        db.roster = (allProfiles || []).map(p => ({ ...p, code: p.staff_code, isHeadStaff: p.is_head_staff, dutyState: p.is_duty_active ? 'Active' : 'Inactive', onLeave: p.on_leave, leaveDates: p.leave_dates, leaveReason: p.leave_reason, leaveOver: p.leave_over }));
+        const { data: accApps } = await rcClient.from('applications').select('*').eq('status', 'accepted');
+        
+        db.roster = (allProfiles || []).map(p => {
+          const app = (accApps || []).find(a => a.user_id === p.id) || {};
+          return { ...p, ...app, code: p.staff_code, isHeadStaff: p.is_head_staff, dutyState: p.is_duty_active ? 'Active' : 'Inactive', onLeave: p.on_leave, leaveDates: p.leave_dates, leaveReason: p.leave_reason, leaveOver: p.leave_over };
+        });
+
         const { data: apps } = await rcClient.from('applications').select('*').eq('status', 'pending');
         db.applicants = apps || [];
+        
         const { data: logs } = await rcClient.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(50);
         db.auditLogs = (logs || []).map(l => ({ time: new Date(l.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), actor: l.actor, action: l.action, target: l.target, details: l.details }));
       }
@@ -1358,6 +1386,9 @@
       }
     }
 
+    // ==========================================
+    // AUTHENTICATION & ROOT CLEARANCE
+    // ==========================================
     async function handleAuthSubmit(e) {
       e.preventDefault();
       const email = document.getElementById('authEmail').value.trim().toLowerCase();
@@ -1368,66 +1399,120 @@
       triggerLoading('Authenticating securely...', async () => {
         if (db.authMode === 'signup') {
           const { error } = await rcClient.auth.signUp({ email, password: pass, options: { data: { username } } });
-          if (error) { alert(error.message); document.getElementById('loadingOverlay').classList.add('hidden'); return; }
-          alert('Account created! Please sign in.'); setAuthMode('signin');
+          if (error) { showToast(error.message, true); document.getElementById('loadingOverlay').classList.add('hidden'); return; }
+          showToast('Account created! Please sign in.'); setAuthMode('signin');
         } else {
           const { error } = await rcClient.auth.signInWithPassword({ email, password: pass });
-          if (error) { alert('Invalid Credentials.'); document.getElementById('loadingOverlay').classList.add('hidden'); return; }
-          closeModal('auth'); await loadDB();
+          if (error) { showToast('Invalid Email or Password.', true); document.getElementById('loadingOverlay').classList.add('hidden'); return; }
+          closeModal('auth'); await loadDB(); showToast(`Welcome back, ${db.currentUser.username}!`);
         }
         document.getElementById('loadingOverlay').classList.add('hidden');
       });
     }
 
-    async function handleLogout() { triggerLoading('Signing Out...', async () => { await rcClient.auth.signOut(); db.currentUser = null; closeModal('profile'); closeModal('secretHR'); updateNavAuth(); switchView('landing'); document.getElementById('loadingOverlay').classList.add('hidden'); }, 400); }
-    async function handleSecretHRAuth(e) { e.preventDefault(); const key = document.getElementById('hrSecretKey').value.trim(); closeModal('secretHR'); if (key === 'RC-ADMIN-2026') { triggerLoading('Authorizing Root Clearance...', async () => { await rcClient.rpc('claim_root_hr'); await loadDB(); document.getElementById('loadingOverlay').classList.add('hidden'); }); } else { alert('Invalid Access Key.'); } }
+    async function handleLogout() { triggerLoading('Signing Out...', async () => { await rcClient.auth.signOut(); db.currentUser = null; closeModal('profile'); closeModal('secretHR'); updateNavAuth(); switchView('landing'); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Signed out successfully.'); }, 400); }
+    
+    async function handleSecretHRAuth(e) { 
+      e.preventDefault(); 
+      const key = document.getElementById('hrSecretKey').value.trim(); 
+      closeModal('secretHR'); 
+      if (key === 'RC-ADMIN-2026') { 
+        triggerLoading('Authorizing Root Clearance...', async () => { 
+          await rcClient.rpc('claim_root_hr'); await loadDB(); 
+          document.getElementById('loadingOverlay').classList.add('hidden'); 
+          showToast('Root HR Terminal Unlocked!'); 
+        }); 
+      } else { showToast('Invalid Access Key. Clearance Denied.', true); } 
+    }
 
+    // ==========================================
+    // ROLE APPLICATION & VALIDATION
+    // ==========================================
     async function handleDedicatedRoleSubmit(e) {
-      e.preventDefault(); closeModal('roleApplication');
+      e.preventDefault();
       const roleMap = { host: 'Tournament Host', mod: 'VC Moderator', pt: 'Points Table Maker', social: 'Social Media Expert' };
       const selectedRoleTitle = roleMap[db.selectedRole];
-      let detailsSummary = db.selectedRole === 'host' ? `Exp: ${document.getElementById('mHostExp')?.value || 0}m` : 'Standard Entry';
+      let detailsSummary = '';
+
+      if (db.selectedRole === 'host') {
+        const s1Start = document.getElementById('mHostSlot1Start')?.value, s1End = document.getElementById('mHostSlot1End')?.value, s2Start = document.getElementById('mHostSlot2Start')?.value;
+        if (s1Start && s2Start) {
+          const diffMins = Math.abs((new Date(`1970-01-01T${s2Start}:00Z`).getTime() - new Date(`1970-01-01T${s1Start}:00Z`).getTime()) / 60000);
+          if (diffMins < 75) { showToast('Slot 1 and Slot 2 must have a minimum gap of 1 Hr 15 Mins.', true); return; }
+        }
+        detailsSummary = `Slot 1: ${s1Start} to ${s1End} (Exp: ${document.getElementById('mHostExp')?.value || 0}m)`;
+      } else if (db.selectedRole === 'mod') {
+        detailsSummary = `Daily: ${document.getElementById('mModDailyTime')?.value || '2h'} | Block: ${document.getElementById('mModBlock')?.value || 'General'}`;
+      } else if (db.selectedRole === 'pt') {
+        detailsSummary = `Tool: ${document.getElementById('mPtTool')?.value || 'Tournify'}`;
+      } else {
+        detailsSummary = `Exp: ${document.getElementById('mSocExp')?.value || '1y'} | Link: ${document.getElementById('mSocLink')?.value || 'N/A'}`;
+      }
+
+      closeModal('roleApplication');
       triggerLoading('Submitting Candidate File...', async () => {
         const appPayload = { user_id: db.currentUser.id, application_ref: `#APP-${Math.floor(1000 + Math.random() * 9000)}`, name: document.getElementById('mRecName').value.trim(), username: db.currentUser.username, disc_display: document.getElementById('mRecDiscDisplay').value.trim(), disc_user: document.getElementById('mRecDiscUser').value.trim(), phone: document.getElementById('mRecPhone').value.trim(), insta: document.getElementById('mRecInsta').value.trim(), age: parseInt(document.getElementById('mRecAge').value.trim()), role_applied: selectedRoleTitle, details: detailsSummary };
         await rcClient.from('applications').insert([appPayload]);
         await rcClient.from('profiles').update({ status: 'pending', role: selectedRoleTitle }).eq('id', db.currentUser.id);
-        await loadDB(); document.getElementById('loadingOverlay').classList.add('hidden');
+        await loadDB(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Application submitted successfully!');
       });
     }
 
-    async function handleLeaveSubmit(e) { e.preventDefault(); const dates = document.getElementById('leaveDates').value.trim(), reason = document.getElementById('leaveReason').value.trim(); await rcClient.from('profiles').update({ on_leave: true, leave_dates: dates, leave_reason: reason, leave_over: false }).eq('id', db.currentUser.id); await rcClient.from('audit_logs').insert([{ actor: db.currentUser.username, action: 'LEAVE_SCHEDULED', target: db.currentUser.staffCode, details: dates }]); closeModal('staffLeave'); alert('Operational leave registered.'); await loadDB(); }
-    async function abortEmployeeLeave() { triggerLoading('Resuming Duty...', async () => { await rcClient.from('profiles').update({ on_leave: false, leave_over: false }).eq('id', db.currentUser.id); await rcClient.from('audit_logs').insert([{ actor: db.currentUser.username, action: 'LEAVE_ABORTED', target: db.currentUser.staffCode, details: 'Resumed duty early.' }]); await loadDB(); document.getElementById('loadingOverlay').classList.add('hidden'); }); }
+    // ==========================================
+    // CORE WORKFLOWS (Leave, Duties, Chat)
+    // ==========================================
+    async function handleLeaveSubmit(e) { e.preventDefault(); const dates = document.getElementById('leaveDates').value.trim(), reason = document.getElementById('leaveReason').value.trim(); await rcClient.from('profiles').update({ on_leave: true, leave_dates: dates, leave_reason: reason, leave_over: false }).eq('id', db.currentUser.id); await rcClient.from('audit_logs').insert([{ actor: db.currentUser.username, action: 'LEAVE_SCHEDULED', target: db.currentUser.staffCode, details: dates }]); closeModal('staffLeave'); showToast('Operational leave registered.'); await loadDB(); }
+    async function abortEmployeeLeave() { triggerLoading('Resuming Duty...', async () => { await rcClient.from('profiles').update({ on_leave: false, leave_over: false }).eq('id', db.currentUser.id); await rcClient.from('audit_logs').insert([{ actor: db.currentUser.username, action: 'LEAVE_ABORTED', target: db.currentUser.staffCode, details: 'Resumed duty early.' }]); await loadDB(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Duty resumed.'); }); }
     async function confirmReturnFromLeave() { triggerLoading('Confirming Return...', async () => { await rcClient.from('profiles').update({ on_leave: false, leave_over: false }).eq('id', db.currentUser.id); await loadDB(); document.getElementById('loadingOverlay').classList.add('hidden'); }); }
-    async function toggleDutyAvailability(status) { await rcClient.from('profiles').update({ duty_availability: status }).eq('id', db.currentUser.id); await rcClient.from('active_duties').update({ availability: status }).eq('staff_code', db.currentUser.staffCode); await refreshWorkspaceData(); renderStaffDutyCard(); }
-    async function markDutyDone() { await rcClient.from('active_duties').update({ status: 'Done' }).eq('staff_code', db.currentUser.staffCode); await rcClient.from('audit_logs').insert([{ actor: db.currentUser.username, action: 'DUTY_COMPLETED', target: db.currentUser.staffCode, details: 'Staff marked duty as done.' }]); await refreshWorkspaceData(); renderStaffDutyCard(); }
+    async function toggleDutyAvailability(status) { await rcClient.from('profiles').update({ duty_availability: status }).eq('id', db.currentUser.id); await rcClient.from('active_duties').update({ availability: status }).eq('staff_code', db.currentUser.staffCode); await refreshWorkspaceData(); renderStaffDutyCard(); showToast(`Status set to ${status}`); }
+    async function markDutyDone() { await rcClient.from('active_duties').update({ status: 'Done' }).eq('staff_code', db.currentUser.staffCode); await rcClient.from('audit_logs').insert([{ actor: db.currentUser.username, action: 'DUTY_COMPLETED', target: db.currentUser.staffCode, details: 'Staff marked duty as done.' }]); await refreshWorkspaceData(); renderStaffDutyCard(); showToast('Duty marked as completed!'); }
     async function toggleStaffDutyState() { await rcClient.from('profiles').update({ is_duty_active: !db.currentUser.isDutyActive }).eq('id', db.currentUser.id); await loadDB(); }
     async function handleSendStaffMsg(e) { e.preventDefault(); const input = document.getElementById('staffMsgInput'); if (input.value.trim()) { await rcClient.from('chat_messages').insert([{ sender: `${db.currentUser.name} (${db.currentUser.staffCode})`, role_type: 'staff', text: input.value.trim() }]); input.value = ''; await refreshWorkspaceData(); renderStaffChat(); } }
 
+    // ==========================================
+    // HR & TERMINAL ACTIONS
+    // ==========================================
     async function handleDispatchSubmit(e) {
       e.preventDefault(); const searchKey = document.getElementById('dispSearchUser').value.trim().toLowerCase(), start = document.getElementById('dispStartTime').value, end = document.getElementById('dispEndTime').value, tier = document.getElementById('dispTier').value.trim();
       const found = db.roster.find(r => r.username.toLowerCase().includes(searchKey) || r.code.toLowerCase().includes(searchKey));
-      if (!found) { alert('Staff not found.'); return; }
+      if (!found) { showToast('Staff not found.', true); return; }
       const now = new Date(), sDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(start.split(':')[0]), parseInt(start.split(':')[1])), eDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(end.split(':')[0]), parseInt(end.split(':')[1]));
       triggerLoading(`Dispatching to ${found.code}...`, async () => {
         await rcClient.from('active_duties').insert([{ staff_code: found.code, time_str: `${start} - ${end} IST`, start_timestamp: sDate.getTime(), end_timestamp: eDate.getTime(), tier: tier, dispatcher: db.currentUser.username, expires_at: Date.now() + (12 * 60 * 60 * 1000) }]);
         await rcClient.from('audit_logs').insert([{ actor: db.currentUser.username, action: 'DUTY_DISPATCHED (12H)', target: found.code, details: tier }]);
-        document.getElementById('dispSearchUser').value = ''; await refreshWorkspaceData(); renderTerminal(); document.getElementById('loadingOverlay').classList.add('hidden');
+        document.getElementById('dispSearchUser').value = ''; await refreshWorkspaceData(); renderTerminal(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Shift dispatched successfully.');
       });
     }
 
-    async function acceptApplicant(idx) { const app = db.applicants[idx]; triggerLoading('Approving Candidate...', async () => { await rcClient.rpc('approve_applicant', { p_application_id: app.id, p_hr_username: db.currentUser.username }); await refreshWorkspaceData(); renderTerminal(); document.getElementById('loadingOverlay').classList.add('hidden'); }); }
-    async function rejectApplicant(idx) { await rcClient.from('applications').update({ status: 'rejected' }).eq('id', db.applicants[idx].id); await refreshWorkspaceData(); renderIntakeQueue(); }
-    async function giveStrike(rawIdx) { await rcClient.rpc('issue_strike', { p_target_code: db.roster[rawIdx].code, p_hr_username: db.currentUser.username }); await refreshWorkspaceData(); renderTerminal(); }
-    async function revokeStrike(rawIdx) { const t = db.roster[rawIdx]; if (t.strikes > 0) { await rcClient.from('profiles').update({ strikes: t.strikes - 1 }).eq('staff_code', t.code); await rcClient.from('audit_logs').insert([{ actor: db.currentUser.username, action: 'STRIKE_REVOKED (-1)', target: t.code, details: `Strikes: ${t.strikes - 1}/3` }]); await refreshWorkspaceData(); renderTerminal(); } }
-    async function toggleHeadStaff(rawIdx) { await rcClient.from('profiles').update({ is_head_staff: !db.roster[rawIdx].isHeadStaff }).eq('staff_code', db.roster[rawIdx].code); await refreshWorkspaceData(); renderTerminal(); }
-    async function terminateStaff(rawIdx) { const t = db.roster[rawIdx]; if (confirm(`Permanently terminate ${t.code}?`)) { triggerLoading('Revoking ID...', async () => { await rcClient.from('profiles').update({ status: 'terminated', staff_code: null, is_head_staff: false }).eq('username', t.username); await rcClient.from('active_duties').delete().eq('staff_code', t.code); await refreshWorkspaceData(); renderTerminal(); document.getElementById('loadingOverlay').classList.add('hidden'); }); } }
-    async function markStaffLeaveOver(rawIdx) { await rcClient.from('profiles').update({ leave_over: true }).eq('staff_code', db.roster[rawIdx].code); await refreshWorkspaceData(); renderLeavesTab(); alert(`Leave Over alert pushed to ${db.roster[rawIdx].code}`); }
-    async function handlePublishAnnouncement(e) { e.preventDefault(); await rcClient.from('announcements').insert([{ announcement_ref: `#ANN-${Math.floor(1000 + Math.random() * 9000)}`, author_username: db.currentUser.username, title: document.getElementById('pubTitle').value, body: document.getElementById('pubBody').value, link: document.getElementById('pubLink').value || null }]); document.getElementById('pubTitle').value = ''; document.getElementById('pubBody').value = ''; await refreshWorkspaceData(); renderTermAnnouncements(); }
-    async function reactEmoji(idx, key) { await rcClient.rpc('react_to_announcement', { p_announcement_id: db.announcements[idx].id, p_reaction_key: key }); await refreshWorkspaceData(); renderStaffAnnouncements(); }
-    async function deleteAnnouncement(idx) { await rcClient.from('announcements').delete().eq('id', db.announcements[idx].id); await refreshWorkspaceData(); renderTermAnnouncements(); }
-    async function handleSendHRReply(e) { e.preventDefault(); const input = document.getElementById('hrReplyInput'); if (input.value.trim()) { await rcClient.from('chat_messages').insert([{ sender: db.currentUser.username, role_type: 'hr', text: input.value.trim() }]); input.value = ''; await refreshWorkspaceData(); renderTermInquiries(); } }
-    function refreshApplicationStatus() { triggerLoading('Checking Status...', async () => { await loadDB(); if (db.currentUser.status !== 'approved') alert('Status: Application docket remains Under Review by HR.'); document.getElementById('loadingOverlay').classList.add('hidden'); }); }
+    async function acceptApplicant(idx) { const app = db.applicants[idx]; triggerLoading('Approving Candidate...', async () => { await rcClient.rpc('approve_applicant', { p_application_id: app.id, p_hr_username: db.currentUser.username }); await refreshWorkspaceData(); renderTerminal(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Applicant accepted!'); }); }
+    async function rejectApplicant(idx) { triggerLoading('Rejecting...', async () => { await rcClient.from('applications').update({ status: 'rejected' }).eq('id', db.applicants[idx].id); await refreshWorkspaceData(); renderIntakeQueue(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Applicant rejected.'); }); }
+    
+    async function giveStrike(rawIdx) { triggerLoading('Issuing Strike...', async () => { await rcClient.rpc('issue_strike', { p_target_code: db.roster[rawIdx].code, p_hr_username: db.currentUser.username }); await refreshWorkspaceData(); renderTerminal(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Strike issued.'); }); }
+    async function revokeStrike(rawIdx) { const t = db.roster[rawIdx]; if (t.strikes > 0) { triggerLoading('Revoking Strike...', async () => { await rcClient.from('profiles').update({ strikes: t.strikes - 1 }).eq('staff_code', t.code); await rcClient.from('audit_logs').insert([{ actor: db.currentUser.username, action: 'STRIKE_REVOKED (-1)', target: t.code, details: `Strikes: ${t.strikes - 1}/3` }]); await refreshWorkspaceData(); renderTerminal(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Strike revoked.'); }); } }
+    async function toggleHeadStaff(rawIdx) { triggerLoading('Updating Clearance...', async () => { await rcClient.from('profiles').update({ is_head_staff: !db.roster[rawIdx].isHeadStaff }).eq('staff_code', db.roster[rawIdx].code); await refreshWorkspaceData(); renderTerminal(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Clearance updated.'); }); }
+    async function terminateStaff(rawIdx) { const t = db.roster[rawIdx]; if (confirm(`Permanently terminate ${t.code}?`)) { triggerLoading('Revoking ID...', async () => { await rcClient.from('profiles').update({ status: 'terminated', staff_code: null, is_head_staff: false }).eq('username', t.username); await rcClient.from('active_duties').delete().eq('staff_code', t.code); await refreshWorkspaceData(); renderTerminal(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Staff terminated.'); }); } }
+    
+    async function markStaffLeaveOver(rawIdx) { await rcClient.from('profiles').update({ leave_over: true }).eq('staff_code', db.roster[rawIdx].code); await refreshWorkspaceData(); renderLeavesTab(); showToast(`Leave Over alert pushed to ${db.roster[rawIdx].code}`); }
+    
+    async function handlePublishAnnouncement(e) { 
+      e.preventDefault(); 
+      triggerLoading('Publishing...', async () => {
+        await rcClient.from('announcements').insert([{ announcement_ref: `#ANN-${Math.floor(1000 + Math.random() * 9000)}`, author_username: db.currentUser.username, title: document.getElementById('pubTitle').value, body: document.getElementById('pubBody').value, link: document.getElementById('pubLink').value || null }]); 
+        document.getElementById('pubTitle').value = ''; document.getElementById('pubBody').value = ''; 
+        await refreshWorkspaceData(); renderTermAnnouncements(); 
+        document.getElementById('loadingOverlay').classList.add('hidden');
+        showToast('Broadcast published!');
+      });
+    }
 
+    async function reactEmoji(idx, key) { await rcClient.rpc('react_to_announcement', { p_announcement_id: db.announcements[idx].id, p_reaction_key: key }); await refreshWorkspaceData(); renderStaffAnnouncements(); }
+    async function deleteAnnouncement(idx) { await rcClient.from('announcements').delete().eq('id', db.announcements[idx].id); await refreshWorkspaceData(); renderTermAnnouncements(); showToast('Broadcast deleted.'); }
+    async function handleSendHRReply(e) { e.preventDefault(); const input = document.getElementById('hrReplyInput'); if (input.value.trim()) { await rcClient.from('chat_messages').insert([{ sender: db.currentUser.username, role_type: 'hr', text: input.value.trim() }]); input.value = ''; await refreshWorkspaceData(); renderTermInquiries(); } }
+    function refreshApplicationStatus() { triggerLoading('Checking Status...', async () => { await loadDB(); if (db.currentUser.status !== 'approved') showToast('Status: Application docket remains Under Review by HR.', true); document.getElementById('loadingOverlay').classList.add('hidden'); }); }
+
+    // ==========================================
+    // UI RENDERING & ROUTING
+    // ==========================================
     function setTheme(themeName) { db.currentTheme = themeName; document.documentElement.className = `theme-${themeName}`; const indicator = document.getElementById('themeSliderIndicator'); const buttons = { dark: document.getElementById('themeBtnDark'), light: document.getElementById('themeBtnLight'), gold: document.getElementById('themeBtnGold') }; if (indicator && buttons[themeName]) { indicator.style.left = `${buttons[themeName].offsetLeft}px`; indicator.style.width = `${buttons[themeName].offsetWidth}px`; } Object.keys(buttons).forEach(k => { if (buttons[k]) buttons[k].className = k === themeName ? 'relative z-10 px-2 sm:px-2.5 py-1 rounded-full text-white font-bold transition-colors' : 'relative z-10 px-2 sm:px-2.5 py-1 rounded-full text-rc-muted hover:text-rc-text transition-colors'; }); }
     function initTheme() { setTimeout(() => { setTheme(db.currentTheme || 'dark'); }, 60); }
     function dismissWelcomeSplash() { const splash = document.getElementById('welcomeSplash'); if (splash && !splash.classList.contains('hidden')) { splash.classList.add('pointer-events-none'); splash.style.opacity = '0'; setTimeout(() => { splash.classList.add('hidden'); }, 650); } }
@@ -1441,25 +1526,62 @@
     function openSecretHRModal() { openModal('secretHR'); }
     window.addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'H' || e.key === 'h')) { e.preventDefault(); openSecretHRModal(); } });
     function handleFooterSecretClick() { footerClickCount++; clearTimeout(footerClickTimer); footerClickTimer = setTimeout(() => { footerClickCount = 0; }, 800); if (footerClickCount >= 3) { footerClickCount = 0; openSecretHRModal(); } }
+    
     function setAuthMode(mode) { db.authMode = mode; const isSignIn = mode === 'signin'; document.getElementById('authTabSignIn').className = isSignIn ? 'py-2 rounded-lg bg-rc-red text-white transition-all font-mono' : 'py-2 rounded-lg text-rc-muted hover:text-rc-text transition-all font-mono'; document.getElementById('authTabSignUp').className = !isSignIn ? 'py-2 rounded-lg bg-rc-red text-white transition-all font-mono' : 'py-2 rounded-lg text-rc-muted hover:text-rc-text transition-all font-mono'; document.getElementById('authUsernameRow').classList.toggle('hidden', isSignIn); document.getElementById('authModalTitle').innerText = isSignIn ? 'Sign In to Your Account' : 'Create New RC Account'; document.getElementById('authSubmitBtn').innerText = isSignIn ? 'Sign In to Portal →' : 'Create Account & Continue →'; }
+    
     function updateNavAuth() { const area = document.getElementById('authNavArea'); if (!db.currentUser) { area.innerHTML = `<div class="flex items-center gap-1.5 sm:gap-2 font-mono"><button onclick="setAuthMode('signin'); openModal('auth')" class="text-[11px] sm:text-xs font-bold text-rc-muted hover:text-rc-text px-2 py-1.5 transition-colors">Sign In</button><button onclick="setAuthMode('signup'); openModal('auth')" class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-rc-red hover:bg-rc-redHover text-white text-[11px] sm:text-xs font-bold transition-all shadow-md shadow-rc-red/25 hover:scale-105">Join Hub ↗</button></div>`; } else { const initials = db.currentUser.username.replace('@', '').substring(0, 2).toUpperCase(); area.innerHTML = `<div class="flex items-center gap-1.5 sm:gap-2">${db.currentUser.isHeadStaff ? `<button onclick="switchView('terminal'); renderTerminal();" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-rc-red bg-rc-surface text-rc-red text-xs font-mono font-bold hover:bg-rc-red hover:text-white transition-all"><span class="w-1.5 h-1.5 rounded-full bg-rc-red animate-ping"></span><span>${db.currentUser.isHR ? 'HR Console' : 'Terminal'}</span></button>` : ''}<button onclick="openUserProfileDossier()" title="Click to view personal profile" class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-rc-surface border border-rc-border hover:border-rc-red text-xs font-mono font-bold text-rc-text transition-all shadow-md"><span class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-rc-red flex items-center justify-center text-[9px] sm:text-[10px] font-black text-white shrink-0">${initials}</span><span class="max-w-[70px] sm:max-w-[120px] truncate text-left">${db.currentUser.username}</span>${db.currentUser.staffCode ? `<span class="hidden xs:inline-block text-[10px] text-rc-emerald shrink-0">(${db.currentUser.staffCode})</span>` : ''}</button></div>`; } }
+    
     function openUserProfileDossier() { if (!db.currentUser) return; document.getElementById('profCardUsername').innerText = `${db.currentUser.username} [Profile File]`; const c = document.getElementById('profDetailsContainer'); if (db.currentUser.isHR) { c.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs"><div class="p-2.5 rounded-lg bg-rc-card border border-rc-border"><span class="text-[10px] text-rc-muted block uppercase font-bold">Identity</span><span class="text-rc-text font-bold">${db.currentUser.name || 'Root Administrator'}</span></div><div class="p-2.5 rounded-lg bg-rc-card border border-rc-border"><span class="text-[10px] text-rc-muted block uppercase font-bold">Security Callsign</span><span class="text-rc-discord font-bold">${db.currentUser.username}</span></div><div class="p-2.5 rounded-lg bg-rc-card border border-rc-border col-span-1 sm:col-span-2"><span class="text-[10px] text-rc-muted block uppercase font-bold">Governance Level</span><span class="text-rc-text font-bold">Full Executive Oversight</span></div></div><div class="pt-1"><button onclick="closeModal('profile'); switchView('terminal'); renderTerminal();" class="w-full py-2.5 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-bold text-xs uppercase tracking-wider transition-all font-mono shadow-md">Launch Command Terminal ⚡</button></div>`; } else if (db.currentUser.status === 'approved') { c.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs"><div class="p-2.5 rounded-lg bg-rc-card border border-rc-border"><span class="text-[10px] text-rc-muted block uppercase font-bold">Full Name</span><span class="text-rc-text font-bold">${db.currentUser.name || 'N/A'}</span></div><div class="p-2.5 rounded-lg bg-rc-card border border-rc-border"><span class="text-[10px] text-rc-muted block uppercase font-bold">Staff ID Code</span><span class="text-rc-red font-bold">${db.currentUser.staffCode}</span></div><div class="p-2.5 rounded-lg bg-rc-card border border-rc-border"><span class="text-[10px] text-rc-muted block uppercase font-bold">Assigned Track</span><span class="text-rc-emerald font-bold">${db.currentUser.role}</span></div><div class="p-2.5 rounded-lg bg-rc-card border border-rc-border"><span class="text-[10px] text-rc-muted block uppercase font-bold">7-Day Strikes</span><span class="text-rc-red font-bold">${db.currentUser.strikes || 0} / 3 Strikes</span></div></div>`; } else if (db.currentUser.status === 'pending') { c.innerHTML = `<div class="p-2.5 rounded-lg bg-rc-card border border-rc-border text-center text-rc-muted font-sans">ℹ️ Candidate docket is currently being evaluated by Head Staff.</div>`; } else { c.innerHTML = `<div class="p-2.5 rounded-lg bg-rc-card border border-rc-border col-span-1 sm:col-span-2"><span class="text-[10px] text-rc-muted block uppercase font-bold">Staff Status</span><span class="text-rc-muted">Not enrolled on active roster</span></div><div class="pt-1"><button onclick="closeModal('profile'); openModal('openPositions');" class="w-full py-2.5 rounded-xl bg-rc-red text-white font-bold text-xs uppercase tracking-wider font-mono shadow-md">Apply For Staff Position →</button></div>`; } openModal('profile'); }
+    
     function handleApplyStaffClick() { if (!db.currentUser) { setAuthMode('signup'); openModal('auth'); } else openModal('openPositions'); }
     function openRoleModal(roleKey) { if (!db.currentUser) { setAuthMode('signup'); openModal('auth'); return; } openRoleModalFromPositions(roleKey); }
     function openRoleModalFromPositions(roleKey) { closeModal('openPositions'); db.selectedRole = roleKey; document.getElementById('roleModalTitle').innerText = { host: 'Apply: Tournament Host', mod: 'Apply: VC & Chat Moderator', pt: 'Apply: Points Table Maker', social: 'Apply: Social Media Expert' }[roleKey]; renderRoleModalFields(roleKey); openModal('roleApplication'); }
     function backToOpenPositions() { closeModal('roleApplication'); openModal('openPositions'); }
-    function renderRoleModalFields(role) { const c = document.getElementById('modalRoleSpecificInputs'); if (role === 'host') c.innerHTML = `<div><label class="text-xs font-bold text-rc-text block mb-1">Experience (Months) *</label><input required type="number" id="mHostExp" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs"></div>`; else if (role === 'mod') c.innerHTML = `<div><label class="text-xs font-bold text-rc-text block mb-1">Daily Active Time *</label><input required type="text" id="mModDailyTime" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs"></div>`; else if (role === 'pt') c.innerHTML = `<div><label class="text-xs font-bold text-rc-text block mb-1">Tool *</label><select required id="mPtTool" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs"><option>Tournify</option></select></div>`; else c.innerHTML = `<div><label class="text-xs font-bold text-rc-text block mb-1">Social Exp *</label><input required type="text" id="mSocExp" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs"></div>`; }
-    function renderPendingDashboard() { const b = document.getElementById('pendingSummaryBox'), a = db.currentUser?.application; if (b && a) b.innerHTML = `<div class="text-xs pt-1"><span class="text-rc-muted">Track:</span> <span class="text-rc-emerald font-bold">${a.role_applied || 'N/A'}</span></div>`; }
+    
+    function renderRoleModalFields(role) {
+      const c = document.getElementById('modalRoleSpecificInputs');
+      if (role === 'host') { c.innerHTML = `<div class="p-3 rounded-xl bg-rc-red/10 border border-rc-red text-rc-red text-[11px] font-bold font-mono">HOST TIMING RULE: Slot 1 and Slot 2 must have a minimum gap of 1 Hr 15 Mins.</div><div><label class="text-xs font-bold text-rc-text block mb-1">Hosting Experience (Months) *</label><input required type="number" min="0" id="mHostExp" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs"></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3"><div><label class="text-xs font-bold text-rc-text block mb-1">Slot 1: Start Time *</label><input required type="time" id="mHostSlot1Start" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-mono"></div><div><label class="text-xs font-bold text-rc-text block mb-1">Slot 1: End Time *</label><input required type="time" id="mHostSlot1End" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-mono"></div></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3"><div><label class="text-xs font-bold text-rc-text block mb-1">Slot 2: Start Time (Optional)</label><input type="time" id="mHostSlot2Start" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-mono"></div><div><label class="text-xs font-bold text-rc-text block mb-1">Slot 2: End Time (Optional)</label><input type="time" id="mHostSlot2End" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-mono"></div></div>`; }
+      else if (role === 'mod') { c.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><div><label class="text-xs font-bold text-rc-text block mb-1">Experience (Months) *</label><input required type="number" min="0" id="mModExp" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs"></div><div><label class="text-xs font-bold text-rc-text block mb-1">Daily Active Time *</label><input required type="text" id="mModDailyTime" placeholder="e.g. 3-4 Hours" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs"></div></div><div class="mt-3"><label class="text-xs font-bold text-rc-text block mb-1">Preferred Audit Block *</label><input required type="text" id="mModBlock" placeholder="e.g. 06:00 PM – 10:00 PM IST" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs"></div>`; }
+      else if (role === 'pt') { c.innerHTML = `<div><label class="text-xs font-bold text-rc-text block mb-1">Tool *</label><select required id="mPtTool" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-mono"><option>Tournify / eSportsWeb</option><option>Points Table Maker</option><option>Custom Spreadsheets</option></select></div>`; }
+      else { c.innerHTML = `<div><label class="text-xs font-bold text-rc-text block mb-1">Social Exp *</label><input required type="text" id="mSocExp" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs"></div><div class="mt-3"><label class="text-xs font-bold text-rc-text block mb-1">Platforms Managed *</label><input required type="text" id="mSocPlat" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs"></div><div class="mt-3"><label class="text-xs font-bold text-rc-text block mb-1">Portfolio Link *</label><input required type="url" id="mSocLink" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-discord text-xs font-mono"></div>`; }
+    }
+    
+    function renderPendingDashboard() { 
+      const b = document.getElementById('pendingSummaryBox'), app = db.currentUser?.application; 
+      if (!app || !b) return; 
+      b.innerHTML = `<div class="flex justify-between items-center text-xs border-b border-rc-border pb-2"><span class="text-rc-muted">Application Docket:</span><span class="font-mono text-rc-red font-bold">${app.application_ref || '#APP-101'}</span></div><div class="grid grid-cols-2 gap-2 text-xs pt-3"><div><span class="text-rc-muted">Applicant:</span> <span class="text-rc-text font-bold">${app.name || 'N/A'}</span></div><div><span class="text-rc-discord">Callsign:</span> <span class="text-rc-discord font-bold">${app.username || 'N/A'}</span></div><div><span class="text-rc-emerald">Track:</span> <span class="text-rc-emerald font-bold">${app.role_applied || 'N/A'}</span></div><div><span class="text-rc-muted">Phone:</span> <span class="text-rc-text">${app.phone || 'N/A'}</span></div></div><div class="text-xs pt-3 text-rc-muted border-t border-rc-border mt-3"><span class="text-rc-muted font-bold block mb-1">Details & Timings:</span> <span class="text-rc-text">${app.details || 'Standard Entry'}</span></div>`; 
+    }
+    
     function renderStaffWorkspace() { if (!db.currentUser) return; const l = document.getElementById('staffLeaveLockout'), o = document.getElementById('staffOverLeaveWarning'), m = document.getElementById('staffMainDashboard'); if (db.currentUser.onLeave) { if (db.currentUser.leaveOver) { l.classList.add('hidden'); o.classList.remove('hidden'); m.classList.add('hidden'); } else { l.classList.remove('hidden'); o.classList.add('hidden'); m.classList.add('hidden'); document.getElementById('staffLeaveLockoutDates').innerText = `Dates: ${db.currentUser.leaveDates}`; document.getElementById('staffLeaveLockoutReason').innerText = db.currentUser.leaveReason; } return; } l.classList.add('hidden'); o.classList.add('hidden'); m.classList.remove('hidden'); document.getElementById('staffHeroUsername').innerText = `${db.currentUser.username}'s Operational Desk`; document.getElementById('staffRoleTag').innerText = db.currentUser.role; document.getElementById('staffBadgeCode').innerText = db.currentUser.staffCode; document.getElementById('staffCodeSnippet').innerText = db.currentUser.staffCode; document.getElementById('headStaffTerminalBtn').innerHTML = db.currentUser.isHeadStaff ? `<button onclick="switchView('terminal'); renderTerminal();" class="px-4 py-2 rounded-xl text-xs font-black bg-rc-red text-white hover:bg-rc-redHover transition-all font-mono">${db.currentUser.isHR ? 'Root HR Console' : 'Head Staff Terminal'}</button>` : ''; renderStaffStrikes(); renderStaffDutyCard(); renderStaffAnnouncements(); renderStaffChat(); }
-    function renderStaffStrikes() { const c = db.currentUser.strikes || 0; document.getElementById('staffStrikeCount').innerText = `${c} / 3`; let b = ''; for (let i = 0; i < 3; i++) b += `<span class="w-4 h-4 rounded ${i < c ? 'bg-rc-red' : 'bg-rc-border'}"></span>`; document.getElementById('staffStrikeVisual').innerHTML = b; }
+    
+    function renderStaffStrikes() { const c = db.currentUser.strikes || 0; document.getElementById('staffStrikeCount').innerText = `${c} / 3`; let b = ''; for (let i = 0; i < 3; i++) b += `<span class="w-4 h-4 rounded ${i < c ? 'bg-rc-red shadow-lg shadow-rc-red/50' : 'bg-rc-border'}"></span>`; document.getElementById('staffStrikeVisual').innerHTML = b; }
+    
     function renderStaffDutyCard() { const c = document.getElementById('dutyCardContainer'), d = db.activeDuties[db.currentUser.staffCode]; if (!d || d.status === 'Done') { c.innerHTML = `<div class="p-8 rounded-2xl bg-rc-surface border border-rc-border text-center space-y-3 font-mono"><span class="text-xs font-mono font-bold text-rc-emerald uppercase tracking-wider block">[Duty Standby]</span><h4 class="text-base font-bold text-rc-text">No Active Duty Shift Dispatched</h4></div>`; document.getElementById('staffShiftSnippet').innerText = 'Awaiting Dispatch'; document.getElementById('staffTimerSnippet').innerText = 'No active shift'; } else { const a = (db.currentUser.dutyAvailability !== 'Unavailable'); c.innerHTML = `<div class="p-6 sm:p-8 rounded-2xl bg-rc-surface border border-rc-red/60 space-y-6"><div class="flex flex-col sm:flex-row justify-between"><div class="flex items-center gap-2"><span class="px-2.5 py-1 rounded bg-rc-red text-white text-[10px] font-black font-mono">TODAY'S DUTY</span><span class="text-xs font-bold ${a ? 'text-rc-emerald' : 'text-rc-red'}">[${a ? 'Available' : 'Unavailable'}]</span></div><span class="px-3 py-1 rounded-full bg-rc-card border border-rc-red text-rc-red text-xs font-mono font-black" id="dutyCountdown">Calculating...</span></div><div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2"><div><span class="text-xs font-bold text-rc-muted uppercase block font-mono">Window</span><span class="text-xl font-black text-rc-text mt-1 block font-mono">${d.time}</span></div><div><span class="text-xs font-bold text-rc-muted uppercase block font-mono">Tier</span><span class="text-lg font-black text-rc-text mt-1 block">${d.tier}</span></div></div><div class="pt-4 border-t border-rc-border flex flex-wrap gap-3 items-center justify-between font-mono"><div class="flex gap-2"><button onclick="toggleDutyAvailability('Available')" class="px-3 py-1.5 rounded-lg text-xs font-bold ${a ? 'bg-rc-emerald text-black' : 'bg-rc-card text-rc-muted border border-rc-border'}">✓ Available</button><button onclick="toggleDutyAvailability('Unavailable')" class="px-3 py-1.5 rounded-lg text-xs font-bold ${!a ? 'bg-rc-red text-white' : 'bg-rc-card text-rc-muted border border-rc-border'}">✕ Unavailable</button></div><button onclick="markDutyDone()" class="px-6 py-2.5 rounded-xl bg-rc-emerald text-black font-black text-xs">Mark Duty Completed ✓</button></div></div>`; document.getElementById('staffShiftSnippet').innerText = d.time; } }
-    function renderStaffAnnouncements() { const c = document.getElementById('staffAnnouncementsList'); if (!c) return; c.innerHTML = db.announcements.length === 0 ? `<div class="p-6 rounded-xl bg-rc-surface text-center text-rc-muted text-xs">No announcements.</div>` : db.announcements.map((a, idx) => `<div class="p-5 rounded-2xl bg-rc-surface border border-rc-border space-y-3"><div class="flex justify-between items-start"><span class="px-2 py-0.5 rounded bg-rc-red text-white text-[9px] font-black">${a.tag}</span><span class="text-xs font-mono text-rc-muted">By ${a.author_username}</span></div><h4 class="font-bold text-rc-text text-sm">${a.title}</h4><p class="text-xs text-rc-muted">${a.body}</p><div class="pt-2 border-t border-rc-border flex gap-2 text-xs font-mono"><button onclick="reactEmoji(${idx}, 'fire')" class="px-3 py-1 rounded-full bg-rc-card border border-rc-border text-rc-text font-bold">🔥 ${a.reactions.fire}</button></div></div>`).join(''); }
+    
+    function renderStaffAnnouncements() { const c = document.getElementById('staffAnnouncementsList'); if (!c) return; c.innerHTML = db.announcements.length === 0 ? `<div class="p-6 rounded-xl bg-rc-surface text-center text-rc-muted text-xs">No announcements.</div>` : db.announcements.map((a, idx) => `<div class="p-5 rounded-2xl bg-rc-surface border border-rc-border space-y-3"><div class="flex justify-between items-start"><span class="px-2 py-0.5 rounded bg-rc-red text-white text-[9px] font-black">${a.tag}</span><span class="text-xs font-mono text-rc-muted">By ${a.author_username}</span></div><h4 class="font-bold text-rc-text text-sm">${a.title}</h4><p class="text-xs text-rc-muted">${a.body}</p><div class="pt-2 border-t border-rc-border flex gap-2 text-xs font-mono"><button onclick="reactEmoji(${idx}, 'fire')" class="px-3 py-1 rounded-full bg-rc-card border border-rc-border text-rc-text font-bold">🔥 ${a.reactions.fire}</button><button onclick="reactEmoji(${idx}, 'heart')" class="px-3 py-1 rounded-full bg-rc-card border border-rc-border text-rc-text font-bold">❤️ ${a.reactions.heart}</button></div></div>`).join(''); }
+    
     function renderStaffChat() { const s = document.getElementById('staffChatStream'); if (!s) return; s.innerHTML = db.chatMessages.map(m => { const hr = m.roleType === 'hr', me = db.currentUser && m.sender.includes(db.currentUser.username); return `<div class="p-3.5 rounded-xl ${me ? 'bg-rc-surface border border-rc-red/40 ml-6' : hr ? 'bg-rc-red/10 border border-rc-red/30 mr-6' : 'bg-rc-surface border border-rc-border mr-6'} space-y-1 font-mono"><div class="flex justify-between text-[10px]"><span class="font-bold ${hr ? 'text-rc-red' : 'text-rc-text'}">${hr ? '⚡ [HR Desk]' : m.sender}</span><span class="text-rc-muted">${m.time}</span></div><p class="text-xs text-rc-text font-sans">${m.text}</p></div>`; }).join(''); s.scrollTop = s.scrollHeight; }
+    
     function renderTermInquiries() { const s = document.getElementById('termInquiriesChatStream'), c = document.getElementById('termInquiriesCount'); if (c) c.innerText = db.chatMessages.filter(m => m.roleType !== 'hr').length; if (!s) return; s.innerHTML = db.chatMessages.map(m => { const hr = m.roleType === 'hr'; return `<div class="p-4 rounded-xl ${hr ? 'bg-rc-card border border-rc-red/50 ml-10' : 'bg-rc-surface border border-rc-border mr-10'} space-y-1 font-mono"><div class="flex justify-between text-[10px]"><span class="font-bold ${hr ? 'text-rc-red' : 'text-rc-discord'}">${hr ? '⚡ ' + m.sender : m.sender}</span><span class="text-rc-muted">${m.time}</span></div><p class="text-xs text-rc-text font-sans mt-1">${m.text}</p></div>`; }).join(''); s.scrollTop = s.scrollHeight; }
+    
     function switchTerminalTab(tab) { ['roster', 'inquiries', 'leaves', 'intake', 'dispatch', 'broadcast', 'audit'].forEach(t => { const p = document.getElementById(`termPanel${t.charAt(0).toUpperCase() + t.slice(1)}`); if (p) p.classList.toggle('hidden', t !== tab); const b = document.getElementById(`termTabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`); if (b) b.className = (t === tab) ? 'px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-black bg-rc-red text-white transition-all font-mono' : 'px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold bg-rc-surface border border-rc-border text-rc-muted hover:text-rc-text transition-all font-mono'; }); if (tab === 'roster') renderRosterBoxyCards(); }
     function renderTerminal() { document.getElementById('termLeavesCount').innerText = db.roster.filter(m => m.onLeave).length; document.getElementById('termIntakeCount').innerText = db.applicants.length; document.getElementById('terminalRoleBadge').innerText = db.currentUser?.isHR ? 'ROOT HR COMMAND' : 'HEAD STAFF TERMINAL'; renderRosterBoxyCards(); renderLeavesTab(); renderIntakeQueue(); renderTermInquiries(); renderTermAnnouncements(); renderAuditTable(); }
-    function renderRosterBoxyCards() { const g = document.getElementById('rosterCardsGrid'); if (!g) return; const active = db.roster.filter(m => !m.onLeave); g.innerHTML = active.length === 0 ? `<div class="col-span-full p-8 text-center text-rc-muted text-xs font-mono">No active staff.</div>` : active.map((m, i) => { const rawIdx = db.roster.indexOf(m); return `<div class="boxy-card p-5 space-y-4 font-mono"><div class="flex items-start justify-between border-b border-rc-border pb-3"><div><span class="px-2.5 py-0.5 rounded bg-rc-red/20 text-rc-red font-black text-xs">${m.code}</span><h4 class="font-bold text-rc-text text-base mt-1 font-sans">${m.name}</h4><span class="text-rc-discord text-xs block">${m.username}</span></div><div class="text-right space-y-1"><span class="px-2.5 py-1 rounded text-[10px] font-black ${m.dutyState === 'Active' ? 'bg-rc-emerald/20 text-rc-emerald' : 'bg-gray-700 text-rc-muted'} block">${m.dutyState}</span></div></div><div class="grid grid-cols-2 gap-2 text-xs"><div class="p-2.5 rounded-lg bg-rc-surface border border-rc-border"><span class="text-[10px] font-bold text-rc-muted uppercase block font-sans">Role</span><span class="text-rc-emerald font-bold truncate block font-sans">${m.role}</span></div><div class="p-2.5 rounded-lg bg-rc-surface border border-rc-border"><span class="text-[10px] font-bold text-rc-muted uppercase block font-sans">Strikes [${m.strikes}/3]</span></div></div><div class="pt-3 border-t border-rc-border space-y-2"><button onclick="openEmployeeInfoModal(${rawIdx})" class="w-full py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-bold">ℹ️ View Full Dossier</button><div class="flex flex-wrap gap-2 items-center justify-between"><div class="flex gap-1"><button onclick="giveStrike(${rawIdx})" class="px-2.5 py-1 rounded bg-rc-red text-white font-bold text-xs">+Strike</button><button onclick="revokeStrike(${rawIdx})" class="px-2.5 py-1 rounded bg-rc-surface border border-rc-border text-rc-emerald font-bold text-xs">-Revoke</button></div>${db.currentUser.isHR ? `<button onclick="toggleHeadStaff(${rawIdx})" class="px-3 py-1 rounded-lg text-xs font-bold bg-rc-surface border border-rc-border text-rc-muted">${m.isHeadStaff ? 'Demote' : 'Promote HS'}</button>` : ''}<button onclick="terminateStaff(${rawIdx})" class="px-3 py-1 rounded-lg bg-red-950/60 border border-rc-red text-rc-red text-xs font-bold">Terminate ✕</button></div></div></div>`; }).join(''); }
-    function openEmployeeInfoModal(idx) { const m = db.roster[idx], c = document.getElementById('employeeInfoContent'); if (!m || !c) return; c.innerHTML = `<div class="p-4 rounded-2xl bg-rc-surface border border-rc-border space-y-3 font-mono"><div class="flex justify-between items-center border-b border-rc-border pb-2"><div><span class="text-base font-black text-rc-text font-sans">${m.name}</span><span class="text-xs text-rc-discord block">${m.username}</span></div><span class="px-3 py-1 rounded bg-rc-red/20 text-rc-red font-black text-sm">${m.code}</span></div><div class="grid grid-cols-2 gap-2.5"><div><span class="text-rc-muted font-sans">Track:</span> <span class="text-rc-emerald font-bold font-sans">${m.role}</span></div><div><span class="text-rc-muted font-sans">Clearance:</span> <span class="text-rc-text font-bold font-sans">${m.isHeadStaff ? 'Head Staff' : 'Member'}</span></div><div><span class="text-rc-muted font-sans">Strikes:</span> <span class="text-rc-red font-bold font-mono">${m.strikes} / 3</span></div></div></div>`; openModal('employeeInfo'); }
+    
+    function renderRosterBoxyCards() { 
+      const g = document.getElementById('rosterCardsGrid'); if (!g) return; const active = db.roster.filter(m => !m.onLeave); 
+      g.innerHTML = active.length === 0 ? `<div class="col-span-full p-8 text-center text-rc-muted text-xs font-mono">No active staff.</div>` : active.map((m, i) => { 
+        const rawIdx = db.roster.indexOf(m); 
+        let strikeBlocks = ''; for (let j = 0; j < 3; j++) strikeBlocks += `<span class="w-3.5 h-3.5 rounded ${j < (m.strikes||0) ? 'bg-rc-red shadow-sm shadow-rc-red' : 'bg-rc-border'} inline-block"></span>`;
+        return `<div class="boxy-card p-5 space-y-4 font-mono"><div class="flex items-start justify-between border-b border-rc-border pb-3"><div><span class="px-2.5 py-0.5 rounded bg-rc-red/20 text-rc-red font-black text-xs">${m.code}</span><h4 class="font-bold text-rc-text text-base mt-1 font-sans">${m.name}</h4><span class="text-rc-discord text-xs block">${m.username}</span></div><div class="text-right space-y-1"><span class="px-2.5 py-1 rounded text-[10px] font-black ${m.dutyState === 'Active' ? 'bg-rc-emerald/20 text-rc-emerald' : 'bg-gray-700 text-rc-muted'} block">${m.dutyState}</span></div></div><div class="grid grid-cols-2 gap-2 text-xs"><div class="p-2.5 rounded-lg bg-rc-surface border border-rc-border"><span class="text-[10px] font-bold text-rc-muted uppercase block font-sans">Role</span><span class="text-rc-emerald font-bold truncate block font-sans">${m.role}</span></div><div class="p-2.5 rounded-lg bg-rc-surface border border-rc-border"><span class="text-[10px] font-bold text-rc-muted uppercase block font-sans">Strikes [${m.strikes||0}/3]</span><div class="flex gap-1 mt-1">${strikeBlocks}</div></div></div><div class="pt-3 border-t border-rc-border space-y-2"><button onclick="openEmployeeInfoModal(${rawIdx})" class="w-full py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-bold">ℹ️ View Full Dossier</button><div class="flex flex-wrap gap-2 items-center justify-between"><div class="flex gap-1"><button onclick="giveStrike(${rawIdx})" class="px-2.5 py-1 rounded bg-rc-red text-white font-bold text-xs">+Strike</button><button onclick="revokeStrike(${rawIdx})" class="px-2.5 py-1 rounded bg-rc-surface border border-rc-border text-rc-emerald font-bold text-xs">-Revoke</button></div>${db.currentUser.isHR ? `<button onclick="toggleHeadStaff(${rawIdx})" class="px-3 py-1 rounded-lg text-xs font-bold bg-rc-surface border border-rc-border text-rc-muted">${m.isHeadStaff ? 'Demote' : 'Promote HS'}</button>` : ''}<button onclick="terminateStaff(${rawIdx})" class="px-3 py-1 rounded-lg bg-red-950/60 border border-rc-red text-rc-red text-xs font-bold">Terminate ✕</button></div></div></div>`; 
+      }).join(''); 
+    }
+    
+    function openEmployeeInfoModal(idx) { 
+      const m = db.roster[idx], c = document.getElementById('employeeInfoContent'); if (!m || !c) return; 
+      c.innerHTML = `<div class="p-4 rounded-2xl bg-rc-surface border border-rc-border space-y-3 font-mono"><div class="flex justify-between items-center border-b border-rc-border pb-2"><div><span class="text-base font-black text-rc-text font-sans">${m.name}</span><span class="text-xs text-rc-discord block font-mono">${m.username}</span></div><span class="px-3 py-1 rounded bg-rc-red/20 text-rc-red font-mono font-black text-sm">${m.code}</span></div><div class="grid grid-cols-2 gap-2.5"><div><span class="text-rc-muted font-sans">Track Role:</span> <span class="text-rc-emerald font-bold font-sans">${m.role}</span></div><div><span class="text-rc-muted font-sans">Clearance:</span> <span class="text-rc-text font-bold font-sans">${m.isHeadStaff ? 'Head Staff' : 'Staff Member'}</span></div><div class="col-span-2"><span class="text-rc-muted font-sans">Email:</span> <span class="text-rc-text font-bold font-sans">${m.email || 'N/A'}</span></div><div><span class="text-rc-muted font-sans">WhatsApp:</span> <a href="https://wa.me/${(m.phone||'').replace(/[^0-9]/g, '')}" target="_blank" class="text-rc-emerald font-bold underline">${m.phone || 'N/A'} ↗</a></div><div><span class="text-rc-muted font-sans">Instagram:</span> <span class="text-rc-text font-sans">${m.insta || 'N/A'}</span></div><div><span class="text-rc-muted font-sans">Discord Display:</span> <span class="text-rc-text font-sans">${m.discDisplay || m.name}</span></div><div><span class="text-rc-muted font-sans">Discord User:</span> <span class="text-rc-discord font-mono">${m.discUser || m.username}</span></div><div><span class="text-rc-muted font-sans">Age:</span> <span class="text-rc-text font-sans">${m.age || 'N/A'}</span></div><div><span class="text-rc-muted font-sans">Active Strikes:</span> <span class="text-rc-red font-bold font-mono">${m.strikes || 0} / 3</span></div></div><div class="pt-2 border-t border-rc-border font-sans"><span class="text-rc-muted block mb-1">Application Details / Preferences:</span><span class="text-rc-text font-medium block">${m.details || 'Standard Entry'}</span></div></div>`; 
+      openModal('employeeInfo'); 
+    }
+    
     function renderLeavesTab() { const c = document.getElementById('leavesCardsStream'); if (!c) return; const l = db.roster.filter(m => m.onLeave); c.innerHTML = l.length === 0 ? `<div class="col-span-full p-8 text-center text-rc-muted text-xs font-mono">No staff on leave.</div>` : l.map(m => { const idx = db.roster.indexOf(m); return `<div class="boxy-card p-5 space-y-3 font-mono"><div class="flex items-center justify-between border-b border-rc-border pb-2"><div><span class="px-2 py-0.5 rounded bg-rc-red/20 text-rc-red font-bold text-xs">${m.code}</span><span class="font-bold text-rc-text ml-2 text-sm font-sans">${m.name}</span></div><span class="px-2 py-0.5 rounded bg-rc-emerald/20 text-rc-emerald text-[10px] font-bold">On Leave</span></div><div class="text-xs space-y-1 text-rc-muted font-sans"><div><span class="text-rc-muted">Dates:</span> <span class="text-rc-emerald font-bold">${m.leaveDates}</span></div><div><span class="text-rc-muted">Reason:</span> ${m.leaveReason}</div></div><button onclick="markStaffLeaveOver(${idx})" class="w-full py-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold text-xs">Trigger "Leave Over" Warning</button></div>`; }).join(''); }
     function autoLookupUser(val) { const n = document.getElementById('dispLookupNotice'), v = val.trim().toLowerCase(); if (!v) { n.innerText = ''; return; } const f = db.roster.find(r => r.username.toLowerCase().includes(v) || r.code.toLowerCase().includes(v)); n.innerText = f ? `Found: ${f.name} (${f.code})` : (val.length > 2 ? 'Not found' : ''); }
     function renderIntakeQueue() { const c = document.getElementById('intakeCardsStream'); if (!c) return; c.innerHTML = db.applicants.length === 0 ? `<div class="col-span-full p-8 text-center text-rc-muted text-xs font-mono">No pending applications.</div>` : db.applicants.map((a, idx) => `<div class="boxy-card p-5 space-y-3 font-mono"><div class="flex items-center justify-between border-b border-rc-border pb-2"><div><span class="font-bold text-rc-text text-sm font-sans">${a.name}</span><span class="text-rc-discord text-xs block">${a.username}</span></div><span class="px-2 py-0.5 rounded bg-rc-red/20 text-rc-red text-[10px] font-black">${a.role_applied}</span></div><div class="text-xs space-y-1 text-rc-muted font-sans"><div><span class="text-rc-muted font-mono">Phone:</span> ${a.phone}</div><div><span class="text-rc-muted font-mono">Details:</span> ${a.details}</div></div><div class="flex gap-2 pt-1 border-t border-rc-border font-mono"><button onclick="acceptApplicant(${idx})" class="w-1/2 py-2 rounded-xl bg-rc-emerald text-black font-bold text-xs">Accept Staff</button><button onclick="rejectApplicant(${idx})" class="w-1/2 py-2 rounded-xl bg-rc-red/20 text-rc-red border border-rc-red font-bold text-xs">Reject</button></div></div>`).join(''); }
@@ -1480,6 +1602,5 @@
 
     window.addEventListener('DOMContentLoaded', () => { initWelcomeSplash(); loadDB(); });
       </script>
-          
 </body>
 </html>
