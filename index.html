@@ -1298,7 +1298,7 @@
     };
 
     // ==========================================
-    // PROFESSIONAL TOAST NOTIFICATIONS (UPGRADED)
+    // PROFESSIONAL TOAST NOTIFICATIONS (ANIMATED & SWIPEABLE)
     // ==========================================
     function showToast(message, isError = false) {
       const existing = document.getElementById('rc-toast');
@@ -1306,12 +1306,32 @@
       
       const toast = document.createElement('div');
       toast.id = 'rc-toast';
-      // Made text bigger, thicker borders, larger padding, and strong box-shadows for a premium feel
-      toast.className = `fixed top-8 left-1/2 transform -translate-x-1/2 z-[9999] px-8 py-4 w-[90%] max-w-md text-center rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] border-2 font-sans text-sm sm:text-base font-black tracking-wide transition-all duration-300 flex items-center justify-center gap-3 ${isError ? 'bg-red-950 border-rc-red text-white' : 'bg-[#10b981] border-[#059669] text-black shadow-emerald-500/30'}`;
-      toast.innerHTML = isError ? `<span class="text-xl">⚠️</span> <span>${message}</span>` : `<span class="text-xl">✓</span> <span>${message}</span>`;
+      toast.className = `fixed left-1/2 transform -translate-x-1/2 z-[9999] px-6 py-4 w-[90%] max-w-sm text-center rounded-2xl border-2 font-sans text-sm font-black tracking-wide flex items-center justify-center gap-3 cursor-pointer shadow-2xl ${isError ? 'bg-red-950/95 border-rc-red text-white shadow-[0_0_30px_rgba(225,29,72,0.4)]' : 'bg-rc-surface border-rc-emerald text-rc-emerald shadow-[0_0_30px_rgba(16,185,129,0.3)]'}`;
       
+      // Inject CSS Animations dynamically
+      if (!document.getElementById('toast-keyframes')) {
+        const style = document.createElement('style');
+        style.id = 'toast-keyframes';
+        style.innerHTML = `@keyframes slideInDown { 0% { top: -50px; opacity: 0; transform: translate(-50%, -20px) scale(0.9); } 100% { top: 24px; opacity: 1; transform: translate(-50%, 0) scale(1); } } @keyframes slideOutUp { 0% { top: 24px; opacity: 1; transform: translate(-50%, 0) scale(1); } 100% { top: -50px; opacity: 0; transform: translate(-50%, -20px) scale(0.9); } }`;
+        document.head.appendChild(style);
+      }
+      
+      toast.style.animation = 'slideInDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+      toast.innerHTML = isError ? `<span class="text-2xl shrink-0">⚠️</span> <span>${message}</span>` : `<span class="text-2xl shrink-0">✨</span> <span>${message}</span>`;
+      
+      // Swipe & Click to Dismiss
+      let startY = 0;
+      toast.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, {passive: true});
+      toast.addEventListener('touchmove', e => { if (e.touches[0].clientY < startY - 10) dismissToast(toast); }, {passive: true});
+      toast.addEventListener('click', () => dismissToast(toast));
+
       document.body.appendChild(toast);
-      setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 4000);
+      setTimeout(() => { if (document.body.contains(toast)) dismissToast(toast); }, 4000);
+    }
+    
+    function dismissToast(toast) {
+      toast.style.animation = 'slideOutUp 0.3s forwards';
+      setTimeout(() => { if(document.body.contains(toast)) toast.remove(); }, 300);
     }
 
     // ==========================================
@@ -1349,41 +1369,35 @@
     async function refreshWorkspaceData() {
       if (!db.currentUser) return;
       
+      // Load Data Streams
       const { data: duties } = await rcClient.from('active_duties').select('*').eq('status', 'Active');
       db.activeDuties = {};
       (duties || []).forEach(d => { db.activeDuties[d.staff_code] = { time: d.time_str, startTimestamp: d.start_timestamp, endTimestamp: d.end_timestamp, tier: d.tier, dispatcher: d.dispatcher, expiresAt: d.expires_at, status: d.status, availability: d.availability }; });
 
       const { data: notices } = await rcClient.from('announcements').select('*').order('created_at', { ascending: false });
       db.announcements = notices || [];
-      if (db.announcements.length === 0) {
-        db.announcements.push({ id: 'ANN-402', tag: 'WELCOME', author_username: '@HR_SuperAdmin', time: 'System Default', title: 'Welcome to the Official RC Esports Management Desk', body: 'All staff duty assignments, scrim room coordinates, and tournament allocations are managed through this portal.', link: 'https://linktr.ee/rc_esports', reactions: { fire: 14, heart: 8, thumbs: 22, trophy: 6 }, hasUnreadAlert: true });
-      }
+      if (db.announcements.length === 0) { db.announcements.push({ id: 'ANN-402', tag: 'WELCOME', author_username: '@HR_SuperAdmin', time: 'System Default', title: 'Welcome to the Official RC Esports Management Desk', body: 'All staff duty assignments, scrim room coordinates, and tournament allocations are managed through this portal.', link: 'https://linktr.ee/rc_esports', reactions: { fire: 14, heart: 8, thumbs: 22, trophy: 6 }, hasUnreadAlert: true }); }
       
       const { data: chats } = await rcClient.from('chat_messages').select('*').order('created_at', { ascending: true });
       db.chatMessages = (chats || []).map(c => ({ sender: c.sender, roleType: c.role_type, time: new Date(c.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), text: c.text }));
-      if (db.chatMessages.length === 0) {
-        db.chatMessages.push({ sender: 'Head Staff & HR Support', roleType: 'hr', time: 'System', text: 'Welcome to the official RC support desk. Use this channel to ask questions, report schedule issues, or contact Head Staff.' });
-      }
+      if (db.chatMessages.length === 0) { db.chatMessages.push({ sender: 'Head Staff & HR Support', roleType: 'hr', time: 'System', text: 'Welcome to the official RC support desk. Use this channel to ask questions, report schedule issues, or contact Head Staff.' }); }
 
+      // Terminal Load (Only if Head Staff)
       if (db.currentUser.isHeadStaff) {
         const { data: allProfiles } = await rcClient.from('profiles').select('*').eq('status', 'approved');
         const { data: accApps } = await rcClient.from('applications').select('*').eq('status', 'accepted');
-        
-        db.roster = (allProfiles || []).map(p => {
-          const app = (accApps || []).find(a => a.user_id === p.id) || {};
-          return { ...p, ...app, code: p.staff_code, isHeadStaff: p.is_head_staff, dutyState: p.is_duty_active ? 'Active' : 'Inactive', onLeave: p.on_leave, leaveDates: p.leave_dates, leaveReason: p.leave_reason, leaveOver: p.leave_over };
-        });
-
+        db.roster = (allProfiles || []).map(p => { const app = (accApps || []).find(a => a.user_id === p.id) || {}; return { ...p, ...app, code: p.staff_code, isHeadStaff: p.is_head_staff, dutyState: p.is_duty_active ? 'Active' : 'Inactive', onLeave: p.on_leave, leaveDates: p.leave_dates, leaveReason: p.leave_reason, leaveOver: p.leave_over }; });
         const { data: apps } = await rcClient.from('applications').select('*').eq('status', 'pending');
         db.applicants = apps || [];
-        
         const { data: logs } = await rcClient.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(50);
         db.auditLogs = (logs || []).map(l => ({ time: new Date(l.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), actor: l.actor, action: l.action, target: l.target, details: l.details }));
       }
 
-      if (db.currentUser.status === 'pending') {
-        const { data: myApp } = await rcClient.from('applications').select('*').eq('user_id', db.currentUser.id).single();
-        if (myApp) db.currentUser.application = myApp;
+      // FIX: Bypass RLS by inferring pending status from the applications table
+      const { data: myApp } = await rcClient.from('applications').select('*').eq('user_id', db.currentUser.id).eq('status', 'pending').order('created_at', { ascending: false }).limit(1).single();
+      if (myApp) {
+        db.currentUser.status = 'pending';
+        db.currentUser.application = myApp;
       }
     }
 
@@ -1414,17 +1428,10 @@
     async function handleLogout() { triggerLoading('Signing Out...', async () => { await rcClient.auth.signOut(); db.currentUser = null; closeModal('profile'); closeModal('secretHR'); updateNavAuth(); switchView('landing'); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Signed out successfully.'); }, 400); }
     
     async function handleSecretHRAuth(e) { 
-      e.preventDefault(); 
-      const key = document.getElementById('hrSecretKey').value.trim(); 
-      closeModal('secretHR'); 
+      e.preventDefault(); const key = document.getElementById('hrSecretKey').value.trim(); closeModal('secretHR'); 
       if (key === 'RC-ADMIN-2026') { 
         triggerLoading('Authorizing Root Clearance...', async () => { 
-          await rcClient.rpc('claim_root_hr'); 
-          await loadDB(); 
-          document.getElementById('loadingOverlay').classList.add('hidden'); 
-          showToast('Root HR Terminal Unlocked!'); 
-          switchView('terminal'); // Force UI switch
-          renderTerminal();
+          await rcClient.rpc('claim_root_hr'); await loadDB(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Root HR Terminal Unlocked!'); switchView('terminal'); renderTerminal();
         }); 
       } else { showToast('Invalid Access Key. Clearance Denied.', true); } 
     }
@@ -1435,13 +1442,9 @@
     function handleApplyStaffClick() { 
       if (!db.currentUser) { setAuthMode('signup'); openModal('auth'); } 
       else if (db.currentUser.status === 'pending') { 
-        switchView('pending'); 
-        renderPendingDashboard(); 
-        showToast('Your application is already under review!'); 
+        switchView('pending'); renderPendingDashboard(); showToast('Your application is already under review!'); 
       }
-      else if (db.currentUser.status === 'approved') { 
-        showToast('You are already an approved staff member on the active roster.', true); 
-      }
+      else if (db.currentUser.status === 'approved') { showToast('You are already an approved staff member.', true); }
       else { openModal('openPositions'); } 
     }
 
@@ -1452,42 +1455,74 @@
       let detailsSummary = '';
 
       if (db.selectedRole === 'host') {
-        const s1Start = document.getElementById('mHostSlot1Start')?.value;
-        const s1End = document.getElementById('mHostSlot1End')?.value;
-        
-        // Correct Validation: Checks difference between Slot 1 Start and Slot 1 End
+        const s1Start = document.getElementById('mHostSlot1Start')?.value, s1End = document.getElementById('mHostSlot1End')?.value;
         if (s1Start && s1End) {
-          let t1 = new Date(`1970-01-01T${s1Start}:00Z`).getTime();
-          let t2 = new Date(`1970-01-01T${s1End}:00Z`).getTime();
-          if (t2 < t1) t2 += 24 * 60 * 60 * 1000; // Handles shifts that go past midnight
-          
-          const diffMins = Math.abs((t2 - t1) / 60000);
-          if (diffMins < 75) { 
-            showToast('Slot 1 must have a minimum duration of 1 Hr 15 Mins (75 minutes).', true); 
-            return; 
-          }
+          let t1 = new Date(`1970-01-01T${s1Start}:00Z`).getTime(), t2 = new Date(`1970-01-01T${s1End}:00Z`).getTime();
+          if (t2 < t1) t2 += 24 * 60 * 60 * 1000; // Handles shifts over midnight
+          if (Math.abs((t2 - t1) / 60000) < 75) { showToast('Slot 1 must have a minimum duration of 1 Hr 15 Mins (75 mins).', true); return; }
         }
         detailsSummary = `Slot 1: ${s1Start} to ${s1End} (Exp: ${document.getElementById('mHostExp')?.value || 0}m)`;
-      } else if (db.selectedRole === 'mod') {
-        detailsSummary = `Daily: ${document.getElementById('mModDailyTime')?.value || '2h'} | Block: ${document.getElementById('mModBlock')?.value || 'General'}`;
-      } else if (db.selectedRole === 'pt') {
-        detailsSummary = `Tool: ${document.getElementById('mPtTool')?.value || 'Tournify'}`;
-      } else {
-        detailsSummary = `Exp: ${document.getElementById('mSocExp')?.value || '1y'} | Link: ${document.getElementById('mSocLink')?.value || 'N/A'}`;
-      }
+      } else if (db.selectedRole === 'mod') { detailsSummary = `Daily: ${document.getElementById('mModDailyTime')?.value || '2h'} | Block: ${document.getElementById('mModBlock')?.value || 'General'}`; } 
+      else if (db.selectedRole === 'pt') { detailsSummary = `Tool: ${document.getElementById('mPtTool')?.value || 'Tournify'}`; } 
+      else { detailsSummary = `Exp: ${document.getElementById('mSocExp')?.value || '1y'} | Link: ${document.getElementById('mSocLink')?.value || 'N/A'}`; }
 
       closeModal('roleApplication');
       triggerLoading('Submitting Candidate File...', async () => {
         const appPayload = { user_id: db.currentUser.id, application_ref: `#APP-${Math.floor(1000 + Math.random() * 9000)}`, name: document.getElementById('mRecName').value.trim(), username: db.currentUser.username, disc_display: document.getElementById('mRecDiscDisplay').value.trim(), disc_user: document.getElementById('mRecDiscUser').value.trim(), phone: document.getElementById('mRecPhone').value.trim(), insta: document.getElementById('mRecInsta').value.trim(), age: parseInt(document.getElementById('mRecAge').value.trim()), role_applied: selectedRoleTitle, details: detailsSummary };
         await rcClient.from('applications').insert([appPayload]);
-        await rcClient.from('profiles').update({ status: 'pending', role: selectedRoleTitle }).eq('id', db.currentUser.id);
+        // Bypassing the RLS block by not updating 'profiles' directly
         
         await loadDB(); 
         document.getElementById('loadingOverlay').classList.add('hidden'); 
-        showToast('Application submitted successfully!');
-        switchView('pending'); // Force UI switch immediately
-        renderPendingDashboard();
+        showToast('Application submitted successfully!'); switchView('pending'); renderPendingDashboard();
       });
+    }
+
+    // ==========================================
+    // UI RENDERING - HIGH TECH PENDING DASHBOARD
+    // ==========================================
+    function renderPendingDashboard() { 
+      const b = document.getElementById('pendingSummaryBox'), app = db.currentUser?.application; 
+      if (!app || !b) return; 
+      b.innerHTML = `
+        <div class="relative overflow-hidden p-6 rounded-2xl bg-gradient-to-br from-rc-card to-rc-surface border border-rc-border shadow-2xl">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl animate-pulse-glow pointer-events-none"></div>
+          
+          <div class="flex items-center gap-3 border-b border-rc-border pb-4 mb-4 relative z-10">
+            <div class="w-10 h-10 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center shadow-[0_0_15px_rgba(245,158,11,0.4)]">
+              <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <div>
+              <span class="text-[10px] font-mono font-black text-amber-500 uppercase tracking-widest block">HR Docket Active</span>
+              <span class="font-mono text-rc-text font-black text-sm">${app.application_ref || '#APP-101'}</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-y-4 gap-x-2 text-xs relative z-10">
+            <div class="p-3 rounded-xl bg-rc-dark/50 border border-rc-border">
+              <span class="text-[10px] text-rc-muted uppercase block font-bold mb-1">Applicant</span> 
+              <span class="text-rc-text font-black text-sm">${app.name || 'N/A'}</span>
+            </div>
+            <div class="p-3 rounded-xl bg-rc-dark/50 border border-rc-border">
+              <span class="text-[10px] text-rc-muted uppercase block font-bold mb-1">Callsign</span> 
+              <span class="text-rc-discord font-black text-sm">${app.username || 'N/A'}</span>
+            </div>
+            <div class="p-3 rounded-xl bg-rc-dark/50 border border-rc-border">
+              <span class="text-[10px] text-rc-muted uppercase block font-bold mb-1">Track Applied</span> 
+              <span class="text-rc-emerald font-black text-sm">${app.role_applied || 'N/A'}</span>
+            </div>
+            <div class="p-3 rounded-xl bg-rc-dark/50 border border-rc-border">
+              <span class="text-[10px] text-rc-muted uppercase block font-bold mb-1">Contact</span> 
+              <span class="text-rc-text font-mono">${app.phone || 'N/A'}</span>
+            </div>
+          </div>
+
+          <div class="mt-4 p-4 rounded-xl bg-rc-dark/80 border border-rc-border relative z-10">
+            <span class="text-[10px] text-rc-muted uppercase font-bold block mb-1">Details & Preferences</span> 
+            <span class="text-rc-text font-medium leading-relaxed">${app.details || 'Standard Entry'}</span>
+          </div>
+        </div>
+      `; 
     }
 
     // ==========================================
@@ -1517,7 +1552,7 @@
     }
 
     async function acceptApplicant(idx) { const app = db.applicants[idx]; triggerLoading('Approving Candidate...', async () => { await rcClient.rpc('approve_applicant', { p_application_id: app.id, p_hr_username: db.currentUser.username }); await refreshWorkspaceData(); renderTerminal(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Applicant accepted into roster!'); }); }
-    async function rejectApplicant(idx) { triggerLoading('Rejecting...', async () => { await rcClient.from('applications').update({ status: 'rejected' }).eq('id', db.applicants[idx].user_id); await refreshWorkspaceData(); renderIntakeQueue(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Applicant rejected.'); }); }
+    async function rejectApplicant(idx) { triggerLoading('Rejecting...', async () => { await rcClient.from('applications').update({ status: 'rejected' }).eq('id', db.applicants[idx].id); await refreshWorkspaceData(); renderIntakeQueue(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Applicant rejected.'); }); }
     
     async function giveStrike(rawIdx) { triggerLoading('Issuing Strike...', async () => { await rcClient.rpc('issue_strike', { p_target_code: db.roster[rawIdx].code, p_hr_username: db.currentUser.username }); await refreshWorkspaceData(); renderTerminal(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Strike issued.'); }); }
     async function revokeStrike(rawIdx) { const t = db.roster[rawIdx]; if (t.strikes > 0) { triggerLoading('Revoking Strike...', async () => { await rcClient.from('profiles').update({ strikes: t.strikes - 1 }).eq('staff_code', t.code); await rcClient.from('audit_logs').insert([{ actor: db.currentUser.username, action: 'STRIKE_REVOKED (-1)', target: t.code, details: `Strikes: ${t.strikes - 1}/3` }]); await refreshWorkspaceData(); renderTerminal(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Strike revoked.'); }); } }
@@ -1577,12 +1612,6 @@
       else { c.innerHTML = `<div><label class="text-xs font-bold text-rc-text block mb-1">Social Exp *</label><input required type="text" id="mSocExp" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs"></div><div class="mt-3"><label class="text-xs font-bold text-rc-text block mb-1">Platforms Managed *</label><input required type="text" id="mSocPlat" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs"></div><div class="mt-3"><label class="text-xs font-bold text-rc-text block mb-1">Portfolio Link *</label><input required type="url" id="mSocLink" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-discord text-xs font-mono"></div>`; }
     }
     
-    function renderPendingDashboard() { 
-      const b = document.getElementById('pendingSummaryBox'), app = db.currentUser?.application; 
-      if (!app || !b) return; 
-      b.innerHTML = `<div class="flex justify-between items-center text-xs border-b border-rc-border pb-2"><span class="text-rc-muted">Application Docket:</span><span class="font-mono text-rc-red font-bold">${app.application_ref || '#APP-101'}</span></div><div class="grid grid-cols-2 gap-2 text-xs pt-3"><div><span class="text-rc-muted">Applicant:</span> <span class="text-rc-text font-bold">${app.name || 'N/A'}</span></div><div><span class="text-rc-discord">Callsign:</span> <span class="text-rc-discord font-bold">${app.username || 'N/A'}</span></div><div><span class="text-rc-emerald">Track:</span> <span class="text-rc-emerald font-bold">${app.role_applied || 'N/A'}</span></div><div><span class="text-rc-muted">Phone:</span> <span class="text-rc-text">${app.phone || 'N/A'}</span></div></div><div class="text-xs pt-3 text-rc-muted border-t border-rc-border mt-3"><span class="text-rc-muted font-bold block mb-1">Details & Timings:</span> <span class="text-rc-text">${app.details || 'Standard Entry'}</span></div>`; 
-    }
-    
     function renderStaffWorkspace() { if (!db.currentUser) return; const l = document.getElementById('staffLeaveLockout'), o = document.getElementById('staffOverLeaveWarning'), m = document.getElementById('staffMainDashboard'); if (db.currentUser.onLeave) { if (db.currentUser.leaveOver) { l.classList.add('hidden'); o.classList.remove('hidden'); m.classList.add('hidden'); } else { l.classList.remove('hidden'); o.classList.add('hidden'); m.classList.add('hidden'); document.getElementById('staffLeaveLockoutDates').innerText = `Dates: ${db.currentUser.leaveDates}`; document.getElementById('staffLeaveLockoutReason').innerText = db.currentUser.leaveReason; } return; } l.classList.add('hidden'); o.classList.add('hidden'); m.classList.remove('hidden'); document.getElementById('staffHeroUsername').innerText = `${db.currentUser.username}'s Operational Desk`; document.getElementById('staffRoleTag').innerText = db.currentUser.role; document.getElementById('staffBadgeCode').innerText = db.currentUser.staffCode; document.getElementById('staffCodeSnippet').innerText = db.currentUser.staffCode; document.getElementById('headStaffTerminalBtn').innerHTML = db.currentUser.isHeadStaff ? `<button onclick="switchView('terminal'); renderTerminal();" class="px-4 py-2 rounded-xl text-xs font-black bg-rc-red text-white hover:bg-rc-redHover transition-all font-mono">${db.currentUser.isHR ? 'Root HR Console' : 'Head Staff Terminal'}</button>` : ''; renderStaffStrikes(); renderStaffDutyCard(); renderStaffAnnouncements(); renderStaffChat(); }
     function renderStaffStrikes() { const c = db.currentUser.strikes || 0; document.getElementById('staffStrikeCount').innerText = `${c} / 3`; let b = ''; for (let i = 0; i < 3; i++) b += `<span class="w-4 h-4 rounded ${i < c ? 'bg-rc-red shadow-lg shadow-rc-red/50' : 'bg-rc-border'}"></span>`; document.getElementById('staffStrikeVisual').innerHTML = b; }
     
@@ -1614,7 +1643,12 @@
     
     function renderLeavesTab() { const c = document.getElementById('leavesCardsStream'); if (!c) return; const l = db.roster.filter(m => m.onLeave); c.innerHTML = l.length === 0 ? `<div class="col-span-full p-8 text-center text-rc-muted text-xs font-mono">No staff on leave.</div>` : l.map(m => { const idx = db.roster.indexOf(m); return `<div class="boxy-card p-5 space-y-3 font-mono"><div class="flex items-center justify-between border-b border-rc-border pb-2"><div><span class="px-2 py-0.5 rounded bg-rc-red/20 text-rc-red font-bold text-xs">${m.code}</span><span class="font-bold text-rc-text ml-2 text-sm font-sans">${m.name}</span></div><span class="px-2 py-0.5 rounded bg-rc-emerald/20 text-rc-emerald text-[10px] font-bold">On Leave</span></div><div class="text-xs space-y-1 text-rc-muted font-sans"><div><span class="text-rc-muted">Dates:</span> <span class="text-rc-emerald font-bold">${m.leaveDates}</span></div><div><span class="text-rc-muted">Reason:</span> ${m.leaveReason}</div></div><button onclick="markStaffLeaveOver(${idx})" class="w-full py-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold text-xs">Trigger "Leave Over" Warning</button></div>`; }).join(''); }
     function autoLookupUser(val) { const n = document.getElementById('dispLookupNotice'), v = val.trim().toLowerCase(); if (!v) { n.innerText = ''; return; } const f = db.roster.find(r => r.username.toLowerCase().includes(v) || r.code.toLowerCase().includes(v)); n.innerText = f ? `Found: ${f.name} (${f.code})` : (val.length > 2 ? 'Not found' : ''); }
-    function renderIntakeQueue() { const c = document.getElementById('intakeCardsStream'); if (!c) return; c.innerHTML = db.applicants.length === 0 ? `<div class="col-span-full p-8 text-center text-rc-muted text-xs font-mono">No pending applications.</div>` : db.applicants.map((a, idx) => `<div class="boxy-card p-5 space-y-3 font-mono"><div class="flex items-center justify-between border-b border-rc-border pb-2"><div><span class="font-bold text-rc-text text-sm font-sans">${a.name}</span><span class="text-rc-discord text-xs block">${a.username}</span></div><span class="px-2 py-0.5 rounded bg-rc-red/20 text-rc-red text-[10px] font-black">${a.role_applied}</span></div><div class="text-xs space-y-1 text-rc-muted font-sans"><div><span class="text-rc-muted font-mono">Phone:</span> ${a.phone}</div><div><span class="text-rc-muted font-mono">Details:</span> ${a.details}</div></div><div class="flex gap-2 pt-1 border-t border-rc-border font-mono"><button onclick="acceptApplicant(${idx})" class="w-1/2 py-2 rounded-xl bg-rc-emerald text-black font-bold text-xs">Accept Staff</button><button onclick="rejectApplicant(${idx})" class="w-1/2 py-2 rounded-xl bg-rc-red/20 text-rc-red border border-rc-red font-bold text-xs">Reject</button></div></div>`).join(''); }
+    
+    function renderIntakeQueue() { 
+      const c = document.getElementById('intakeCardsStream'); if (!c) return; 
+      c.innerHTML = db.applicants.length === 0 ? `<div class="col-span-full p-8 text-center text-rc-muted text-xs font-mono">No pending applications.</div>` : db.applicants.map((a, idx) => `<div class="boxy-card p-5 space-y-3 font-mono"><div class="flex items-center justify-between border-b border-rc-border pb-2"><div><span class="font-bold text-rc-text text-sm font-sans">${a.name}</span><span class="text-rc-discord text-xs block">${a.username}</span></div><span class="px-2 py-0.5 rounded bg-rc-red/20 text-rc-red text-[10px] font-black">${a.role_applied}</span></div><div class="text-xs space-y-1 text-rc-muted font-sans"><div><span class="text-rc-muted font-mono">Phone:</span> ${a.phone}</div><div><span class="text-rc-muted font-mono">Details:</span> ${a.details}</div></div><div class="flex gap-2 pt-1 border-t border-rc-border font-mono"><button onclick="acceptApplicant(${idx})" class="w-1/2 py-2 rounded-xl bg-rc-emerald text-black font-bold text-xs">Accept Staff</button><button onclick="rejectApplicant(${idx})" class="w-1/2 py-2 rounded-xl bg-rc-red/20 text-rc-red border border-rc-red font-bold text-xs">Reject</button></div></div>`).join(''); 
+    }
+    
     function renderTermAnnouncements() { const c = document.getElementById('termAnnouncementsList'); if (!c) return; c.innerHTML = db.announcements.length === 0 ? `<div class="p-6 text-center text-rc-muted text-xs font-mono">No active announcements.</div>` : db.announcements.map((a, idx) => `<div class="p-4 rounded-xl bg-rc-surface border border-rc-border space-y-2 font-mono"><div class="flex justify-between items-start"><span class="font-bold text-rc-text text-xs font-sans">${a.title}</span><button onclick="deleteAnnouncement(${idx})" class="px-2.5 py-1 rounded bg-rc-red/20 text-rc-red text-[10px] font-bold">Delete ✕</button></div><p class="text-[11px] text-rc-muted line-clamp-2 font-sans">${a.body}</p></div>`).join(''); }
     function renderAuditTable() { const t = document.getElementById('auditTableBody'); if (!t) return; t.innerHTML = db.auditLogs.length === 0 ? `<tr><td colspan="5" class="p-4 text-center text-rc-muted">No activity logged.</td></tr>` : db.auditLogs.map(l => `<tr class="hover:bg-rc-surface/40"><td class="p-3 text-rc-muted whitespace-nowrap">${l.time}</td><td class="p-3 text-rc-red font-bold">${l.actor}</td><td class="p-3"><span class="px-2 py-0.5 rounded bg-rc-surface border border-rc-border text-rc-text">${l.action}</span></td><td class="p-3 text-rc-text font-semibold font-sans">${l.target}</td><td class="p-3 text-rc-muted text-[11px] font-sans">${l.details}</td></tr>`).join(''); }
 
@@ -1631,6 +1665,6 @@
     }, 1000);
 
     window.addEventListener('DOMContentLoaded', () => { initWelcomeSplash(); loadDB(); });
-      </script>
+          </script>
 </body>
 </html>
