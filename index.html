@@ -1280,7 +1280,7 @@
   </footer>
 
   <!-- ================= JAVASCRIPT STATE ENGINE ================= -->
-  <script>
+    <script>
     // ==========================================
     // SUPABASE INITIALIZATION & CONFIGURATION
     // ==========================================
@@ -1298,7 +1298,7 @@
     };
 
     // ==========================================
-    // PROFESSIONAL TOAST NOTIFICATIONS
+    // PROFESSIONAL TOAST NOTIFICATIONS (UPGRADED)
     // ==========================================
     function showToast(message, isError = false) {
       const existing = document.getElementById('rc-toast');
@@ -1306,11 +1306,12 @@
       
       const toast = document.createElement('div');
       toast.id = 'rc-toast';
-      toast.className = `fixed top-6 left-1/2 transform -translate-x-1/2 z-[9999] px-6 py-3 rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.5)] border font-mono text-xs font-bold transition-all duration-300 flex items-center gap-2 ${isError ? 'bg-red-950/95 border-rc-red text-white' : 'bg-rc-emerald/15 border-rc-emerald text-rc-emerald backdrop-blur-md'}`;
-      toast.innerHTML = isError ? `<span>⚠️</span> <span>${message}</span>` : `<span>✓</span> <span>${message}</span>`;
+      // Made text bigger, thicker borders, larger padding, and strong box-shadows for a premium feel
+      toast.className = `fixed top-8 left-1/2 transform -translate-x-1/2 z-[9999] px-8 py-4 w-[90%] max-w-md text-center rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] border-2 font-sans text-sm sm:text-base font-black tracking-wide transition-all duration-300 flex items-center justify-center gap-3 ${isError ? 'bg-red-950 border-rc-red text-white' : 'bg-[#10b981] border-[#059669] text-black shadow-emerald-500/30'}`;
+      toast.innerHTML = isError ? `<span class="text-xl">⚠️</span> <span>${message}</span>` : `<span class="text-xl">✓</span> <span>${message}</span>`;
       
       document.body.appendChild(toast);
-      setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3500);
+      setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 4000);
     }
 
     // ==========================================
@@ -1340,7 +1341,7 @@
             else { switchView('staff'); renderStaffWorkspace(); }
           } else if (db.currentUser.status === 'pending') {
             switchView('pending'); renderPendingDashboard();
-          } else { openModal('openPositions'); }
+          } else { switchView('landing'); }
         }
       } catch (err) { console.error('Failed to load database:', err); }
     }
@@ -1355,7 +1356,7 @@
       const { data: notices } = await rcClient.from('announcements').select('*').order('created_at', { ascending: false });
       db.announcements = notices || [];
       if (db.announcements.length === 0) {
-        db.announcements.push({ id: 'ANN-402', tag: 'WELCOME', author_username: '@HR_SuperAdmin', time: 'System Default', title: 'Welcome to the Official RC Esports Management Desk', body: 'All staff duty assignments, scrim room coordinates, and tournament allocations are managed through this portal. Verify your assigned shifts in your active desk.', link: 'https://linktr.ee/rc_esports', reactions: { fire: 14, heart: 8, thumbs: 22, trophy: 6 }, hasUnreadAlert: true });
+        db.announcements.push({ id: 'ANN-402', tag: 'WELCOME', author_username: '@HR_SuperAdmin', time: 'System Default', title: 'Welcome to the Official RC Esports Management Desk', body: 'All staff duty assignments, scrim room coordinates, and tournament allocations are managed through this portal.', link: 'https://linktr.ee/rc_esports', reactions: { fire: 14, heart: 8, thumbs: 22, trophy: 6 }, hasUnreadAlert: true });
       }
       
       const { data: chats } = await rcClient.from('chat_messages').select('*').order('created_at', { ascending: true });
@@ -1418,16 +1419,32 @@
       closeModal('secretHR'); 
       if (key === 'RC-ADMIN-2026') { 
         triggerLoading('Authorizing Root Clearance...', async () => { 
-          await rcClient.rpc('claim_root_hr'); await loadDB(); 
+          await rcClient.rpc('claim_root_hr'); 
+          await loadDB(); 
           document.getElementById('loadingOverlay').classList.add('hidden'); 
           showToast('Root HR Terminal Unlocked!'); 
+          switchView('terminal'); // Force UI switch
+          renderTerminal();
         }); 
       } else { showToast('Invalid Access Key. Clearance Denied.', true); } 
     }
 
     // ==========================================
-    // ROLE APPLICATION & VALIDATION
+    // ROLE APPLICATION & SMART ROUTING
     // ==========================================
+    function handleApplyStaffClick() { 
+      if (!db.currentUser) { setAuthMode('signup'); openModal('auth'); } 
+      else if (db.currentUser.status === 'pending') { 
+        switchView('pending'); 
+        renderPendingDashboard(); 
+        showToast('Your application is already under review!'); 
+      }
+      else if (db.currentUser.status === 'approved') { 
+        showToast('You are already an approved staff member on the active roster.', true); 
+      }
+      else { openModal('openPositions'); } 
+    }
+
     async function handleDedicatedRoleSubmit(e) {
       e.preventDefault();
       const roleMap = { host: 'Tournament Host', mod: 'VC Moderator', pt: 'Points Table Maker', social: 'Social Media Expert' };
@@ -1435,10 +1452,20 @@
       let detailsSummary = '';
 
       if (db.selectedRole === 'host') {
-        const s1Start = document.getElementById('mHostSlot1Start')?.value, s1End = document.getElementById('mHostSlot1End')?.value, s2Start = document.getElementById('mHostSlot2Start')?.value;
-        if (s1Start && s2Start) {
-          const diffMins = Math.abs((new Date(`1970-01-01T${s2Start}:00Z`).getTime() - new Date(`1970-01-01T${s1Start}:00Z`).getTime()) / 60000);
-          if (diffMins < 75) { showToast('Slot 1 and Slot 2 must have a minimum gap of 1 Hr 15 Mins.', true); return; }
+        const s1Start = document.getElementById('mHostSlot1Start')?.value;
+        const s1End = document.getElementById('mHostSlot1End')?.value;
+        
+        // Correct Validation: Checks difference between Slot 1 Start and Slot 1 End
+        if (s1Start && s1End) {
+          let t1 = new Date(`1970-01-01T${s1Start}:00Z`).getTime();
+          let t2 = new Date(`1970-01-01T${s1End}:00Z`).getTime();
+          if (t2 < t1) t2 += 24 * 60 * 60 * 1000; // Handles shifts that go past midnight
+          
+          const diffMins = Math.abs((t2 - t1) / 60000);
+          if (diffMins < 75) { 
+            showToast('Slot 1 must have a minimum duration of 1 Hr 15 Mins (75 minutes).', true); 
+            return; 
+          }
         }
         detailsSummary = `Slot 1: ${s1Start} to ${s1End} (Exp: ${document.getElementById('mHostExp')?.value || 0}m)`;
       } else if (db.selectedRole === 'mod') {
@@ -1454,7 +1481,12 @@
         const appPayload = { user_id: db.currentUser.id, application_ref: `#APP-${Math.floor(1000 + Math.random() * 9000)}`, name: document.getElementById('mRecName').value.trim(), username: db.currentUser.username, disc_display: document.getElementById('mRecDiscDisplay').value.trim(), disc_user: document.getElementById('mRecDiscUser').value.trim(), phone: document.getElementById('mRecPhone').value.trim(), insta: document.getElementById('mRecInsta').value.trim(), age: parseInt(document.getElementById('mRecAge').value.trim()), role_applied: selectedRoleTitle, details: detailsSummary };
         await rcClient.from('applications').insert([appPayload]);
         await rcClient.from('profiles').update({ status: 'pending', role: selectedRoleTitle }).eq('id', db.currentUser.id);
-        await loadDB(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Application submitted successfully!');
+        
+        await loadDB(); 
+        document.getElementById('loadingOverlay').classList.add('hidden'); 
+        showToast('Application submitted successfully!');
+        switchView('pending'); // Force UI switch immediately
+        renderPendingDashboard();
       });
     }
 
@@ -1475,7 +1507,7 @@
     async function handleDispatchSubmit(e) {
       e.preventDefault(); const searchKey = document.getElementById('dispSearchUser').value.trim().toLowerCase(), start = document.getElementById('dispStartTime').value, end = document.getElementById('dispEndTime').value, tier = document.getElementById('dispTier').value.trim();
       const found = db.roster.find(r => r.username.toLowerCase().includes(searchKey) || r.code.toLowerCase().includes(searchKey));
-      if (!found) { showToast('Staff not found.', true); return; }
+      if (!found) { showToast('Staff not found in registry.', true); return; }
       const now = new Date(), sDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(start.split(':')[0]), parseInt(start.split(':')[1])), eDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(end.split(':')[0]), parseInt(end.split(':')[1]));
       triggerLoading(`Dispatching to ${found.code}...`, async () => {
         await rcClient.from('active_duties').insert([{ staff_code: found.code, time_str: `${start} - ${end} IST`, start_timestamp: sDate.getTime(), end_timestamp: eDate.getTime(), tier: tier, dispatcher: db.currentUser.username, expires_at: Date.now() + (12 * 60 * 60 * 1000) }]);
@@ -1484,8 +1516,8 @@
       });
     }
 
-    async function acceptApplicant(idx) { const app = db.applicants[idx]; triggerLoading('Approving Candidate...', async () => { await rcClient.rpc('approve_applicant', { p_application_id: app.id, p_hr_username: db.currentUser.username }); await refreshWorkspaceData(); renderTerminal(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Applicant accepted!'); }); }
-    async function rejectApplicant(idx) { triggerLoading('Rejecting...', async () => { await rcClient.from('applications').update({ status: 'rejected' }).eq('id', db.applicants[idx].id); await refreshWorkspaceData(); renderIntakeQueue(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Applicant rejected.'); }); }
+    async function acceptApplicant(idx) { const app = db.applicants[idx]; triggerLoading('Approving Candidate...', async () => { await rcClient.rpc('approve_applicant', { p_application_id: app.id, p_hr_username: db.currentUser.username }); await refreshWorkspaceData(); renderTerminal(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Applicant accepted into roster!'); }); }
+    async function rejectApplicant(idx) { triggerLoading('Rejecting...', async () => { await rcClient.from('applications').update({ status: 'rejected' }).eq('id', db.applicants[idx].user_id); await refreshWorkspaceData(); renderIntakeQueue(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Applicant rejected.'); }); }
     
     async function giveStrike(rawIdx) { triggerLoading('Issuing Strike...', async () => { await rcClient.rpc('issue_strike', { p_target_code: db.roster[rawIdx].code, p_hr_username: db.currentUser.username }); await refreshWorkspaceData(); renderTerminal(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Strike issued.'); }); }
     async function revokeStrike(rawIdx) { const t = db.roster[rawIdx]; if (t.strikes > 0) { triggerLoading('Revoking Strike...', async () => { await rcClient.from('profiles').update({ strikes: t.strikes - 1 }).eq('staff_code', t.code); await rcClient.from('audit_logs').insert([{ actor: db.currentUser.username, action: 'STRIKE_REVOKED (-1)', target: t.code, details: `Strikes: ${t.strikes - 1}/3` }]); await refreshWorkspaceData(); renderTerminal(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Strike revoked.'); }); } }
@@ -1496,19 +1528,19 @@
     
     async function handlePublishAnnouncement(e) { 
       e.preventDefault(); 
-      triggerLoading('Publishing...', async () => {
+      triggerLoading('Publishing Notice...', async () => {
         await rcClient.from('announcements').insert([{ announcement_ref: `#ANN-${Math.floor(1000 + Math.random() * 9000)}`, author_username: db.currentUser.username, title: document.getElementById('pubTitle').value, body: document.getElementById('pubBody').value, link: document.getElementById('pubLink').value || null }]); 
         document.getElementById('pubTitle').value = ''; document.getElementById('pubBody').value = ''; 
         await refreshWorkspaceData(); renderTermAnnouncements(); 
         document.getElementById('loadingOverlay').classList.add('hidden');
-        showToast('Broadcast published!');
+        showToast('Broadcast published globally!');
       });
     }
 
     async function reactEmoji(idx, key) { await rcClient.rpc('react_to_announcement', { p_announcement_id: db.announcements[idx].id, p_reaction_key: key }); await refreshWorkspaceData(); renderStaffAnnouncements(); }
     async function deleteAnnouncement(idx) { await rcClient.from('announcements').delete().eq('id', db.announcements[idx].id); await refreshWorkspaceData(); renderTermAnnouncements(); showToast('Broadcast deleted.'); }
     async function handleSendHRReply(e) { e.preventDefault(); const input = document.getElementById('hrReplyInput'); if (input.value.trim()) { await rcClient.from('chat_messages').insert([{ sender: db.currentUser.username, role_type: 'hr', text: input.value.trim() }]); input.value = ''; await refreshWorkspaceData(); renderTermInquiries(); } }
-    function refreshApplicationStatus() { triggerLoading('Checking Status...', async () => { await loadDB(); if (db.currentUser.status !== 'approved') showToast('Status: Application docket remains Under Review by HR.', true); document.getElementById('loadingOverlay').classList.add('hidden'); }); }
+    function refreshApplicationStatus() { triggerLoading('Checking Status...', async () => { await loadDB(); if (db.currentUser.status !== 'approved') showToast('Application docket remains Under Review by HR.', true); document.getElementById('loadingOverlay').classList.add('hidden'); }); }
 
     // ==========================================
     // UI RENDERING & ROUTING
@@ -1533,14 +1565,13 @@
     
     function openUserProfileDossier() { if (!db.currentUser) return; document.getElementById('profCardUsername').innerText = `${db.currentUser.username} [Profile File]`; const c = document.getElementById('profDetailsContainer'); if (db.currentUser.isHR) { c.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs"><div class="p-2.5 rounded-lg bg-rc-card border border-rc-border"><span class="text-[10px] text-rc-muted block uppercase font-bold">Identity</span><span class="text-rc-text font-bold">${db.currentUser.name || 'Root Administrator'}</span></div><div class="p-2.5 rounded-lg bg-rc-card border border-rc-border"><span class="text-[10px] text-rc-muted block uppercase font-bold">Security Callsign</span><span class="text-rc-discord font-bold">${db.currentUser.username}</span></div><div class="p-2.5 rounded-lg bg-rc-card border border-rc-border col-span-1 sm:col-span-2"><span class="text-[10px] text-rc-muted block uppercase font-bold">Governance Level</span><span class="text-rc-text font-bold">Full Executive Oversight</span></div></div><div class="pt-1"><button onclick="closeModal('profile'); switchView('terminal'); renderTerminal();" class="w-full py-2.5 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-bold text-xs uppercase tracking-wider transition-all font-mono shadow-md">Launch Command Terminal ⚡</button></div>`; } else if (db.currentUser.status === 'approved') { c.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs"><div class="p-2.5 rounded-lg bg-rc-card border border-rc-border"><span class="text-[10px] text-rc-muted block uppercase font-bold">Full Name</span><span class="text-rc-text font-bold">${db.currentUser.name || 'N/A'}</span></div><div class="p-2.5 rounded-lg bg-rc-card border border-rc-border"><span class="text-[10px] text-rc-muted block uppercase font-bold">Staff ID Code</span><span class="text-rc-red font-bold">${db.currentUser.staffCode}</span></div><div class="p-2.5 rounded-lg bg-rc-card border border-rc-border"><span class="text-[10px] text-rc-muted block uppercase font-bold">Assigned Track</span><span class="text-rc-emerald font-bold">${db.currentUser.role}</span></div><div class="p-2.5 rounded-lg bg-rc-card border border-rc-border"><span class="text-[10px] text-rc-muted block uppercase font-bold">7-Day Strikes</span><span class="text-rc-red font-bold">${db.currentUser.strikes || 0} / 3 Strikes</span></div></div>`; } else if (db.currentUser.status === 'pending') { c.innerHTML = `<div class="p-2.5 rounded-lg bg-rc-card border border-rc-border text-center text-rc-muted font-sans">ℹ️ Candidate docket is currently being evaluated by Head Staff.</div>`; } else { c.innerHTML = `<div class="p-2.5 rounded-lg bg-rc-card border border-rc-border col-span-1 sm:col-span-2"><span class="text-[10px] text-rc-muted block uppercase font-bold">Staff Status</span><span class="text-rc-muted">Not enrolled on active roster</span></div><div class="pt-1"><button onclick="closeModal('profile'); openModal('openPositions');" class="w-full py-2.5 rounded-xl bg-rc-red text-white font-bold text-xs uppercase tracking-wider font-mono shadow-md">Apply For Staff Position →</button></div>`; } openModal('profile'); }
     
-    function handleApplyStaffClick() { if (!db.currentUser) { setAuthMode('signup'); openModal('auth'); } else openModal('openPositions'); }
     function openRoleModal(roleKey) { if (!db.currentUser) { setAuthMode('signup'); openModal('auth'); return; } openRoleModalFromPositions(roleKey); }
     function openRoleModalFromPositions(roleKey) { closeModal('openPositions'); db.selectedRole = roleKey; document.getElementById('roleModalTitle').innerText = { host: 'Apply: Tournament Host', mod: 'Apply: VC & Chat Moderator', pt: 'Apply: Points Table Maker', social: 'Apply: Social Media Expert' }[roleKey]; renderRoleModalFields(roleKey); openModal('roleApplication'); }
     function backToOpenPositions() { closeModal('roleApplication'); openModal('openPositions'); }
     
     function renderRoleModalFields(role) {
       const c = document.getElementById('modalRoleSpecificInputs');
-      if (role === 'host') { c.innerHTML = `<div class="p-3 rounded-xl bg-rc-red/10 border border-rc-red text-rc-red text-[11px] font-bold font-mono">HOST TIMING RULE: Slot 1 and Slot 2 must have a minimum gap of 1 Hr 15 Mins.</div><div><label class="text-xs font-bold text-rc-text block mb-1">Hosting Experience (Months) *</label><input required type="number" min="0" id="mHostExp" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs"></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3"><div><label class="text-xs font-bold text-rc-text block mb-1">Slot 1: Start Time *</label><input required type="time" id="mHostSlot1Start" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-mono"></div><div><label class="text-xs font-bold text-rc-text block mb-1">Slot 1: End Time *</label><input required type="time" id="mHostSlot1End" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-mono"></div></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3"><div><label class="text-xs font-bold text-rc-text block mb-1">Slot 2: Start Time (Optional)</label><input type="time" id="mHostSlot2Start" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-mono"></div><div><label class="text-xs font-bold text-rc-text block mb-1">Slot 2: End Time (Optional)</label><input type="time" id="mHostSlot2End" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-mono"></div></div>`; }
+      if (role === 'host') { c.innerHTML = `<div class="p-3 rounded-xl bg-rc-red/10 border border-rc-red text-rc-red text-[11px] font-bold font-mono">HOST TIMING RULE: Slot 1 must have a minimum duration of 1 Hr 15 Mins.</div><div><label class="text-xs font-bold text-rc-text block mb-1">Hosting Experience (Months) *</label><input required type="number" min="0" id="mHostExp" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs"></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3"><div><label class="text-xs font-bold text-rc-text block mb-1">Slot 1: Start Time *</label><input required type="time" id="mHostSlot1Start" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-mono"></div><div><label class="text-xs font-bold text-rc-text block mb-1">Slot 1: End Time *</label><input required type="time" id="mHostSlot1End" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-mono"></div></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3"><div><label class="text-xs font-bold text-rc-text block mb-1">Slot 2: Start Time (Optional)</label><input type="time" id="mHostSlot2Start" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-mono"></div><div><label class="text-xs font-bold text-rc-text block mb-1">Slot 2: End Time (Optional)</label><input type="time" id="mHostSlot2End" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-mono"></div></div>`; }
       else if (role === 'mod') { c.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><div><label class="text-xs font-bold text-rc-text block mb-1">Experience (Months) *</label><input required type="number" min="0" id="mModExp" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs"></div><div><label class="text-xs font-bold text-rc-text block mb-1">Daily Active Time *</label><input required type="text" id="mModDailyTime" placeholder="e.g. 3-4 Hours" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs"></div></div><div class="mt-3"><label class="text-xs font-bold text-rc-text block mb-1">Preferred Audit Block *</label><input required type="text" id="mModBlock" placeholder="e.g. 06:00 PM – 10:00 PM IST" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs"></div>`; }
       else if (role === 'pt') { c.innerHTML = `<div><label class="text-xs font-bold text-rc-text block mb-1">Tool *</label><select required id="mPtTool" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-mono"><option>Tournify / eSportsWeb</option><option>Points Table Maker</option><option>Custom Spreadsheets</option></select></div>`; }
       else { c.innerHTML = `<div><label class="text-xs font-bold text-rc-text block mb-1">Social Exp *</label><input required type="text" id="mSocExp" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs"></div><div class="mt-3"><label class="text-xs font-bold text-rc-text block mb-1">Platforms Managed *</label><input required type="text" id="mSocPlat" class="w-full px-4 py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs"></div><div class="mt-3"><label class="text-xs font-bold text-rc-text block mb-1">Portfolio Link *</label><input required type="url" id="mSocLink" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-discord text-xs font-mono"></div>`; }
@@ -1553,12 +1584,11 @@
     }
     
     function renderStaffWorkspace() { if (!db.currentUser) return; const l = document.getElementById('staffLeaveLockout'), o = document.getElementById('staffOverLeaveWarning'), m = document.getElementById('staffMainDashboard'); if (db.currentUser.onLeave) { if (db.currentUser.leaveOver) { l.classList.add('hidden'); o.classList.remove('hidden'); m.classList.add('hidden'); } else { l.classList.remove('hidden'); o.classList.add('hidden'); m.classList.add('hidden'); document.getElementById('staffLeaveLockoutDates').innerText = `Dates: ${db.currentUser.leaveDates}`; document.getElementById('staffLeaveLockoutReason').innerText = db.currentUser.leaveReason; } return; } l.classList.add('hidden'); o.classList.add('hidden'); m.classList.remove('hidden'); document.getElementById('staffHeroUsername').innerText = `${db.currentUser.username}'s Operational Desk`; document.getElementById('staffRoleTag').innerText = db.currentUser.role; document.getElementById('staffBadgeCode').innerText = db.currentUser.staffCode; document.getElementById('staffCodeSnippet').innerText = db.currentUser.staffCode; document.getElementById('headStaffTerminalBtn').innerHTML = db.currentUser.isHeadStaff ? `<button onclick="switchView('terminal'); renderTerminal();" class="px-4 py-2 rounded-xl text-xs font-black bg-rc-red text-white hover:bg-rc-redHover transition-all font-mono">${db.currentUser.isHR ? 'Root HR Console' : 'Head Staff Terminal'}</button>` : ''; renderStaffStrikes(); renderStaffDutyCard(); renderStaffAnnouncements(); renderStaffChat(); }
-    
     function renderStaffStrikes() { const c = db.currentUser.strikes || 0; document.getElementById('staffStrikeCount').innerText = `${c} / 3`; let b = ''; for (let i = 0; i < 3; i++) b += `<span class="w-4 h-4 rounded ${i < c ? 'bg-rc-red shadow-lg shadow-rc-red/50' : 'bg-rc-border'}"></span>`; document.getElementById('staffStrikeVisual').innerHTML = b; }
     
     function renderStaffDutyCard() { const c = document.getElementById('dutyCardContainer'), d = db.activeDuties[db.currentUser.staffCode]; if (!d || d.status === 'Done') { c.innerHTML = `<div class="p-8 rounded-2xl bg-rc-surface border border-rc-border text-center space-y-3 font-mono"><span class="text-xs font-mono font-bold text-rc-emerald uppercase tracking-wider block">[Duty Standby]</span><h4 class="text-base font-bold text-rc-text">No Active Duty Shift Dispatched</h4></div>`; document.getElementById('staffShiftSnippet').innerText = 'Awaiting Dispatch'; document.getElementById('staffTimerSnippet').innerText = 'No active shift'; } else { const a = (db.currentUser.dutyAvailability !== 'Unavailable'); c.innerHTML = `<div class="p-6 sm:p-8 rounded-2xl bg-rc-surface border border-rc-red/60 space-y-6"><div class="flex flex-col sm:flex-row justify-between"><div class="flex items-center gap-2"><span class="px-2.5 py-1 rounded bg-rc-red text-white text-[10px] font-black font-mono">TODAY'S DUTY</span><span class="text-xs font-bold ${a ? 'text-rc-emerald' : 'text-rc-red'}">[${a ? 'Available' : 'Unavailable'}]</span></div><span class="px-3 py-1 rounded-full bg-rc-card border border-rc-red text-rc-red text-xs font-mono font-black" id="dutyCountdown">Calculating...</span></div><div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2"><div><span class="text-xs font-bold text-rc-muted uppercase block font-mono">Window</span><span class="text-xl font-black text-rc-text mt-1 block font-mono">${d.time}</span></div><div><span class="text-xs font-bold text-rc-muted uppercase block font-mono">Tier</span><span class="text-lg font-black text-rc-text mt-1 block">${d.tier}</span></div></div><div class="pt-4 border-t border-rc-border flex flex-wrap gap-3 items-center justify-between font-mono"><div class="flex gap-2"><button onclick="toggleDutyAvailability('Available')" class="px-3 py-1.5 rounded-lg text-xs font-bold ${a ? 'bg-rc-emerald text-black' : 'bg-rc-card text-rc-muted border border-rc-border'}">✓ Available</button><button onclick="toggleDutyAvailability('Unavailable')" class="px-3 py-1.5 rounded-lg text-xs font-bold ${!a ? 'bg-rc-red text-white' : 'bg-rc-card text-rc-muted border border-rc-border'}">✕ Unavailable</button></div><button onclick="markDutyDone()" class="px-6 py-2.5 rounded-xl bg-rc-emerald text-black font-black text-xs">Mark Duty Completed ✓</button></div></div>`; document.getElementById('staffShiftSnippet').innerText = d.time; } }
     
-    function renderStaffAnnouncements() { const c = document.getElementById('staffAnnouncementsList'); if (!c) return; c.innerHTML = db.announcements.length === 0 ? `<div class="p-6 rounded-xl bg-rc-surface text-center text-rc-muted text-xs">No announcements.</div>` : db.announcements.map((a, idx) => `<div class="p-5 rounded-2xl bg-rc-surface border border-rc-border space-y-3"><div class="flex justify-between items-start"><span class="px-2 py-0.5 rounded bg-rc-red text-white text-[9px] font-black">${a.tag}</span><span class="text-xs font-mono text-rc-muted">By ${a.author_username}</span></div><h4 class="font-bold text-rc-text text-sm">${a.title}</h4><p class="text-xs text-rc-muted">${a.body}</p><div class="pt-2 border-t border-rc-border flex gap-2 text-xs font-mono"><button onclick="reactEmoji(${idx}, 'fire')" class="px-3 py-1 rounded-full bg-rc-card border border-rc-border text-rc-text font-bold">🔥 ${a.reactions.fire}</button><button onclick="reactEmoji(${idx}, 'heart')" class="px-3 py-1 rounded-full bg-rc-card border border-rc-border text-rc-text font-bold">❤️ ${a.reactions.heart}</button></div></div>`).join(''); }
+    function renderStaffAnnouncements() { const c = document.getElementById('staffAnnouncementsList'); if (!c) return; c.innerHTML = db.announcements.length === 0 ? `<div class="p-6 rounded-xl bg-rc-surface text-center text-rc-muted text-xs">No announcements.</div>` : db.announcements.map((a, idx) => `<div class="p-5 rounded-2xl bg-rc-surface border border-rc-border space-y-3"><div class="flex justify-between items-start"><span class="px-2 py-0.5 rounded bg-rc-red text-white text-[9px] font-black">${a.tag}</span><span class="text-xs font-mono text-rc-muted">By ${a.author_username}</span></div><h4 class="font-bold text-rc-text text-sm">${a.title}</h4><p class="text-xs text-rc-muted">${a.body}</p><div class="pt-2 border-t border-rc-border flex gap-2 text-xs font-mono"><button onclick="reactEmoji(${idx}, 'fire')" class="px-3 py-1 rounded-full bg-rc-card border border-rc-border text-rc-text font-bold">🔥 ${a.reactions.fire}</button><button onclick="reactEmoji(${idx}, 'heart')" class="px-3 py-1 rounded-full bg-rc-card border border-rc-border text-rc-text font-bold">❤️ ${a.reactions.heart}</button><button onclick="reactEmoji(${idx}, 'thumbs')" class="px-3 py-1 rounded-full bg-rc-card border border-rc-border text-rc-text font-bold">👍 ${a.reactions.thumbs}</button><button onclick="reactEmoji(${idx}, 'trophy')" class="px-3 py-1 rounded-full bg-rc-card border border-rc-border text-rc-text font-bold">🏆 ${a.reactions.trophy}</button></div></div>`).join(''); }
     
     function renderStaffChat() { const s = document.getElementById('staffChatStream'); if (!s) return; s.innerHTML = db.chatMessages.map(m => { const hr = m.roleType === 'hr', me = db.currentUser && m.sender.includes(db.currentUser.username); return `<div class="p-3.5 rounded-xl ${me ? 'bg-rc-surface border border-rc-red/40 ml-6' : hr ? 'bg-rc-red/10 border border-rc-red/30 mr-6' : 'bg-rc-surface border border-rc-border mr-6'} space-y-1 font-mono"><div class="flex justify-between text-[10px]"><span class="font-bold ${hr ? 'text-rc-red' : 'text-rc-text'}">${hr ? '⚡ [HR Desk]' : m.sender}</span><span class="text-rc-muted">${m.time}</span></div><p class="text-xs text-rc-text font-sans">${m.text}</p></div>`; }).join(''); s.scrollTop = s.scrollHeight; }
     
