@@ -1281,7 +1281,7 @@
 
   <!-- ================= JAVASCRIPT STATE ENGINE ================= -->
 
-  <script>
+        <script>
     // ==========================================
     // SUPABASE INITIALIZATION & CONFIGURATION
     // ==========================================
@@ -1299,7 +1299,7 @@
     };
 
     // ==========================================
-    // PROFESSIONAL TOAST NOTIFICATIONS (ANIMATED & SWIPEABLE)
+    // PROFESSIONAL TOAST NOTIFICATIONS
     // ==========================================
     function showToast(message, isError = false) {
       const existing = document.getElementById('rc-toast');
@@ -1375,13 +1375,13 @@
       const { data: notices } = await rcClient.from('announcements').select('*').order('created_at', { ascending: false });
       db.announcements = notices || [];
       if (db.announcements.length === 0) { 
-        db.announcements = [{ id: 'ANN-402', tag: 'WELCOME', author_username: '@System', time: 'System', title: 'Welcome to the RC Esports Hub', body: 'All staff duty assignments and tournament allocations are managed here.', link: '', reactions: { fire: 0, heart: 0, thumbs: 0, trophy: 0 }, hasUnreadAlert: true }]; 
+        db.announcements = [{ id: 'ANN-402', tag: 'PRIORITY', author_username: '@Root_System', time: 'System', title: '⚡ COMMAND UPLINK ESTABLISHED', body: 'Initialization complete. Welcome to the next generation of esports management. All operational staff are required to monitor this hub for shift dispatches, tournament allocations, and critical priority alerts. Stay sharp, team.', link: '', reactions: { fire: 99, heart: 12, thumbs: 45, trophy: 999 }, hasUnreadAlert: true }]; 
       }
       
       const { data: chats } = await rcClient.from('chat_messages').select('*').order('created_at', { ascending: true });
       db.chatMessages = (chats || []).map(c => ({ sender: c.sender, roleType: c.role_type, time: new Date(c.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), text: c.text }));
       if (db.chatMessages.length === 0) { 
-        db.chatMessages = [{ sender: 'Head Staff & HR', roleType: 'hr', time: 'System', text: 'Welcome to the official support desk. Use this channel to report issues.' }]; 
+        db.chatMessages = [{ sender: 'Root System', roleType: 'hr', time: 'System', text: 'Welcome to the official support channel. HR Executives can use the Quick Ping bar below to tag individual staff members.' }]; 
       }
 
       if (db.currentUser.isHeadStaff || db.currentUser.isHR) {
@@ -1441,9 +1441,6 @@
       } else { showToast('Invalid Access Key. Clearance Denied.', true); } 
     }
 
-    // ==========================================
-    // ACCOUNT DELETION SYSTEM
-    // ==========================================
     async function handleDeleteAccount() {
       if (confirm("⚠️ WARNING: Are you absolutely sure you want to permanently delete your account? This action cannot be undone.")) {
         triggerLoading('Purging Account Data...', async () => {
@@ -1460,7 +1457,7 @@
     }
 
     // ==========================================
-    // ROLE APPLICATION & SMART ROUTING
+    // ROLE APPLICATION
     // ==========================================
     function handleApplyStaffClick() { 
       if (!db.currentUser) { setAuthMode('signup'); openModal('auth'); } 
@@ -1518,7 +1515,7 @@
     }
 
     // ==========================================
-    // INQUIRIES & DIRECT REPLY SYSTEM
+    // INQUIRIES & DIRECT REPLY SYSTEM (UPGRADED)
     // ==========================================
     async function handleSendStaffMsg(e) { 
       e.preventDefault(); const input = document.getElementById('staffMsgInput'); 
@@ -1540,14 +1537,26 @@
       const s = document.getElementById('termInquiriesChatStream'), c = document.getElementById('termInquiriesCount'); 
       if (c) c.innerText = db.chatMessages.filter(m => m.roleType !== 'hr').length; 
       if (!s) return; 
-      s.innerHTML = db.chatMessages.map(m => { 
+      
+      let htmlContent = db.chatMessages.map(m => { 
         const hr = m.roleType === 'hr'; 
         return `<div class="p-4 rounded-xl ${hr ? 'bg-rc-card border border-rc-red/50 ml-10' : 'bg-rc-surface border border-rc-border mr-10'} space-y-1 font-mono">
           <div class="flex justify-between text-[10px]"><span class="font-bold ${hr ? 'text-rc-red' : 'text-rc-discord'}">${hr ? '⚡ ' + m.sender : m.sender}</span><span class="text-rc-muted">${m.time}</span></div>
           <p class="text-xs text-rc-text font-sans mt-1">${m.text}</p>
-          ${!hr ? `<div class="text-right pt-3 mt-2 border-t border-rc-border"><button onclick="document.getElementById('hrReplyInput').value = '@${m.sender.split(' ')[0]} : '; document.getElementById('hrReplyInput').focus();" class="text-[10px] text-rc-red hover:text-white px-3 py-1.5 rounded-lg border border-rc-red/30 hover:bg-rc-red transition-all font-bold tracking-wider">↳ Direct Reply</button></div>` : ''}
+          ${!hr ? `<div class="text-right pt-3 mt-2 border-t border-rc-border"><button onclick="document.getElementById('hrReplyInput').value = '${m.sender.split(' ')[0]} : '; document.getElementById('hrReplyInput').focus();" class="text-[10px] text-rc-red hover:text-white px-3 py-1.5 rounded-lg border border-rc-red/30 hover:bg-rc-red transition-all font-bold tracking-wider">↳ Direct Reply</button></div>` : ''}
         </div>`; 
       }).join(''); 
+
+      // INJECT HR QUICK PING ROSTER SYSTEM
+      if (db.currentUser && db.currentUser.isHR && db.roster.length > 0) {
+        htmlContent += `<div class="mt-4 pt-3 border-t border-rc-border bg-rc-surface/50 p-3 rounded-xl border border-rc-border/50">
+          <span class="text-[10px] text-rc-emerald font-bold block mb-2 uppercase">⚡ Quick Ping Roster (Direct Tag):</span>
+          <div class="flex flex-wrap gap-2">` + 
+          db.roster.map(r => `<button onclick="document.getElementById('hrReplyInput').value = '${r.username} : '; document.getElementById('hrReplyInput').focus();" class="px-2.5 py-1.5 rounded-lg bg-rc-card border border-rc-border text-[10px] text-rc-muted hover:text-white hover:border-rc-red transition-all font-mono shadow-sm">@${r.name || r.username}</button>`).join('') +
+        `</div></div>`;
+      }
+
+      s.innerHTML = htmlContent;
       s.scrollTop = s.scrollHeight; 
     }
 
@@ -1570,10 +1579,21 @@
     async function markDutyDone() { await rcClient.from('active_duties').update({ status: 'Done' }).eq('staff_code', db.currentUser.staffCode); await rcClient.from('audit_logs').insert([{ actor: db.currentUser.username, action: 'DUTY_COMPLETED', target: db.currentUser.staffCode, details: 'Staff marked duty as done.' }]); await refreshWorkspaceData(); renderStaffDutyCard(); showToast('Duty marked as completed!'); }
     async function toggleStaffDutyState() { await rcClient.from('profiles').update({ is_duty_active: !db.currentUser.isDutyActive }).eq('id', db.currentUser.id); await loadDB(); }
     
+    // UPGRADED LIVE SEARCH FEEDBACK
+    function autoLookupUser(val) { 
+      const n = document.getElementById('dispLookupNotice'), v = val.trim().toLowerCase(); 
+      if (!v) { n.innerText = ''; return; } 
+      // Now checks Name, Username, AND Staff Code simultaneously 
+      const f = db.roster.find(r => (r.username||'').toLowerCase().includes(v) || (r.code||'').toLowerCase().includes(v) || (r.name||'').toLowerCase().includes(v)); 
+      n.innerHTML = f ? `<span class="text-rc-emerald font-bold font-mono">✓ Ready to dispatch: ${f.name} (${f.code})</span>` : (val.length > 1 ? '<span class="text-rc-red font-mono font-bold">✕ Staff not found. (Are they approved yet?)</span>' : ''); 
+    }
+
     async function handleDispatchSubmit(e) {
       e.preventDefault(); const searchKey = document.getElementById('dispSearchUser').value.trim().toLowerCase(), start = document.getElementById('dispStartTime').value, end = document.getElementById('dispEndTime').value, tier = document.getElementById('dispTier').value.trim();
-      const found = db.roster.find(r => r.username.toLowerCase().includes(searchKey) || r.code.toLowerCase().includes(searchKey));
-      if (!found) { showToast('Staff not found in registry.', true); return; }
+      const found = db.roster.find(r => (r.username||'').toLowerCase().includes(searchKey) || (r.code||'').toLowerCase().includes(searchKey) || (r.name||'').toLowerCase().includes(searchKey));
+      
+      if (!found) { showToast('Staff not found. Ensure they are accepted into the Roster!', true); return; }
+      
       const now = new Date(), sDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(start.split(':')[0]), parseInt(start.split(':')[1])), eDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(end.split(':')[0]), parseInt(end.split(':')[1]));
       triggerLoading(`Dispatching to ${found.code}...`, async () => {
         await rcClient.from('active_duties').insert([{ staff_code: found.code, time_str: `${start} - ${end} IST`, start_timestamp: sDate.getTime(), end_timestamp: eDate.getTime(), tier: tier, dispatcher: db.currentUser.username, expires_at: Date.now() + (12 * 60 * 60 * 1000) }]);
@@ -1681,7 +1701,6 @@
     }
     
     function renderLeavesTab() { const c = document.getElementById('leavesCardsStream'); if (!c) return; const l = db.roster.filter(m => m.onLeave); c.innerHTML = l.length === 0 ? `<div class="col-span-full p-8 text-center text-rc-muted text-xs font-mono">No staff on leave.</div>` : l.map(m => { const idx = db.roster.indexOf(m); return `<div class="boxy-card p-5 space-y-3 font-mono"><div class="flex items-center justify-between border-b border-rc-border pb-2"><div><span class="px-2 py-0.5 rounded bg-rc-red/20 text-rc-red font-bold text-xs">${m.code}</span><span class="font-bold text-rc-text ml-2 text-sm font-sans">${m.name}</span></div><span class="px-2 py-0.5 rounded bg-rc-emerald/20 text-rc-emerald text-[10px] font-bold">On Leave</span></div><div class="text-xs space-y-1 text-rc-muted font-sans"><div><span class="text-rc-muted">Dates:</span> <span class="text-rc-emerald font-bold">${m.leaveDates}</span></div><div><span class="text-rc-muted">Reason:</span> ${m.leaveReason}</div></div><button onclick="markStaffLeaveOver(${idx})" class="w-full py-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold text-xs">Trigger "Leave Over" Warning</button></div>`; }).join(''); }
-    function autoLookupUser(val) { const n = document.getElementById('dispLookupNotice'), v = val.trim().toLowerCase(); if (!v) { n.innerText = ''; return; } const f = db.roster.find(r => r.username.toLowerCase().includes(v) || r.code.toLowerCase().includes(v)); n.innerText = f ? `Found: ${f.name} (${f.code})` : (val.length > 2 ? 'Not found' : ''); }
     function renderIntakeQueue() { const c = document.getElementById('intakeCardsStream'); if (!c) return; c.innerHTML = db.applicants.length === 0 ? `<div class="col-span-full p-8 text-center text-rc-muted text-xs font-mono">No pending applications.</div>` : db.applicants.map((a, idx) => `<div class="boxy-card p-5 space-y-3 font-mono"><div class="flex items-center justify-between border-b border-rc-border pb-2"><div><span class="font-bold text-rc-text text-sm font-sans">${a.name}</span><span class="text-rc-discord text-xs block">${a.username}</span></div><span class="px-2 py-0.5 rounded bg-rc-red/20 text-rc-red text-[10px] font-black">${a.role_applied}</span></div><div class="text-xs space-y-1 text-rc-muted font-sans"><div><span class="text-rc-muted font-mono">Phone:</span> ${a.phone}</div><div><span class="text-rc-muted font-mono">Details:</span> ${a.details}</div></div><div class="flex gap-2 pt-1 border-t border-rc-border font-mono"><button onclick="acceptApplicant(${idx})" class="w-1/2 py-2 rounded-xl bg-rc-emerald text-black font-bold text-xs">Accept Staff</button><button onclick="rejectApplicant(${idx})" class="w-1/2 py-2 rounded-xl bg-rc-red/20 text-rc-red border border-rc-red font-bold text-xs">Reject</button></div></div>`).join(''); }
     function renderTermAnnouncements() { const c = document.getElementById('termAnnouncementsList'); if (!c) return; c.innerHTML = db.announcements.length === 0 ? `<div class="p-6 text-center text-rc-muted text-xs font-mono">No active announcements.</div>` : db.announcements.map((a, idx) => `<div class="p-4 rounded-xl bg-rc-surface border border-rc-border space-y-2 font-mono"><div class="flex justify-between items-start"><span class="font-bold text-rc-text text-xs font-sans">${a.title}</span><button onclick="deleteAnnouncement(${idx})" class="px-2.5 py-1 rounded bg-rc-red/20 text-rc-red text-[10px] font-bold">Delete ✕</button></div><p class="text-[11px] text-rc-muted line-clamp-2 font-sans">${a.body}</p></div>`).join(''); }
     function renderAuditTable() { const t = document.getElementById('auditTableBody'); if (!t) return; t.innerHTML = db.auditLogs.length === 0 ? `<tr><td colspan="5" class="p-4 text-center text-rc-muted">No activity logged.</td></tr>` : db.auditLogs.map(l => `<tr class="hover:bg-rc-surface/40"><td class="p-3 text-rc-muted whitespace-nowrap">${l.time}</td><td class="p-3 text-rc-red font-bold">${l.actor}</td><td class="p-3"><span class="px-2 py-0.5 rounded bg-rc-surface border border-rc-border text-rc-text">${l.action}</span></td><td class="p-3 text-rc-text font-semibold font-sans">${l.target}</td><td class="p-3 text-rc-muted text-[11px] font-sans">${l.details}</td></tr>`).join(''); }
@@ -1699,7 +1718,7 @@
     }, 1000);
 
     window.addEventListener('DOMContentLoaded', () => { initWelcomeSplash(); loadDB(); });
-      </script>
+                                   </script>
       
 </body>
 </html>
