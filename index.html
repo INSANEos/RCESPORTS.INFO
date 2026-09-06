@@ -155,6 +155,17 @@
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s ease;
       z-index: 0;
     }
+    @keyframes rcNotificationPulse {
+      0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); transform: translateY(0); }
+      50% { box-shadow: 0 0 0 5px transparent; transform: translateY(-1px); }
+    }
+    .rc-notification-alert {
+      animation: rcNotificationPulse 1.4s ease-in-out infinite;
+      border-color: var(--accent-color) !important;
+    }
+    .rc-notification-dot {
+      animation: pulse 1.2s ease-in-out infinite;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-rc-red selection:text-white mesh-glow">
@@ -173,7 +184,7 @@
         <h1 class="text-3xl sm:text-4xl font-black italic tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-rc-red uppercase drop-shadow-[0_0_20px_rgba(225,29,72,0.6)]">
           RC <span class="text-rc-red">ESPORTS</span>
         </h1>
-        <p class="text-xs text-gray-400 font-mono tracking-wider">India's Premier Esports Hub</p>
+        <p class="text-xs text-gray-300 font-mono tracking-wider leading-relaxed">India's Premier Esports Hub<br><span class="text-gray-500">Command, compete, and grow together.</span></p>
       </div>
 
       <div class="pt-3 relative z-10 space-y-1.5">
@@ -508,7 +519,7 @@
           <h3 class="text-lg font-black text-white">LEAVE PERIOD EXPIRED / OVER LEAVE</h3>
           <p class="text-xs text-gray-300 mt-1 font-sans">Your registered leave duration has concluded. You must confirm your return to resume active lobby duties.</p>
         </div>
-        <button onclick="confirmReturnFromLeave()" class="px-8 py-3 rounded-xl bg-rc-red text-white font-black text-xs tracking-wider shadow-lg shadow-rc-red/40 animate-pulse font-mono">
+        <button type="button" onclick="handleReturnClick(this)" class="px-8 py-3 rounded-xl bg-rc-red text-white font-black text-xs tracking-wider shadow-lg shadow-rc-red/40 animate-pulse font-mono">
           Confirm Return to Active Duty →
         </button>
       </div>
@@ -566,20 +577,22 @@
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <button onclick="openModal('staffAnnouncements')" class="p-3.5 sm:p-4 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-red text-left transition-all group">
+          <button onclick="openStaffAnnouncements()" id="staffAnnouncementsAction" class="relative p-3.5 sm:p-4 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-red text-left transition-all group">
             <div class="w-8 h-8 rounded-lg bg-rc-red/15 text-rc-red flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
             </div>
             <span class="font-bold text-rc-text text-xs block group-hover:text-rc-red font-sans">Announcements</span>
             <span class="text-[10px] text-rc-muted font-sans">Noticeboard Updates</span>
+            <span id="staffAnnouncementsAlert" class="hidden absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-rc-red text-white text-[9px] font-black rc-notification-dot">NEW</span>
           </button>
           
-          <button onclick="openModal('staffChat')" class="p-3.5 sm:p-4 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-discord text-left transition-all group">
+          <button onclick="openStaffChat()" id="staffChatAction" class="relative p-3.5 sm:p-4 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-discord text-left transition-all group">
             <div class="w-8 h-8 rounded-lg bg-rc-discord/15 text-rc-discord flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
             </div>
             <span class="font-bold text-rc-text text-xs block group-hover:text-rc-discord font-sans">Direct Inquiries</span>
             <span class="text-[10px] text-rc-muted font-sans">Head Staff Desk</span>
+            <span id="staffChatAlert" class="hidden absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-rc-discord text-white text-[9px] font-black rc-notification-dot">NEW</span>
           </button>
 
           <button onclick="openModal('staffLeave')" class="p-3.5 sm:p-4 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-emerald text-left transition-all group">
@@ -645,9 +658,12 @@
         </div>
 
         <div id="termPanelRoster" class="space-y-4">
-          <div class="flex justify-between items-center">
+          <div class="flex justify-between items-center gap-3">
             <h3 class="text-xs sm:text-sm font-black text-rc-text uppercase tracking-wider font-mono">Active Staff Personnel Directory</h3>
-            <span class="text-xs text-rc-muted font-mono">Boxy Dossier View</span>
+            <div class="flex items-center gap-3">
+              <button onclick="clearCompletedDuties()" class="px-3 py-1.5 rounded-lg bg-rc-surface border border-rc-border text-rc-muted text-[10px] font-bold font-mono hover:border-rc-red hover:text-rc-red transition-all">Clear Completed Duties</button>
+              <span class="text-xs text-rc-muted font-mono">Boxy Dossier View</span>
+            </div>
           </div>
           <div id="rosterCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </div>
@@ -659,13 +675,19 @@
               <h3 class="text-xs sm:text-sm font-black text-rc-text uppercase tracking-wider font-mono">Direct Support & Staff Inquiries</h3>
               <p class="text-xs text-rc-muted font-sans">Incoming questions and match reports submitted from the employee desk.</p>
             </div>
-            <span class="text-xs text-rc-discord font-mono font-bold">● Active Support Channel</span>
+            <div class="flex items-center gap-2">
+              <button onclick="clearAllInquiries()" class="px-3 py-1.5 rounded-lg bg-rc-red/10 border border-rc-red text-rc-red text-[10px] font-bold font-mono hover:bg-rc-red hover:text-white transition-all">Clear All</button>
+              <span class="text-xs text-rc-discord font-mono font-bold">● Active Support Channel</span>
+            </div>
           </div>
 
           <div class="boxy-card p-4 sm:p-6 space-y-4">
             <div id="termInquiriesChatStream" class="h-80 overflow-y-auto space-y-3 pr-2 custom-scrollbar font-mono text-xs"></div>
             
             <form onsubmit="handleSendHRReply(event)" class="flex gap-2 pt-2 border-t border-rc-border font-mono">
+              <select id="termInquiryTarget" class="w-44 px-3 py-3 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
+                <option value="all">All staff</option>
+              </select>
               <input required type="text" id="hrReplyInput" placeholder="Type official HR / Head Staff response..." class="flex-grow px-4 py-3 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
               <button type="submit" class="px-6 py-3 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-bold text-xs transition-colors">
                 Send Reply ↗
@@ -708,11 +730,11 @@
                 </div>
                 <div>
                   <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Shift Start Time (e.g. 04:00 PM) *</label>
-                  <input required type="time" id="dispStartTime" class="w-full px-4 py-3 rounded-xl bg-rc-card border border-rc-border text-rc-text font-mono text-sm focus:border-rc-red focus:outline-none">
+                  <input required type="time" id="dispStartTime" step="60" style="color-scheme: dark;" class="w-full px-4 py-3 rounded-xl bg-rc-card border border-rc-border text-rc-text font-mono text-sm focus:border-rc-red focus:outline-none">
                 </div>
                 <div>
                   <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Shift End Time (e.g. 06:00 PM) *</label>
-                  <input required type="time" id="dispEndTime" class="w-full px-4 py-3 rounded-xl bg-rc-card border border-rc-border text-rc-text font-mono text-sm focus:border-rc-red focus:outline-none">
+                  <input required type="time" id="dispEndTime" step="60" style="color-scheme: dark;" class="w-full px-4 py-3 rounded-xl bg-rc-card border border-rc-border text-rc-text font-mono text-sm focus:border-rc-red focus:outline-none">
                 </div>
               </div>
 
@@ -1091,6 +1113,12 @@
         <button onclick="closeModal('staffChat')" class="text-rc-muted hover:text-rc-text text-lg font-bold font-mono">✕</button>
       </div>
       <div id="staffChatStream" class="h-64 overflow-y-auto space-y-3 pr-2 custom-scrollbar font-mono text-xs"></div>
+      <div class="pt-2 border-t border-rc-border">
+        <label class="text-[10px] font-bold text-rc-muted uppercase tracking-wider block mb-2 font-mono">Message Target</label>
+        <select id="staffChatTarget" class="w-full px-3 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
+          <option value="all">All staff / HR</option>
+        </select>
+      </div>
       <form onsubmit="handleSendStaffMsg(event)" class="flex gap-2 pt-2 font-mono">
         <input required type="text" id="staffMsgInput" placeholder="Type query for Head Staff & HR..." class="flex-grow px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
         <button type="submit" class="px-5 py-2.5 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-bold text-xs transition-colors">
@@ -1112,14 +1140,18 @@
       </div>
       <form onsubmit="handleLeaveSubmit(event)" class="space-y-4 font-mono">
         <div>
-          <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Leave Date Range *</label>
-          <input required type="text" placeholder="e.g. 01 Sep 2026 – 04 Sep 2026" id="leaveDates" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans">
+          <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Leave Starts *</label>
+          <input required type="datetime-local" id="leaveStart" step="60" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans" style="color-scheme: dark;">
+        </div>
+        <div>
+          <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Leave Ends *</label>
+          <input required type="datetime-local" id="leaveEnd" step="60" class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans" style="color-scheme: dark;">
         </div>
         <div>
           <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Reason for Leave *</label>
           <textarea required id="leaveReason" rows="3" placeholder="State reason for absence..." class="w-full px-4 py-2.5 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans"></textarea>
         </div>
-        <p class="text-[11px] text-rc-muted font-sans">Note: Submitting leave will immediately move your profile to the On-Leave section.</p>
+        <p class="text-[11px] text-rc-muted font-sans">Note: Submitting leave will immediately move your profile to the On-Leave section and show a live countdown to the end time.</p>
         <button type="submit" class="w-full py-3 rounded-xl bg-rc-emerald text-black font-bold text-xs tracking-wider hover:bg-emerald-400 transition-colors">
           Submit Leave
         </button>
@@ -1285,6 +1317,7 @@
       <img id="globalPopupImg" class="w-full h-auto max-h-64 object-cover rounded-xl mb-5 hidden border border-rc-border shadow-lg" src="" />
       <h2 id="globalPopupTitle" class="text-2xl font-black text-white mb-3 font-sans uppercase tracking-wide"></h2>
       <p id="globalPopupBody" class="text-rc-muted font-sans mb-8 text-sm leading-relaxed"></p>
+      <a id="globalPopupLink" class="hidden inline-flex items-center justify-center px-4 py-2 mb-6 rounded-xl bg-rc-card border border-rc-border text-rc-discord text-xs font-mono font-bold hover:border-rc-discord hover:text-white transition-all" target="_blank" rel="noopener noreferrer">Open attached link ↗</a>
       <button onclick="closeGlobalPopup()" class="w-full py-4 bg-rc-red hover:bg-rc-redHover text-white font-black rounded-xl tracking-widest transition-all shadow-[0_0_20px_rgba(225,29,72,0.3)]">ACKNOWLEDGE NOTIFICATION</button>
     </div>
   </div>
@@ -1293,7 +1326,7 @@
     <div class="animate-pulse mb-6"><span class="text-7xl">⚠️</span></div>
     <h1 class="text-4xl md:text-6xl text-white font-black uppercase tracking-widest mb-4 drop-shadow-[0_0_20px_rgba(225,29,72,0.8)]">Leave Expired</h1>
     <p class="text-red-200 font-mono mb-10 max-w-md">Your authorized operational leave period has concluded. You must acknowledge your return to active duty to unlock your terminal.</p>
-    <button onclick="confirmReturnFromLeave()" class="px-8 py-4 bg-white text-red-950 hover:bg-gray-200 font-black rounded-xl font-mono transition-all shadow-[0_0_30px_rgba(255,255,255,0.2)]">ACKNOWLEDGE & RESUME DUTY</button>
+    <button type="button" onclick="handleReturnClick(this)" class="px-8 py-4 bg-white text-red-950 hover:bg-gray-200 font-black rounded-xl font-mono transition-all shadow-[0_0_30px_rgba(255,255,255,0.2)]">ACKNOWLEDGE & RESUME DUTY</button>
   </div>
 
   <script>
@@ -1309,7 +1342,7 @@
 
     let db = {
       currentUser: null, selectedRole: 'host', authMode: 'signin', currentTheme: 'dark',
-      announcements: [], roster: [], applicants: [], chatMessages: [], auditLogs: [], activeDuties: {}
+      announcements: [], roster: [], applicants: [], applications: [], chatMessages: [], auditLogs: [], activeDuties: {}, unreadAnnouncementIds: [], unreadInquiryCount: 0
     };
 
     function showToast(message, isError = false) {
@@ -1347,20 +1380,27 @@
       if (!db.currentUser) return;
       const { data: duties } = await rcClient.from('active_duties').select('*').eq('status', 'Active');
       db.activeDuties = {};
-      (duties || []).forEach(d => { db.activeDuties[d.staff_code] = { time: d.time_str, startTimestamp: d.start_timestamp, endTimestamp: d.end_timestamp, tier: d.tier, dispatcher: d.dispatcher, expiresAt: d.expires_at, status: d.status, availability: d.availability }; });
+      (duties || []).forEach(d => { if (!db.activeDuties[d.staff_code]) db.activeDuties[d.staff_code] = { time: d.time_str, startTimestamp: d.start_timestamp, endTimestamp: d.end_timestamp, tier: d.tier, dispatcher: d.dispatcher, expiresAt: d.expires_at, status: d.status, availability: d.availability }; });
 
       const { data: notices } = await rcClient.from('announcements').select('*').order('created_at', { ascending: false });
       db.announcements = notices || [];
       if (db.announcements.length === 0) { db.announcements = [{ id: 'ANN-402', tag: 'PRIORITY', author_username: '@Root_System', time: 'System', title: '⚡ COMMAND UPLINK ESTABLISHED', body: 'Initialization complete. Welcome to the next generation of esports management. Stay sharp, team.', link: '', reactions: { fire: 99, heart: 12, thumbs: 45, trophy: 999 }, hasUnreadAlert: true }]; }
+      const seenAnnouncements = JSON.parse(localStorage.getItem(`rc_seen_announcements_${db.currentUser.id}`) || '[]');
+      db.unreadAnnouncementIds = db.announcements.filter(a => a.id && !seenAnnouncements.map(String).includes(String(a.id))).map(a => String(a.id));
       
-      const { data: chats } = await rcClient.from('chat_messages').select('*').order('created_at', { ascending: true });
-      db.chatMessages = (chats || []).map(c => ({ sender: c.sender, roleType: c.role_type, time: new Date(c.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), text: c.text }));
-      if (db.chatMessages.length === 0) { db.chatMessages = [{ sender: 'Root System', roleType: 'hr', time: 'System', text: 'Welcome to the official support channel. HR Executives can use the Quick Ping bar below to tag individual staff members.' }]; }
+      const { data: chats, error: chatError } = await rcClient.from('chat_messages').select('*').order('created_at', { ascending: true });
+      if (chatError) console.error('Unable to load inquiries:', chatError.message);
+      db.chatMessages = (chats || []).map(c => ({ id: c.id, sender: c.sender, roleType: c.role_type, recipient: c.recipient || 'all', createdAt: c.created_at, time: new Date(c.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), text: c.text }));
+      if (db.chatMessages.length === 0) { db.chatMessages = [{ sender: 'Root System', roleType: 'hr', recipient: 'all', time: 'System', text: 'Welcome to the official support channel. HR Executives can use the Quick Ping bar below to tag individual staff members.' }]; }
+      const seenInquiryAt = localStorage.getItem(`rc_seen_inquiries_${db.currentUser.id}`) || '';
+      db.unreadInquiryCount = getVisibleChatMessages().filter(message => message.createdAt && message.createdAt > seenInquiryAt && !message.sender?.includes(db.currentUser.username)).length;
 
       if (db.currentUser.isHeadStaff || db.currentUser.isHR) {
-        const { data: allProfiles } = await rcClient.from('profiles').select('*').eq('status', 'approved');
+        const { data: allProfiles, error: rosterError } = await rcClient.from('profiles').select('*').eq('status', 'approved');
+        if (rosterError) console.error('Unable to load approved roster:', rosterError.message);
         const { data: accApps } = await rcClient.from('applications').select('*').eq('status', 'accepted');
-        db.roster = (allProfiles || []).map(p => { const app = (accApps || []).find(a => a.user_id === p.id) || {}; return { ...p, ...app, code: p.staff_code, isHeadStaff: p.is_head_staff, dutyState: p.is_duty_active ? 'Active' : 'Inactive', onLeave: p.on_leave, leaveDates: p.leave_dates, leaveReason: p.leave_reason, leaveOver: p.leave_over }; });
+        db.applications = accApps || [];
+        db.roster = (allProfiles || []).filter(p => !p.is_hr).map(p => { const app = (accApps || []).find(a => a.user_id === p.id) || {}; const duty = db.activeDuties[p.staff_code]; const dutyState = duty?.status === 'Done' ? 'Done' : (p.is_duty_active ? 'Active' : 'Inactive'); return { ...p, ...app, code: p.staff_code, isHeadStaff: p.is_head_staff, dutyState, dutyAvailability: duty?.status === 'Active' ? (duty.availability || p.duty_availability || 'Available') : (p.duty_availability || 'Unavailable'), dutyTime: duty?.time, dutyTier: duty?.tier, dutyDispatcher: duty?.dispatcher, onLeave: p.on_leave, leaveDates: p.leave_dates, leaveReason: p.leave_reason, leaveOver: p.leave_over }; });
         const { data: apps } = await rcClient.from('applications').select('*').eq('status', 'pending');
         db.applicants = apps || [];
         const { data: logs } = await rcClient.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(50);
@@ -1379,7 +1419,9 @@
         document.getElementById('globalPopupTitle').innerText = popupData.title;
         document.getElementById('globalPopupBody').innerText = popupData.body;
         const img = document.getElementById('globalPopupImg');
-        if (popupData.link) { img.src = popupData.link; img.classList.remove('hidden'); } else { img.classList.add('hidden'); }
+        const popupLink = document.getElementById('globalPopupLink');
+        if (popupData.link && isSafeExternalUrl(popupData.link)) { popupLink.href = popupData.link; popupLink.classList.remove('hidden'); } else { popupLink.classList.add('hidden'); }
+        img.classList.add('hidden');
         m.classList.remove('hidden'); m.classList.add('flex');
         setTimeout(() => { m.style.opacity = '1'; b.classList.remove('scale-95'); b.classList.add('scale-100'); }, 50);
         sessionStorage.setItem(`seen_popup_${popupData.id}`, 'true');
@@ -1435,16 +1477,32 @@
     async function handleSendStaffMsg(e) { e.preventDefault(); const input = document.getElementById('staffMsgInput'); if (input.value.trim()) { await rcClient.from('chat_messages').insert([{ sender: `${db.currentUser.name} (${db.currentUser.staffCode || 'Pending'})`, role_type: 'staff', text: input.value.trim() }]); input.value = ''; await refreshWorkspaceData(); renderStaffChat(); } }
     async function handleSendHRReply(e) { e.preventDefault(); const input = document.getElementById('hrReplyInput'); if (input.value.trim()) { await rcClient.from('chat_messages').insert([{ sender: db.currentUser.username, role_type: 'hr', text: input.value.trim() }]); input.value = ''; await refreshWorkspaceData(); renderTermInquiries(); } }
     function renderTermInquiries() { 
-      const s = document.getElementById('termInquiriesChatStream'), c = document.getElementById('termInquiriesCount'); if (c) c.innerText = db.chatMessages.filter(m => m.roleType !== 'hr').length; if (!s) return; 
-      let htmlContent = db.chatMessages.map(m => { const hr = m.roleType === 'hr'; return `<div class="p-4 rounded-xl ${hr ? 'bg-rc-card border border-rc-red/50 ml-10' : 'bg-rc-surface border border-rc-border mr-10'} space-y-1 font-mono"><div class="flex justify-between text-[10px]"><span class="font-bold ${hr ? 'text-rc-red' : 'text-rc-discord'}">${hr ? '⚡ ' + m.sender : m.sender}</span><span class="text-rc-muted">${m.time}</span></div><p class="text-xs text-rc-text font-sans mt-1">${m.text}</p>${!hr ? `<div class="text-right pt-3 mt-2 border-t border-rc-border"><button onclick="document.getElementById('hrReplyInput').value = '${m.sender.split(' ')[0]} : '; document.getElementById('hrReplyInput').focus();" class="text-[10px] text-rc-red hover:text-white px-3 py-1.5 rounded-lg border border-rc-red/30 hover:bg-rc-red transition-all font-bold tracking-wider">↳ Direct Reply</button></div>` : ''}</div>`; }).join(''); 
-      if (db.currentUser && db.currentUser.isHR && db.roster.length > 0) { htmlContent += `<div class="mt-4 pt-3 border-t border-rc-border bg-rc-surface/50 p-3 rounded-xl border border-rc-border/50"><span class="text-[10px] text-rc-emerald font-bold block mb-2 uppercase">⚡ Quick Ping Roster (Direct Tag):</span><div class="flex flex-wrap gap-2">` + db.roster.filter(r => !r.isHR).map(r => `<button onclick="document.getElementById('hrReplyInput').value = '${r.username} : '; document.getElementById('hrReplyInput').focus();" class="px-2.5 py-1.5 rounded-lg bg-rc-card border border-rc-border text-[10px] text-rc-muted hover:text-white hover:border-rc-red transition-all font-mono shadow-sm">@${r.name || r.username}</button>`).join('') + `</div></div>`; }
-      s.innerHTML = htmlContent; s.scrollTop = s.scrollHeight; 
+      const s = document.getElementById('termInquiriesChatStream'), c = document.getElementById('termInquiriesCount');
+      const visibleMessages = getVisibleChatMessages();
+      const targetSelect = document.getElementById('termInquiryTarget');
+      if (targetSelect) {
+        const selectedTarget = targetSelect.value;
+        targetSelect.innerHTML = '<option value="all">All staff</option>' + (db.roster || []).filter(r => r.username && r.code).map(r => `<option value="${r.username}">${r.name || r.username} (${r.code})</option>`).join('');
+        targetSelect.value = [...targetSelect.options].some(option => option.value === selectedTarget) ? selectedTarget : 'all';
+      }
+      if (c) c.innerText = visibleMessages.filter(m => m.roleType !== 'hr').length;
+      if (!s) return;
+
+      let htmlContent = visibleMessages.map(m => { 
+        const hr = m.roleType === 'hr';
+        const directName = (m.recipient && m.recipient !== 'all') ? ` → ${m.recipient}` : '';
+        return `<div class="p-4 rounded-xl ${hr ? 'bg-rc-card border border-rc-red/50 ml-10' : 'bg-rc-surface border border-rc-border mr-10'} space-y-1 font-mono"><div class="flex justify-between text-[10px]"><span class="font-bold ${hr ? 'text-rc-red' : 'text-rc-discord'}">${hr ? '⚡ ' + m.sender : m.sender}${directName}</span><span class="text-rc-muted">${m.time}</span></div><p class="text-xs text-rc-text font-sans mt-1">${m.text}</p>${!hr ? `<div class="text-right pt-3 mt-2 border-t border-rc-border"><button onclick="document.getElementById('hrReplyInput').value = '${(m.sender || '').split(' ')[0]} : '; document.getElementById('hrReplyInput').focus();" class="text-[10px] text-rc-red hover:text-white px-3 py-1.5 rounded-lg border border-rc-red/30 hover:bg-rc-red transition-all font-bold tracking-wider">↳ Direct Reply</button></div>` : ''}</div>`; }).join('');
+
+      if (db.currentUser && (db.currentUser.isHR || db.currentUser.isHeadStaff) && db.roster.length > 0) { htmlContent += `<div class="mt-4 pt-3 border-t border-rc-border bg-rc-surface/50 p-3 rounded-xl border border-rc-border/50"><span class="text-[10px] text-rc-emerald font-bold block mb-2 uppercase">⚡ Quick Ping Roster (Direct Tag):</span><div class="flex flex-wrap gap-2">` + db.roster.filter(r => !r.isHR).map(r => `<button onclick="document.getElementById('hrReplyInput').value = '${r.username} : '; document.getElementById('hrReplyInput').focus();" class="px-2.5 py-1.5 rounded-lg bg-rc-card border border-rc-border text-[10px] text-rc-muted hover:text-white hover:border-rc-red transition-all font-mono shadow-sm">@${r.name || r.username}</button>`).join('') + `</div></div>`; }
+      s.innerHTML = htmlContent || '<div class="p-4 rounded-xl bg-rc-surface border border-rc-border text-center text-rc-muted text-xs">No messages in this desk yet.</div>';
+      s.scrollTop = s.scrollHeight; 
     }
     function renderStaffChat() { const s = document.getElementById('staffChatStream'); if (!s) return; s.innerHTML = db.chatMessages.map(m => { const hr = m.roleType === 'hr', me = db.currentUser && m.sender.includes(db.currentUser.name); return `<div class="p-3.5 rounded-xl ${me ? 'bg-rc-surface border border-rc-red/40 ml-6' : hr ? 'bg-rc-red/10 border border-rc-red/30 mr-6' : 'bg-rc-surface border border-rc-border mr-6'} space-y-1 font-mono"><div class="flex justify-between text-[10px]"><span class="font-bold ${hr ? 'text-rc-red' : 'text-rc-text'}">${hr ? '⚡ [HR Desk]' : m.sender}</span><span class="text-rc-muted">${m.time}</span></div><p class="text-xs text-rc-text font-sans">${m.text}</p></div>`; }).join(''); s.scrollTop = s.scrollHeight; }
 
     async function handleLeaveSubmit(e) { 
       e.preventDefault(); 
-      const returnTimeInput = document.getElementById('leaveDates').value;
+      const startTimeInput = document.getElementById('leaveStart').value;
+      const endTimeInput = document.getElementById('leaveEnd').value;
       const reason = document.getElementById('leaveReason').value.trim(); 
       if(!returnTimeInput) { showToast('Please select a return date and time.', true); return; }
       const returnTimestamp = new Date(returnTimeInput).getTime();
@@ -1453,30 +1511,81 @@
       closeModal('staffLeave'); showToast('Operational leave registered.'); await loadDB(); 
     }
     
-    async function abortEmployeeLeave() { triggerLoading('Resuming Duty...', async () => { await rcClient.from('profiles').update({ on_leave: false, leave_over: false, leave_dates: null }).eq('id', db.currentUser.id); await rcClient.from('audit_logs').insert([{ actor: db.currentUser.username, action: 'LEAVE_ABORTED', target: db.currentUser.staffCode, details: 'Resumed duty early.' }]); await loadDB(); document.getElementById('loadingOverlay').classList.add('hidden'); document.getElementById('fullPageLeaveWarning').classList.add('hidden'); showToast('Duty resumed.'); }); }
-    async function confirmReturnFromLeave() { triggerLoading('Confirming Return...', async () => { await rcClient.from('profiles').update({ on_leave: false, leave_over: false, leave_dates: null }).eq('id', db.currentUser.id); await loadDB(); document.getElementById('loadingOverlay').classList.add('hidden'); document.getElementById('fullPageLeaveWarning').classList.add('hidden'); }); }
+    async function resumeFromLeave(action, message) {
+      document.getElementById('loadingMessage').innerText = action;
+      document.getElementById('loadingOverlay').classList.remove('hidden');
+      try {
+        const { data, error } = await rcClient.from('profiles').update({ on_leave: false, leave_over: false, leave_dates: null }).eq('id', db.currentUser.id).select('id, on_leave, leave_over, leave_dates');
+        if (error) throw error;
+        if (!data || data.length === 0) throw new Error('No profile was updated. Check the Supabase profile update policy.');
+
+        db.currentUser.onLeave = false;
+        db.currentUser.leaveOver = false;
+        db.currentUser.leaveDates = null;
+        document.getElementById('fullPageLeaveWarning').classList.add('hidden');
+        document.getElementById('fullPageLeaveWarning').classList.remove('flex');
+        document.getElementById('loadingOverlay').classList.add('hidden');
+        switchView('staff');
+        renderStaffWorkspace();
+        await rcClient.from('audit_logs').insert([{ actor: db.currentUser.username, action: 'LEAVE_RESUMED', target: db.currentUser.staffCode, details: message }]);
+        showToast(message);
+      } catch (error) {
+        document.getElementById('loadingOverlay').classList.add('hidden');
+        showToast(`Unable to resume duty: ${error.message}`, true);
+      }
+    }
+    async function abortEmployeeLeave() { await resumeFromLeave('Resuming Duty...', 'Duty resumed early.'); }
+    async function confirmReturnFromLeave(button) {
+      await resumeFromLeave('Confirming Return...', 'Return from leave acknowledged.');
+      if (button && document.body.contains(button)) {
+        button.disabled = false;
+        button.innerText = 'ACKNOWLEDGE & RESUME DUTY';
+        button.classList.remove('opacity-60', 'cursor-wait');
+      }
+    }
+    function handleReturnClick(button) {
+      if (!button || button.disabled) return;
+      button.disabled = true;
+      button.innerText = 'RESUMING DUTY...';
+      button.classList.add('opacity-60', 'cursor-wait');
+      confirmReturnFromLeave(button);
+    }
     async function markStaffLeaveOver(rawIdx) { await rcClient.from('profiles').update({ leave_over: true }).eq('staff_code', db.roster[rawIdx].code); await refreshWorkspaceData(); renderLeavesTab(); showToast(`Leave Over alert pushed to ${db.roster[rawIdx].code}`); }
     
-    async function toggleDutyAvailability(status) { await rcClient.from('profiles').update({ duty_availability: status }).eq('id', db.currentUser.id); await rcClient.from('active_duties').update({ availability: status }).eq('staff_code', db.currentUser.staffCode); await refreshWorkspaceData(); renderStaffDutyCard(); showToast(`Status set to ${status}`); }
-    async function markDutyDone() { await rcClient.from('active_duties').update({ status: 'Done' }).eq('staff_code', db.currentUser.staffCode); await rcClient.from('audit_logs').insert([{ actor: db.currentUser.username, action: 'DUTY_COMPLETED', target: db.currentUser.staffCode, details: 'Staff marked duty as done.' }]); await refreshWorkspaceData(); renderStaffDutyCard(); showToast('Duty marked as completed!'); }
+    async function toggleDutyAvailability(status) { const { error: profileError } = await rcClient.from('profiles').update({ duty_availability: status }).eq('id', db.currentUser.id); if (profileError) { showToast(`Availability could not be updated: ${profileError.message}`, true); return; } const { error: dutyError } = await rcClient.from('active_duties').update({ availability: status }).eq('staff_code', db.currentUser.staffCode).eq('status', 'Active'); if (dutyError) { showToast(`Duty availability could not be updated: ${dutyError.message}`, true); return; } db.currentUser.dutyAvailability = status; await refreshWorkspaceData(); renderStaffWorkspace(); showToast(`Status set to ${status}`); }
+    async function markDutyDone() { const { error: dutyError } = await rcClient.from('active_duties').update({ status: 'Done', availability: 'Unavailable' }).eq('staff_code', db.currentUser.staffCode).eq('status', 'Active'); if (dutyError) { showToast(`Duty could not be completed: ${dutyError.message}`, true); return; } const { error: profileError } = await rcClient.from('profiles').update({ is_duty_active: false, duty_availability: 'Unavailable' }).eq('id', db.currentUser.id); if (profileError) { showToast(`Profile status could not be updated: ${profileError.message}`, true); return; } db.currentUser.isDutyActive = false; db.currentUser.dutyAvailability = 'Unavailable'; await rcClient.from('audit_logs').insert([{ actor: db.currentUser.username, action: 'DUTY_COMPLETED', target: db.currentUser.staffCode, details: 'Staff marked duty as done.' }]); await refreshWorkspaceData(); renderStaffWorkspace(); showToast('Duty marked as completed!'); }
+    async function clearCompletedDuties() {
+      if (!db.currentUser || (!db.currentUser.isHR && !db.currentUser.isHeadStaff)) return;
+      if (!confirm('Clear all completed duty records from the terminal? Active duties will not be changed.')) return;
+      const { error } = await rcClient.from('active_duties').delete().eq('status', 'Done');
+      if (error) { showToast(`Completed duties could not be cleared: ${error.message}`, true); return; }
+      await refreshWorkspaceData();
+      renderTerminal();
+      showToast('Completed duty history cleared.');
+    }
     
     function autoLookupUser(val) { 
       const n = document.getElementById('dispLookupNotice'), v = val.trim().toLowerCase(); if (!v) { n.innerText = ''; return; } 
-      const f = db.roster.find(r => (r.username||'').toLowerCase().includes(v) || (r.code||'').toLowerCase().includes(v) || (r.name||'').toLowerCase().includes(v)); 
-      n.innerHTML = f ? `<span class="text-rc-emerald font-bold font-mono">✓ Ready to dispatch: ${f.name} (${f.code})</span>` : (val.length > 1 ? '<span class="text-rc-red font-mono font-bold">✕ Staff not found in approved roster.</span>' : ''); 
+      const f = db.roster.find(r => (r.username||'').toLowerCase().includes(v) || (r.code||'').toLowerCase().includes(v) || (r.name||'').toLowerCase().includes(v));
+      n.innerHTML = f ? (f.code ? `<span class="text-rc-emerald font-bold font-mono">✓ Ready to dispatch: ${f.name} (${f.code})</span>` : '<span class="text-rc-red font-mono font-bold">✕ Approved profile has no staff code. Assign staff_code first.</span>') : (val.length > 1 ? '<span class="text-rc-red font-mono font-bold">✕ Not visible in the approved profiles roster. Check profile status and RLS.</span>' : '');
     }
 
     async function handleDispatchSubmit(e) {
       e.preventDefault(); const searchKey = document.getElementById('dispSearchUser').value.trim().toLowerCase(), start = document.getElementById('dispStartTime').value, end = document.getElementById('dispEndTime').value, tier = document.getElementById('dispTier').value.trim();
       const found = db.roster.find(r => (r.username||'').toLowerCase().includes(searchKey) || (r.code||'').toLowerCase().includes(searchKey) || (r.name||'').toLowerCase().includes(searchKey));
-      if (!found) { showToast('Staff not found. Ensure they are approved!', true); return; }
+      if (!found) { showToast('Staff is not visible in approved profiles. Check profiles.status and the HR SELECT policy.', true); return; }
+      if (!found.code) { showToast('This profile is approved but has no staff_code. Assign one before dispatching duty.', true); return; }
+      if (!start || !end) { showToast('Enter both shift start and end times.', true); return; }
       
       const now = new Date(), sDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(start.split(':')[0]), parseInt(start.split(':')[1]));
       let eDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(end.split(':')[0]), parseInt(end.split(':')[1]));
       if (eDate <= sDate) eDate.setDate(eDate.getDate() + 1);
 
       triggerLoading(`Dispatching to ${found.code}...`, async () => {
-        await rcClient.from('active_duties').insert([{ staff_code: found.code, time_str: `${start} - ${end} IST`, start_timestamp: sDate.getTime(), end_timestamp: eDate.getTime(), tier: tier, dispatcher: db.currentUser.username, expires_at: Date.now() + (12 * 60 * 60 * 1000) }]);
+        const { error: dutyError } = await rcClient.from('active_duties').insert([{ staff_code: found.code, time_str: `${start} - ${end} IST`, start_timestamp: sDate.getTime(), end_timestamp: eDate.getTime(), tier: tier, dispatcher: db.currentUser.username, expires_at: Date.now() + (12 * 60 * 60 * 1000), status: 'Active', availability: 'Available' }]);
+        if (dutyError) { document.getElementById('loadingOverlay').classList.add('hidden'); showToast(`Duty could not be dispatched: ${dutyError.message}`, true); return; }
+        const { error: profileError } = await rcClient.from('profiles').update({ is_duty_active: true, duty_availability: 'Available' }).eq('staff_code', found.code);
+        if (profileError) { document.getElementById('loadingOverlay').classList.add('hidden'); showToast(`Duty was created but profile status could not be updated: ${profileError.message}`, true); return; }
         await rcClient.from('audit_logs').insert([{ actor: db.currentUser.username, action: 'DUTY_DISPATCHED (12H)', target: found.code, details: tier }]);
         document.getElementById('dispSearchUser').value = ''; await refreshWorkspaceData(); renderTerminal(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Shift dispatched successfully.');
       });
@@ -1488,7 +1597,8 @@
       const tag = isGlobal ? 'GLOBAL_ALERT' : 'NOTICE';
       
       triggerLoading('Publishing...', async () => {
-        await rcClient.from('announcements').insert([{ announcement_ref: `#ANN-${Math.floor(1000 + Math.random() * 9000)}`, author_username: db.currentUser.username, title: document.getElementById('pubTitle').value, body: document.getElementById('pubBody').value, link: document.getElementById('pubLink').value || null, tag: tag }]); 
+        const { error } = await rcClient.from('announcements').insert([{ announcement_ref: `#ANN-${Math.floor(1000 + Math.random() * 9000)}`, author_username: db.currentUser.username, title: document.getElementById('pubTitle').value, body: document.getElementById('pubBody').value, link: document.getElementById('pubLink').value || null, tag: tag }]);
+        if (error) { document.getElementById('loadingOverlay').classList.add('hidden'); showToast(`Broadcast could not be published: ${error.message}`, true); return; }
         document.getElementById('pubTitle').value = ''; document.getElementById('pubBody').value = ''; document.getElementById('pubLink').value = ''; if(document.getElementById('pubGlobalCheck')) document.getElementById('pubGlobalCheck').checked = false;
         await refreshWorkspaceData(); renderTermAnnouncements(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Broadcast published globally!');
       });
@@ -1555,6 +1665,7 @@
               <p class="text-sm text-rc-text italic">"${db.currentUser.leaveReason}"</p>
             </div>
             <div class="p-4 rounded-xl bg-rc-card border border-rc-red/30 shadow-[0_0_15px_rgba(225,29,72,0.1)]">
+              <div class="text-[11px] text-rc-muted font-mono mb-2" id="staffLeaveWindowDates">Start: -- | End: --</div>
                <span class="text-xs text-rc-red font-bold uppercase tracking-widest block mb-1">Time Remaining on Leave</span>
                <div id="staffLeaveLiveTimer" class="text-2xl font-mono font-black text-white">Calculating...</div>
             </div>
@@ -1563,14 +1674,20 @@
             </div>
           </div>
         `;
+        const leaveWindow = parseLeaveWindow(db.currentUser.leaveDates);
+        const startLabel = Number.isFinite(leaveWindow.start) ? new Date(leaveWindow.start).toLocaleString() : 'Legacy record';
+        const endLabel = Number.isFinite(leaveWindow.end) ? new Date(leaveWindow.end).toLocaleString() : 'Not set';
+        const leaveWindowDates = document.getElementById('staffLeaveWindowDates');
+        if (leaveWindowDates) leaveWindowDates.innerText = `Start: ${startLabel} | End: ${endLabel}`;
         return; 
       } 
-      l.classList.add('hidden'); m.classList.remove('hidden'); document.getElementById('staffHeroUsername').innerText = `${db.currentUser.username}'s Operational Desk`; document.getElementById('staffRoleTag').innerText = db.currentUser.role; document.getElementById('staffBadgeCode').innerText = db.currentUser.staffCode; document.getElementById('staffCodeSnippet').innerText = db.currentUser.staffCode; document.getElementById('headStaffTerminalBtn').innerHTML = db.currentUser.isHeadStaff || db.currentUser.isHR ? `<button onclick="switchView('terminal'); renderTerminal();" class="px-4 py-2 rounded-xl text-xs font-black bg-rc-red text-white hover:bg-rc-redHover transition-all font-mono">${db.currentUser.isHR ? 'Root HR Console' : 'Head Staff Terminal'}</button>` : ''; renderStaffStrikes(); renderStaffDutyCard(); renderStaffAnnouncements(); renderStaffChat(); 
+      l.classList.add('hidden'); m.classList.remove('hidden'); document.getElementById('staffHeroUsername').innerText = `${db.currentUser.username}'s Operational Desk`; document.getElementById('staffRoleTag').innerText = db.currentUser.role; document.getElementById('staffBadgeCode').innerText = db.currentUser.staffCode; document.getElementById('staffCodeSnippet').innerText = db.currentUser.staffCode; document.getElementById('headStaffTerminalBtn').innerHTML = db.currentUser.isHeadStaff || db.currentUser.isHR ? `<button onclick="switchView('terminal'); renderTerminal();" class="px-4 py-2 rounded-xl text-xs font-black bg-rc-red text-white hover:bg-rc-redHover transition-all font-mono">${db.currentUser.isHR ? 'Root HR Console' : 'Head Staff Terminal'}</button>` : ''; renderStaffStrikes(); renderStaffDutyCard(); renderDutyStateToggle(); renderStaffAnnouncements(); renderStaffChat(); 
     }
     
     function renderStaffStrikes() { const c = db.currentUser.strikes || 0; document.getElementById('staffStrikeCount').innerText = `${c} / 3`; let b = ''; for (let i = 0; i < 3; i++) b += `<span class="w-4 h-4 rounded ${i < c ? 'bg-rc-red shadow-lg shadow-rc-red/50' : 'bg-rc-border'}"></span>`; document.getElementById('staffStrikeVisual').innerHTML = b; }
-    function renderStaffDutyCard() { const c = document.getElementById('dutyCardContainer'), d = db.activeDuties[db.currentUser.staffCode]; if (!d || d.status === 'Done') { c.innerHTML = `<div class="p-8 rounded-2xl bg-rc-surface border border-rc-border text-center space-y-3 font-mono"><span class="text-xs font-mono font-bold text-rc-emerald uppercase tracking-wider block">[Duty Standby]</span><h4 class="text-base font-bold text-rc-text">No Active Duty Shift Dispatched</h4></div>`; document.getElementById('staffShiftSnippet').innerText = 'Awaiting Dispatch'; document.getElementById('staffTimerSnippet').innerText = 'No active shift'; } else { const a = (db.currentUser.dutyAvailability !== 'Unavailable'); c.innerHTML = `<div class="p-6 sm:p-8 rounded-2xl bg-rc-surface border border-rc-red/60 space-y-6"><div class="flex flex-col sm:flex-row justify-between"><div class="flex items-center gap-2"><span class="px-2.5 py-1 rounded bg-rc-red text-white text-[10px] font-black font-mono">TODAY'S DUTY</span><span class="text-xs font-bold ${a ? 'text-rc-emerald' : 'text-rc-red'}">[${a ? 'Available' : 'Unavailable'}]</span></div><span class="px-3 py-1 rounded-full bg-rc-card border border-rc-red text-rc-red text-xs font-mono font-black" id="dutyCountdown">Calculating...</span></div><div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2"><div><span class="text-xs font-bold text-rc-muted uppercase block font-mono">Window</span><span class="text-xl font-black text-rc-text mt-1 block font-mono">${d.time}</span></div><div><span class="text-xs font-bold text-rc-muted uppercase block font-mono">Tier</span><span class="text-lg font-black text-rc-text mt-1 block">${d.tier}</span></div></div><div class="pt-4 border-t border-rc-border flex flex-wrap gap-3 items-center justify-between font-mono"><div class="flex gap-2"><button onclick="toggleDutyAvailability('Available')" class="px-3 py-1.5 rounded-lg text-xs font-bold ${a ? 'bg-rc-emerald text-black' : 'bg-rc-card text-rc-muted border border-rc-border'}">✓ Available</button><button onclick="toggleDutyAvailability('Unavailable')" class="px-3 py-1.5 rounded-lg text-xs font-bold ${!a ? 'bg-rc-red text-white' : 'bg-rc-card text-rc-muted border border-rc-border'}">✕ Unavailable</button></div><button onclick="markDutyDone()" class="px-6 py-2.5 rounded-xl bg-rc-emerald text-black font-black text-xs">Mark Duty Completed ✓</button></div></div>`; document.getElementById('staffShiftSnippet').innerText = d.time; } }
-    function renderStaffAnnouncements() { const c = document.getElementById('staffAnnouncementsList'); if (!c) return; c.innerHTML = db.announcements.filter(a => a.tag !== 'GLOBAL_ALERT').length === 0 ? `<div class="p-6 rounded-xl bg-rc-surface text-center text-rc-muted text-xs">No announcements.</div>` : db.announcements.filter(a => a.tag !== 'GLOBAL_ALERT').map((a, idx) => `<div class="p-5 rounded-2xl bg-rc-surface border border-rc-border space-y-3"><div class="flex justify-between items-start"><span class="px-2 py-0.5 rounded bg-rc-red text-white text-[9px] font-black">${a.tag}</span><span class="text-xs font-mono text-rc-muted">By ${a.author_username}</span></div><h4 class="font-bold text-rc-text text-sm">${a.title}</h4>${a.link ? `<img src="${a.link}" class="w-full h-auto max-h-48 object-cover rounded-xl my-2" />` : ''}<p class="text-xs text-rc-muted">${a.body}</p><div class="pt-2 border-t border-rc-border flex gap-2 text-xs font-mono"><button onclick="reactEmoji(${db.announcements.indexOf(a)}, 'fire')" class="px-3 py-1 rounded-full bg-rc-card border border-rc-border text-rc-text font-bold">🔥 ${a.reactions.fire}</button><button onclick="reactEmoji(${db.announcements.indexOf(a)}, 'heart')" class="px-3 py-1 rounded-full bg-rc-card border border-rc-border text-rc-text font-bold">❤️ ${a.reactions.heart}</button><button onclick="reactEmoji(${db.announcements.indexOf(a)}, 'thumbs')" class="px-3 py-1 rounded-full bg-rc-card border border-rc-border text-rc-text font-bold">👍 ${a.reactions.thumbs}</button><button onclick="reactEmoji(${db.announcements.indexOf(a)}, 'trophy')" class="px-3 py-1 rounded-full bg-rc-card border border-rc-border text-rc-text font-bold">🏆 ${a.reactions.trophy}</button></div></div>`).join(''); }
+    function renderStaffDutyCard() { const c = document.getElementById('dutyCardContainer'), d = db.activeDuties[db.currentUser.staffCode]; if (db.dutyReadError) { c.innerHTML = `<div class="p-8 rounded-2xl bg-rc-red/10 border border-rc-red text-center space-y-2 font-mono"><span class="text-xs font-bold text-rc-red uppercase">Duty data unavailable</span><h4 class="text-sm font-bold text-rc-text">Supabase blocked access to your duty record.</h4><p class="text-[11px] text-rc-muted">Ask the administrator to add the staff duty read policy.</p></div>`; document.getElementById('staffShiftSnippet').innerText = 'Access blocked'; document.getElementById('staffTimerSnippet').innerText = 'Duty unavailable'; } else if (!d || d.status === 'Done') { c.innerHTML = `<div class="p-8 rounded-2xl bg-rc-surface border border-rc-border text-center space-y-3 font-mono"><span class="text-xs font-mono font-bold text-rc-emerald uppercase tracking-wider block">[Duty Standby]</span><h4 class="text-base font-bold text-rc-text">${d?.status === 'Done' ? 'Duty Completed' : 'No Active Duty Shift Dispatched'}</h4></div>`; document.getElementById('staffShiftSnippet').innerText = d?.status === 'Done' ? 'Completed' : 'Awaiting Dispatch'; document.getElementById('staffTimerSnippet').innerText = d?.status === 'Done' ? 'Duty completed' : 'No active shift'; } else { const a = d.availability !== 'Unavailable'; c.innerHTML = `<div class="p-6 sm:p-8 rounded-2xl bg-rc-surface border border-rc-red/60 space-y-6"><div class="flex flex-col sm:flex-row justify-between"><div class="flex items-center gap-2"><span class="px-2.5 py-1 rounded bg-rc-red text-white text-[10px] font-black font-mono">TODAY'S DUTY</span><span class="text-xs font-bold ${a ? 'text-rc-emerald' : 'text-rc-red'}">[${a ? 'Available' : 'Unavailable'}]</span></div><span class="px-3 py-1 rounded-full bg-rc-card border border-rc-red text-rc-red text-xs font-mono font-black" id="dutyCountdown">Calculating...</span></div><div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2"><div><span class="text-xs font-bold text-rc-muted uppercase block font-mono">Window</span><span class="text-xl font-black text-rc-text mt-1 block font-mono">${d.time}</span></div><div><span class="text-xs font-bold text-rc-muted uppercase block font-mono">Tier</span><span class="text-lg font-black text-rc-text mt-1 block">${d.tier}</span></div></div><div class="pt-4 border-t border-rc-border flex flex-wrap gap-3 items-center justify-between font-mono"><div class="flex gap-2"><button onclick="toggleDutyAvailability('Available')" class="px-3 py-1.5 rounded-lg text-xs font-bold ${a ? 'bg-rc-emerald text-black' : 'bg-rc-card text-rc-muted border border-rc-border'}">✓ Available</button><button onclick="toggleDutyAvailability('Unavailable')" class="px-3 py-1.5 rounded-lg text-xs font-bold ${!a ? 'bg-rc-red text-white' : 'bg-rc-card text-rc-muted border border-rc-border'}">✕ Unavailable</button></div><button onclick="markDutyDone()" class="px-6 py-2.5 rounded-xl bg-rc-emerald text-black font-black text-xs">Mark Duty Completed ✓</button></div></div>`; document.getElementById('staffShiftSnippet').innerText = d.time; } }
+    function renderDutyStateToggle() { const button = document.getElementById('dutyStateToggleBtn'); if (!button) return; const active = Boolean(db.currentUser.isDutyActive); button.innerText = active ? '● Active Duty' : '○ Inactive Duty'; button.className = active ? 'px-4 py-2 rounded-xl text-xs font-bold border border-rc-emerald bg-rc-emerald/15 text-rc-emerald transition-all font-mono' : 'px-4 py-2 rounded-xl text-xs font-bold border border-rc-border bg-rc-surface text-rc-muted transition-all font-mono'; }
+    function renderStaffAnnouncements() { const c = document.getElementById('staffAnnouncementsList'); if (!c) return; c.innerHTML = db.announcements.filter(a => a.tag !== 'GLOBAL_ALERT').length === 0 ? `<div class="p-6 rounded-xl bg-rc-surface text-center text-rc-muted text-xs">No announcements.</div>` : db.announcements.filter(a => a.tag !== 'GLOBAL_ALERT').map((a, idx) => `<div class="p-5 rounded-2xl bg-rc-surface border border-rc-border space-y-3"><div class="flex justify-between items-start"><span class="px-2 py-0.5 rounded bg-rc-red text-white text-[9px] font-black">${a.tag}</span><span class="text-xs font-mono text-rc-muted">By ${a.author_username}</span></div><h4 class="font-bold text-rc-text text-sm">${a.title}</h4><p class="text-xs text-rc-muted">${a.body}</p>${announcementLinkMarkup(a.link)}<div class="pt-2 border-t border-rc-border flex gap-2 text-xs font-mono"><button onclick="reactEmoji(${db.announcements.indexOf(a)}, 'fire')" class="px-3 py-1 rounded-full bg-rc-card border border-rc-border text-rc-text font-bold">🔥 ${a.reactions.fire}</button><button onclick="reactEmoji(${db.announcements.indexOf(a)}, 'heart')" class="px-3 py-1 rounded-full bg-rc-card border border-rc-border text-rc-text font-bold">❤️ ${a.reactions.heart}</button><button onclick="reactEmoji(${db.announcements.indexOf(a)}, 'thumbs')" class="px-3 py-1 rounded-full bg-rc-card border border-rc-border text-rc-text font-bold">👍 ${a.reactions.thumbs}</button><button onclick="reactEmoji(${db.announcements.indexOf(a)}, 'trophy')" class="px-3 py-1 rounded-full bg-rc-card border border-rc-border text-rc-text font-bold">🏆 ${a.reactions.trophy}</button></div></div>`).join(''); }
     
     function switchTerminalTab(tab) { ['roster', 'inquiries', 'leaves', 'intake', 'dispatch', 'broadcast', 'audit'].forEach(t => { const p = document.getElementById(`termPanel${t.charAt(0).toUpperCase() + t.slice(1)}`); if (p) p.classList.toggle('hidden', t !== tab); const b = document.getElementById(`termTabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`); if (b) b.className = (t === tab) ? 'px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-black bg-rc-red text-white transition-all font-mono' : 'px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold bg-rc-surface border border-rc-border text-rc-muted hover:text-rc-text transition-all font-mono'; }); if (tab === 'roster') renderRosterBoxyCards(); }
     function renderTerminal() { document.getElementById('termLeavesCount').innerText = db.roster.filter(m => m.onLeave).length; document.getElementById('termIntakeCount').innerText = db.applicants.length; document.getElementById('terminalRoleBadge').innerText = db.currentUser?.isHR ? 'ROOT HR COMMAND' : 'HEAD STAFF TERMINAL'; renderRosterBoxyCards(); renderLeavesTab(); renderIntakeQueue(); renderTermInquiries(); renderTermAnnouncements(); renderAuditTable(); 
@@ -1589,7 +1706,7 @@
       }).join(''); 
     }
     
-    function renderLeavesTab() { const c = document.getElementById('leavesCardsStream'); if (!c) return; const l = db.roster.filter(m => m.onLeave); c.innerHTML = l.length === 0 ? `<div class="col-span-full p-8 text-center text-rc-muted text-xs font-mono">No staff on leave.</div>` : l.map(m => { const idx = db.roster.indexOf(m); const isNum = !isNaN(m.leaveDates); const dateStr = isNum ? new Date(parseInt(m.leaveDates)).toLocaleString() : m.leaveDates; return `<div class="boxy-card p-5 space-y-3 font-mono"><div class="flex items-center justify-between border-b border-rc-border pb-2"><div><span class="px-2 py-0.5 rounded bg-rc-red/20 text-rc-red font-bold text-xs">${m.code}</span><span class="font-bold text-rc-text ml-2 text-sm font-sans">${m.name}</span></div><span class="px-2 py-0.5 rounded bg-rc-emerald/20 text-rc-emerald text-[10px] font-bold">On Leave</span></div><div class="text-xs space-y-1 text-rc-muted font-sans"><div><span class="text-rc-muted">Return Expected:</span> <span class="text-rc-emerald font-bold">${dateStr}</span></div><div><span class="text-rc-muted">Reason:</span> ${m.leaveReason}</div></div><button onclick="markStaffLeaveOver(${idx})" class="w-full py-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold text-xs">Trigger "Leave Over" Red Alert Warning</button></div>`; }).join(''); }
+    function renderLeavesTab() { const c = document.getElementById('leavesCardsStream'); if (!c) return; const l = db.roster.filter(m => m.onLeave && !m.isHR); c.innerHTML = l.length === 0 ? `<div class="col-span-full p-8 text-center text-rc-muted text-xs font-mono">No staff on leave.</div>` : l.map(m => { const idx = db.roster.indexOf(m); const window = parseLeaveWindow(m.leaveDates); const startStr = Number.isFinite(window.start) ? new Date(window.start).toLocaleString() : 'Legacy record'; const endStr = Number.isFinite(window.end) ? new Date(window.end).toLocaleString() : 'Not set'; return `<div class="boxy-card p-5 space-y-3 font-mono"><div class="flex items-center justify-between border-b border-rc-border pb-2"><div><span class="px-2 py-0.5 rounded bg-rc-red/20 text-rc-red font-bold text-xs">${m.code}</span><span class="font-bold text-rc-text ml-2 text-sm font-sans">${m.name}</span></div><span class="px-2 py-0.5 rounded bg-rc-emerald/20 text-rc-emerald text-[10px] font-bold">On Leave</span></div><div class="text-xs space-y-1 text-rc-muted font-sans"><div><span class="text-rc-muted">Starts:</span> <span class="text-rc-emerald font-bold">${startStr}</span></div><div><span class="text-rc-muted">Ends:</span> <span class="text-rc-emerald font-bold">${endStr}</span></div><div><span class="text-rc-muted">Reason:</span> ${m.leaveReason}</div></div><button onclick="markStaffLeaveOver(${idx})" class="w-full py-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold text-xs">Trigger "Leave Over" Red Alert Warning</button></div>`; }).join(''); }
     function renderTermAnnouncements() { const c = document.getElementById('termAnnouncementsList'); if (!c) return; c.innerHTML = db.announcements.length === 0 ? `<div class="p-6 text-center text-rc-muted text-xs font-mono">No active announcements.</div>` : db.announcements.map((a, idx) => `<div class="p-4 rounded-xl bg-rc-surface border ${a.tag === 'GLOBAL_ALERT' ? 'border-rc-red' : 'border-rc-border'} space-y-2 font-mono"><div class="flex justify-between items-start"><span class="font-bold ${a.tag === 'GLOBAL_ALERT' ? 'text-rc-red' : 'text-rc-text'} text-xs font-sans">${a.tag === 'GLOBAL_ALERT' ? '🌍 [GLOBAL POPUP] ' : ''}${a.title}</span><button onclick="deleteAnnouncement(${idx})" class="px-2.5 py-1 rounded bg-rc-red/20 text-rc-red text-[10px] font-bold">Delete ✕</button></div><p class="text-[11px] text-rc-muted line-clamp-2 font-sans">${a.body}</p></div>`).join(''); }
 
     setInterval(() => {
@@ -1607,7 +1724,8 @@
         const now = Date.now();
         const leaveTimerEl = document.getElementById('staffLeaveLiveTimer');
         const alertScreen = document.getElementById('fullPageLeaveWarning');
-        const timestamp = parseInt(db.currentUser.leaveDates);
+        const leaveWindow = parseLeaveWindow(db.currentUser.leaveDates);
+        const timestamp = leaveWindow.end;
         
         if (db.currentUser.leaveOver || (!isNaN(timestamp) && now >= timestamp)) {
            if(alertScreen && alertScreen.classList.contains('hidden')) { alertScreen.classList.remove('hidden'); alertScreen.classList.add('flex'); }
@@ -1623,6 +1741,35 @@
         }
       }
     }, 1000);
+
+    async function refreshDutyLifecycle() {
+      if (!db.currentUser) return;
+      const duty = db.activeDuties[db.currentUser.staffCode];
+      if (duty && duty.status === 'Active' && Number.isFinite(Number(duty.expiresAt)) && Date.now() >= Number(duty.expiresAt)) {
+        const { error } = await rcClient.from('active_duties').update({ status: 'Done', availability: 'Unavailable' }).eq('staff_code', db.currentUser.staffCode).eq('status', 'Active');
+        if (!error) await rcClient.from('profiles').update({ is_duty_active: false, duty_availability: 'Unavailable' }).eq('id', db.currentUser.id);
+      }
+      await refreshWorkspaceData();
+      if (db.currentUser.isHR || db.currentUser.isHeadStaff) renderTerminal();
+      else if (db.currentUser.status === 'approved') renderStaffWorkspace();
+    }
+    setInterval(refreshDutyLifecycle, 10000);
+
+    function renderRosterDutyPanels() {
+      const grid = document.getElementById('rosterCardsGrid');
+      if (!grid) return;
+      const cards = [...grid.children];
+      const activeStaff = db.roster.filter(member => !member.onLeave && !member.isHR);
+      activeStaff.forEach((member, index) => {
+        const card = cards[index];
+        if (!card) return;
+        const panel = document.createElement('div');
+        panel.className = 'p-3 rounded-xl bg-rc-surface border ' + (member.dutyState === 'Active' ? 'border-rc-emerald/40' : 'border-rc-border') + ' space-y-2 text-xs font-mono';
+        panel.innerHTML = '<div class="flex items-center justify-between"><span class="text-[10px] text-rc-muted font-bold uppercase">12h Duty Dispatch</span><span class="font-bold ' + (member.dutyState === 'Active' && member.dutyAvailability !== 'Unavailable' ? 'text-rc-emerald' : 'text-rc-red') + '">' + (member.dutyState === 'Active' ? member.dutyAvailability || 'Available' : 'Inactive') + '</span></div><div class="grid grid-cols-2 gap-2 text-[11px]"><div><span class="text-rc-muted block">Window</span><span class="text-rc-text font-bold">' + (member.dutyTime || 'Not dispatched') + '</span></div><div><span class="text-rc-muted block">Tier</span><span class="text-rc-text font-bold truncate block">' + (member.dutyTier || '-') + '</span></div></div><div class="text-[10px] text-rc-muted">Dispatcher: <span class="text-rc-text">' + (member.dutyDispatcher || '-') + '</span></div>';
+        const actions = card.querySelector('.pt-3');
+        if (actions) card.insertBefore(panel, actions);
+      });
+    }
 
     window.addEventListener('DOMContentLoaded', () => { initWelcomeSplash(); loadDB(); });
   </script>
