@@ -658,9 +658,10 @@
         </div>
 
         <div id="termPanelRoster" class="space-y-4">
-          <div class="flex justify-between items-center gap-3">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <h3 class="text-xs sm:text-sm font-black text-rc-text uppercase tracking-wider font-mono">Active Staff Personnel Directory</h3>
             <div class="flex items-center gap-3">
+              <input id="staffDirectorySearch" type="search" placeholder="Search name, Discord, ID..." oninput="renderRosterBoxyCards()" class="w-56 px-3 py-2 rounded-lg bg-rc-surface border border-rc-border text-rc-text text-[11px] font-sans focus:border-rc-red focus:outline-none">
               <button onclick="clearCompletedDuties()" class="px-3 py-1.5 rounded-lg bg-rc-surface border border-rc-border text-rc-muted text-[10px] font-bold font-mono hover:border-rc-red hover:text-rc-red transition-all">Clear Completed Duties</button>
               <span class="text-xs text-rc-muted font-mono">Boxy Dossier View</span>
             </div>
@@ -1730,7 +1731,12 @@
     
     function renderRosterBoxyCards() { 
       const g = document.getElementById('rosterCardsGrid'); if (!g) return; 
-      const active = db.roster.filter(m => !m.onLeave && (db.currentUser.isHR || !m.isHR)); 
+      const search = (document.getElementById('staffDirectorySearch')?.value || '').trim().toLowerCase();
+      const active = db.roster.filter(m => {
+        if (m.onLeave || (!db.currentUser.isHR && m.isHR)) return false;
+        if (!search) return true;
+        return [m.name, m.code, m.username, m.disc_display, m.disc_user].some(value => String(value || '').toLowerCase().includes(search));
+      });
       g.innerHTML = active.length === 0 ? `<div class="col-span-full p-8 text-center text-rc-muted text-xs font-mono">No active staff found.</div>` : active.map((m, i) => { 
         const rawIdx = db.roster.indexOf(m); let strikeBlocks = ''; for (let j = 0; j < 3; j++) strikeBlocks += `<span class="w-3.5 h-3.5 rounded ${j < (m.strikes||0) ? 'bg-rc-red shadow-sm shadow-rc-red' : 'bg-rc-border'} inline-block"></span>`;
         return `<div class="boxy-card p-5 space-y-4 font-mono"><div class="flex items-start justify-between border-b border-rc-border pb-3"><div><span class="px-2.5 py-0.5 rounded bg-rc-red/20 text-rc-red font-black text-xs">${m.code}</span><h4 class="font-bold text-rc-text text-base mt-1 font-sans">${m.name}</h4><span class="text-rc-discord text-xs block">${m.username}</span></div><div class="text-right space-y-1"><span class="px-2.5 py-1 rounded text-[10px] font-black ${m.dutyState === 'Active' ? 'bg-rc-emerald/20 text-rc-emerald' : 'bg-gray-700 text-rc-muted'} block">${m.dutyState}</span></div></div><div class="grid grid-cols-2 gap-2 text-xs"><div class="p-2.5 rounded-lg bg-rc-surface border border-rc-border"><span class="text-[10px] font-bold text-rc-muted uppercase block font-sans">Role</span><span class="text-rc-emerald font-bold truncate block font-sans">${m.role}</span></div><div class="p-2.5 rounded-lg bg-rc-surface border border-rc-border"><span class="text-[10px] font-bold text-rc-muted uppercase block font-sans">Strikes [${m.strikes||0}/3]</span><div class="flex gap-1 mt-1">${strikeBlocks}</div></div></div><div class="pt-3 border-t border-rc-border space-y-2"><button onclick="openEmployeeInfoModal(${rawIdx})" class="w-full py-2 rounded-xl bg-rc-surface border border-rc-border text-rc-text text-xs font-bold">ℹ️ View Full Dossier</button><div class="flex flex-wrap gap-2 items-center justify-between"><div class="flex gap-1"><button onclick="giveStrike(${rawIdx})" class="px-2.5 py-1 rounded bg-rc-red text-white font-bold text-xs">+Strike</button><button onclick="revokeStrike(${rawIdx})" class="px-2.5 py-1 rounded bg-rc-surface border border-rc-border text-rc-emerald font-bold text-xs">-Revoke</button></div>${db.currentUser.isHR ? `<button onclick="toggleHeadStaff(${rawIdx})" class="px-3 py-1 rounded-lg text-xs font-bold bg-rc-surface border border-rc-border text-rc-muted">${m.isHeadStaff ? 'Demote' : 'Promote HS'}</button>` : ''}<button onclick="terminateStaff(${rawIdx})" class="px-3 py-1 rounded-lg bg-red-950/60 border border-rc-red text-rc-red text-xs font-bold">Terminate ✕</button></div></div></div>`; 
