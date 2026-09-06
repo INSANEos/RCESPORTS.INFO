@@ -1373,7 +1373,13 @@
           else { switchView('landing'); }
         }
         triggerGlobalPopupCheck();
-      } catch (err) { console.error('Failed to load database:', err); }
+      } catch (err) {
+        console.error('Failed to load database:', err);
+        if (!db.currentUser) {
+          updateNavAuth();
+          switchView('landing');
+        }
+      }
     }
 
     async function refreshWorkspaceData() {
