@@ -166,6 +166,44 @@
     .rc-notification-dot {
       animation: pulse 1.2s ease-in-out infinite;
     }
+    @keyframes rcHeroReveal { from { opacity: 0; transform: translateY(18px) scale(0.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes rcTextReveal { from { opacity: 0; transform: translateY(16px); clip-path: inset(0 0 100% 0); } to { opacity: 1; transform: translateY(0); clip-path: inset(0 0 0 0); } }
+    @keyframes rcMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    @keyframes rcLoaderPulse { 0%, 100% { transform: scale(.9); opacity: .65; } 50% { transform: scale(1.06); opacity: 1; } }
+    @keyframes rcLoaderSweep { from { transform: translateX(-120%); } to { transform: translateX(260%); } }
+    html { scroll-behavior: smooth; }
+    .rc-header-motion { box-shadow: 0 12px 35px rgba(0,0,0,.2); transition: box-shadow .35s ease, border-color .35s ease; }
+    .rc-header-motion.is-scrolled { box-shadow: 0 14px 45px rgba(0,0,0,.4), 0 1px 0 var(--accent-color); }
+    .rc-brand-motion { transition: transform .35s ease, box-shadow .35s ease; }
+    .rc-brand-motion:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 10px 26px var(--accent-glow); }
+    .rc-theme-motion { transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease; }
+    .rc-theme-motion:hover { transform: translateY(-2px); box-shadow: 0 0 0 1px var(--accent-color), 0 10px 28px var(--accent-glow); }
+    button, a { transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease, color .25s ease, background-color .25s ease; }
+    button:hover, a:hover { transform: translateY(-2px); }
+    button:active, a:active { transform: translateY(0) scale(.98); }
+    .bg-rc-red:hover { box-shadow: 0 10px 26px var(--accent-glow); }
+    .rc-page-reveal { opacity: 0; transform: translateY(24px); transition: opacity .75s ease, transform .75s cubic-bezier(.16,1,.3,1); }
+    .rc-page-reveal.is-visible { opacity: 1; transform: translateY(0); }
+    .rc-scroll-reveal { opacity: 0; transform: translateY(34px); transition: opacity .8s ease, transform .8s cubic-bezier(.16,1,.3,1); }
+    .rc-scroll-reveal.is-visible { opacity: 1; transform: translateY(0); }
+    .rc-text-motion { opacity: 0; }
+    body.rc-page-ready .rc-text-motion { animation: rcTextReveal .8s cubic-bezier(.16,1,.3,1) both; }
+    .rc-depth-motion { transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease; }
+    .rc-depth-motion:hover { transform: translateY(-6px); box-shadow: 0 16px 34px rgba(0,0,0,.28), 0 0 22px var(--accent-glow); border-color: var(--accent-color); }
+    .rc-parallax-scroll { will-change: transform; }
+    .rc-counter { display: inline-block; }
+    .rc-marquee { overflow: hidden; border-block: 1px solid var(--border-color); background: var(--bg-card); }
+    .rc-marquee-track { display: flex; width: max-content; animation: rcMarquee 28s linear infinite; }
+    .rc-marquee-group { display: flex; flex-shrink: 0; gap: 2.5rem; padding: .85rem 1.25rem; }
+    .rc-marquee-item { color: var(--text-muted); font: 700 10px 'JetBrains Mono', monospace; letter-spacing: .2em; text-transform: uppercase; white-space: nowrap; }
+    .rc-marquee-item::after { content: '✦'; margin-left: 2.5rem; color: var(--accent-color); }
+    .rc-graphic-loader { position: relative; width: 92px; height: 92px; display: flex; align-items: center; justify-content: center; animation: rcLoaderPulse 1.8s ease-in-out infinite; }
+    .rc-graphic-loader::before { content: ''; position: absolute; inset: 7px; border: 1px solid var(--accent-color); border-radius: 24px; transform: rotate(45deg); box-shadow: 0 0 28px var(--accent-glow), inset 0 0 18px var(--accent-glow); }
+    .rc-graphic-loader::after { content: ''; position: absolute; inset: 20px; border: 1px solid var(--text-main); border-radius: 15px; opacity: .3; transform: rotate(-12deg); }
+    .rc-graphic-loader img { position: relative; z-index: 1; width: 48px; height: 48px; object-fit: contain; filter: drop-shadow(0 0 14px var(--accent-glow)); }
+    .rc-loader-progress { position: absolute; bottom: -18px; left: 12px; right: 12px; height: 2px; overflow: hidden; background: var(--border-color); }
+    .rc-loader-progress::after { content: ''; display: block; width: 38%; height: 100%; background: var(--accent-color); box-shadow: 0 0 12px var(--accent-color); animation: rcLoaderSweep 1.5s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) { .rc-page-reveal, .rc-text-motion, .rc-marquee-track, .rc-graphic-loader, .rc-loader-progress::after { animation: none !important; transition: none !important; opacity: 1; transform: none; } }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-rc-red selection:text-white mesh-glow">
@@ -175,16 +213,14 @@
     <div class="relative flex flex-col items-center text-center space-y-4 max-w-sm">
       <div class="absolute w-48 h-48 bg-rc-red/25 rounded-full blur-3xl animate-pulse-glow pointer-events-none"></div>
 
-      <div class="w-28 h-28 rounded-2xl bg-rc-card border border-rc-red/40 p-2 flex items-center justify-center shadow-[0_0_40px_rgba(225,29,72,0.6)] animate-pulse-glow relative z-10">
-        <img src="logo.png" alt="RC Esports" class="w-full h-full object-contain filter drop-shadow-[0_0_12px_rgba(225,29,72,0.8)]">
-      </div>
+      <div class="rc-graphic-loader relative z-10"><img src="logo.png" alt="RC Esports"><span class="rc-loader-progress"></span></div>
 
       <div class="space-y-1 relative z-10">
         <span class="text-[11px] font-mono font-extrabold tracking-[0.35em] text-rc-red uppercase">Welcome to</span>
         <h1 class="text-3xl sm:text-4xl font-black italic tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-rc-red uppercase drop-shadow-[0_0_20px_rgba(225,29,72,0.6)]">
           RC <span class="text-rc-red">ESPORTS</span>
         </h1>
-        <p class="text-xs text-gray-300 font-mono tracking-wider leading-relaxed">India's Premier Esports Hub<br><span class="text-gray-500">Command, compete, and grow together.</span></p>
+        <p class="text-xs text-gray-300 font-mono tracking-wider leading-relaxed">India's Premier Management Hub</p>
       </div>
 
       <div class="pt-3 relative z-10 space-y-1.5">
@@ -207,12 +243,12 @@
   </div>
 
   <!-- ================= TOP NAVIGATION BAR ================= -->
-  <header class="sticky top-0 z-30 bg-rc-dark/95 backdrop-blur-md border-b border-rc-border">
+  <header id="siteHeader" class="sticky top-0 z-30 bg-rc-dark/95 backdrop-blur-md border-b border-rc-border rc-header-motion">
     <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-2 sm:gap-4">
       
       <!-- Brand Logo Box -->
       <div class="flex items-center gap-2.5 sm:gap-3.5 cursor-pointer group shrink-0" onclick="switchView('landing')">
-        <div class="w-11 h-11 sm:w-13 sm:h-13 rounded-xl bg-rc-card border border-rc-border p-1 flex items-center justify-center group-hover:border-rc-red transition-all shadow-lg overflow-hidden shrink-0">
+        <div class="rc-brand-motion w-11 h-11 sm:w-13 sm:h-13 rounded-xl bg-rc-card border border-rc-border p-1 flex items-center justify-center group-hover:border-rc-red transition-all shadow-lg overflow-hidden shrink-0">
           <img src="logo.png" alt="RC Esports" class="w-full h-full object-contain filter drop-shadow-[0_0_8px_var(--accent-glow)]">
         </div>
 
@@ -236,7 +272,7 @@
 
       <!-- Right Controls: Smooth 3-Way Theme Switcher & Auth/Profile -->
       <div class="flex items-center gap-2 sm:gap-3 shrink-0">
-        <div class="relative p-1 rounded-full bg-rc-surface border border-rc-border flex items-center font-mono text-[9px] sm:text-[10px] font-bold select-none shrink-0">
+        <div class="rc-theme-motion relative p-1 rounded-full bg-rc-surface border border-rc-border flex items-center font-mono text-[9px] sm:text-[10px] font-bold select-none shrink-0">
           <div id="themeSliderIndicator" class="theme-slider"></div>
           <button onclick="setTheme('dark')" id="themeBtnDark" class="relative z-10 px-2 sm:px-2.5 py-1 rounded-full transition-colors">Dark</button>
           <button onclick="setTheme('light')" id="themeBtnLight" class="relative z-10 px-2 sm:px-2.5 py-1 rounded-full transition-colors">Light</button>
@@ -255,7 +291,7 @@
     <section id="viewLanding" class="space-y-12 sm:space-y-16">
       
       <!-- HERO BANNER -->
-      <div class="boxy-card p-6 sm:p-12 relative overflow-hidden shadow-2xl">
+      <div class="boxy-card rc-page-reveal p-6 sm:p-12 relative overflow-hidden shadow-2xl">
         <div class="absolute -top-24 -right-24 w-96 h-96 bg-rc-red/15 rounded-full blur-3xl pointer-events-none"></div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 items-center relative z-10">
@@ -266,11 +302,11 @@
               Official Management Ecosystem
             </div>
 
-            <h1 class="text-3xl sm:text-6xl font-black tracking-tight text-rc-text leading-tight">
+            <h1 class="rc-text-motion text-3xl sm:text-6xl font-black tracking-tight text-rc-text leading-tight">
               Manage. Host. <span class="text-rc-red">Scale.</span>
             </h1>
 
-            <p class="text-rc-muted text-sm sm:text-base max-w-xl leading-relaxed font-sans">
+            <p class="rc-text-motion text-rc-muted text-sm sm:text-base max-w-xl leading-relaxed font-sans" style="animation-delay: 140ms">
               Join India’s premier esports operational ecosystem. Lead tournaments from <span class="text-rc-text font-bold">1K to 100K lobbies & daily scrims</span> in a professional environment with a 100K+ community.
             </p>
 
@@ -284,7 +320,7 @@
               <span class="text-[11px] font-black uppercase tracking-wider text-rc-muted block font-mono">Explore Organization Info</span>
               
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <button onclick="openDrawer('about')" class="p-3.5 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-red text-left transition-all group">
+                <button onclick="openDrawer('about')" class="rc-depth-motion p-3.5 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-red text-left transition-all group">
                   <div class="w-7 h-7 rounded-lg bg-rc-red/15 text-rc-red flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                   </div>
@@ -292,7 +328,7 @@
                   <span class="text-[10px] text-rc-muted font-sans">Charter & Standards</span>
                 </button>
 
-                <button onclick="openDrawer('whyJoin')" class="p-3.5 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-emerald text-left transition-all group">
+                <button onclick="openDrawer('whyJoin')" class="rc-depth-motion p-3.5 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-emerald text-left transition-all group">
                   <div class="w-7 h-7 rounded-lg bg-rc-emerald/15 text-rc-emerald flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                   </div>
@@ -300,7 +336,7 @@
                   <span class="text-[10px] text-rc-muted font-sans">6 Key Growth Points</span>
                 </button>
 
-                <button onclick="openDrawer('social')" class="p-3.5 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-discord text-left transition-all group">
+                <button onclick="openDrawer('social')" class="rc-depth-motion p-3.5 rounded-2xl bg-rc-surface border border-rc-border hover:border-rc-discord text-left transition-all group">
                   <div class="w-7 h-7 rounded-lg bg-rc-discord/15 text-rc-discord flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
                   </div>
@@ -313,15 +349,15 @@
             <!-- Stats Bar -->
             <div class="grid grid-cols-3 gap-2 sm:gap-4 pt-4 border-t border-rc-border">
               <div>
-                <span class="text-lg sm:text-2xl font-black text-rc-text block font-mono">100K+</span>
+                <span class="rc-counter text-lg sm:text-2xl font-black text-rc-text block font-mono" data-count="100" data-suffix="K+">0</span>
                 <span class="text-[10px] sm:text-[11px] text-rc-muted font-mono">Total Reach</span>
               </div>
               <div>
-                <span class="text-lg sm:text-2xl font-black text-rc-emerald block font-mono">1K–100K</span>
+                <span class="rc-counter text-lg sm:text-2xl font-black text-rc-emerald block font-mono" data-count="100" data-prefix="1K–" data-suffix="K">0</span>
                 <span class="text-[10px] sm:text-[11px] text-rc-muted font-mono">& Daily Scrims</span>
               </div>
               <div>
-                <span class="text-lg sm:text-2xl font-black text-rc-discord block font-mono">70K+</span>
+                <span class="rc-counter text-lg sm:text-2xl font-black text-rc-discord block font-mono" data-count="70" data-suffix="K+">0</span>
                 <span class="text-[10px] sm:text-[11px] text-rc-muted font-mono">Discord Members</span>
               </div>
             </div>
@@ -398,7 +434,7 @@
               ● Major Milestone Achieved
             </span>
             <h3 class="text-2xl sm:text-4xl font-black text-rc-text">
-              ₹15,00,000+ <span class="text-rc-red font-mono">Prize Volume</span>
+              <span class="rc-counter" data-count="1500000" data-prefix="₹" data-suffix="+" data-format="inr">0</span> <span class="text-rc-red font-mono">Prize Volume</span>
             </h3>
             <p class="text-xs sm:text-sm text-rc-muted max-w-xl leading-relaxed font-sans">
               Successfully organized, managed, and executed esports tournaments and prime scrims with over 15 Lakhs INR cumulative prize pools across top gaming titles.
@@ -407,7 +443,7 @@
 
           <div class="p-4 rounded-2xl bg-rc-surface border border-rc-border flex items-center justify-center shrink-0 w-full md:w-auto relative z-10">
             <div class="text-center font-mono">
-              <span class="text-xl sm:text-2xl font-black text-rc-emerald block">₹15,00,000+</span>
+              <span class="rc-counter text-xl sm:text-2xl font-black text-rc-emerald block" data-count="1500000" data-prefix="₹" data-suffix="+" data-format="inr">0</span>
               <span class="text-[10px] text-rc-muted uppercase tracking-wider">Tournaments Conducted</span>
             </div>
           </div>
@@ -645,7 +681,7 @@
               12h Dispatcher
             </button>
             <button onclick="switchTerminalTab('broadcast')" id="termTabBtnBroadcast" class="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold bg-rc-surface border border-rc-border text-rc-muted hover:text-rc-text transition-all">
-              Broadcasts
+              Media Dispatch
             </button>
             <button onclick="switchTerminalTab('audit')" id="termTabBtnAudit" class="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold bg-rc-surface border border-rc-border text-rc-muted hover:text-rc-text transition-all">
               Audit Log
@@ -662,7 +698,7 @@
             <h3 class="text-xs sm:text-sm font-black text-rc-text uppercase tracking-wider font-mono">Active Staff Personnel Directory</h3>
             <div class="flex items-center gap-3">
               <input id="staffDirectorySearch" type="search" placeholder="Search name, Discord, ID..." oninput="renderRosterBoxyCards()" class="w-56 px-3 py-2 rounded-lg bg-rc-surface border border-rc-border text-rc-text text-[11px] font-sans focus:border-rc-red focus:outline-none">
-              <button onclick="clearCompletedDuties()" class="px-3 py-1.5 rounded-lg bg-rc-surface border border-rc-border text-rc-muted text-[10px] font-bold font-mono hover:border-rc-red hover:text-rc-red transition-all">Clear Completed Duties</button>
+              <button onclick="clearCompletedDuties()" class="px-3 py-1.5 rounded-lg bg-rc-surface border border-rc-border text-rc-muted text-[10px] font-bold font-mono hover:border-rc-red hover:text-rc-red transition-all">Clear Duties</button>
               <span class="text-xs text-rc-muted font-mono">Boxy Dossier View</span>
             </div>
           </div>
@@ -754,7 +790,7 @@
         <div id="termPanelBroadcast" class="hidden space-y-6">
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div class="lg:col-span-5 p-5 sm:p-6 rounded-2xl bg-rc-surface border border-rc-border space-y-4">
-              <h3 class="text-sm font-black text-rc-text uppercase tracking-wider font-mono">Publish Notice</h3>
+              <h3 class="text-sm font-black text-rc-text uppercase tracking-wider font-mono">Media Dispatch</h3>
               <form onsubmit="handlePublishAnnouncement(event)" class="space-y-3">
                 <div>
                   <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Headline *</label>
@@ -765,8 +801,9 @@
                   <textarea required id="pubBody" rows="3" placeholder="Enter details..." class="w-full px-4 py-2.5 rounded-xl bg-rc-card border border-rc-border text-rc-text text-xs focus:border-rc-red focus:outline-none font-sans"></textarea>
                 </div>
                 <div>
-                  <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Attached Link (Optional)</label>
-                  <input type="url" id="pubLink" placeholder="https://linktr.ee/rc_esports" class="w-full px-4 py-2.5 rounded-xl bg-rc-card border border-rc-border text-rc-discord text-xs font-mono focus:border-rc-red focus:outline-none">
+                  <label class="text-xs font-bold text-rc-text block mb-1 font-sans">Image or Link URL (Optional)</label>
+                  <input type="url" id="pubLink" oninput="previewBroadcastMedia(this.value)" placeholder="https://example.com/image.jpg" class="w-full px-4 py-2.5 rounded-xl bg-rc-card border border-rc-border text-rc-discord text-xs font-mono focus:border-rc-red focus:outline-none">
+                  <img id="pubMediaPreview" class="hidden w-full max-h-40 object-contain rounded-xl border border-rc-border bg-rc-card mt-2" alt="Media preview">
                 </div>
                 <button type="submit" class="w-full py-3 rounded-xl bg-rc-red hover:bg-rc-redHover text-white font-bold text-xs tracking-wider font-mono">
                   Publish Noticeboard Post
@@ -775,7 +812,7 @@
             </div>
 
             <div class="lg:col-span-7 space-y-3">
-              <h3 class="text-sm font-black text-rc-text uppercase tracking-wider font-mono">Active Broadcasts</h3>
+              <h3 class="text-sm font-black text-rc-text uppercase tracking-wider font-mono">Live Media Dispatches</h3>
               <div id="termAnnouncementsList" class="space-y-3 max-h-[480px] overflow-y-auto pr-1 custom-scrollbar"></div>
             </div>
           </div>
@@ -1280,6 +1317,12 @@
     </div>
   </div>
 
+  <div class="rc-marquee" aria-label="RC Esports highlights">
+    <div class="rc-marquee-track">
+      <div class="rc-marquee-group"><span class="rc-marquee-item">RC Esports Management Hub</span><span class="rc-marquee-item">Host. Manage. Scale.</span><span class="rc-marquee-item">India's Premier Management Hub</span><span class="rc-marquee-item">Competitive Operations</span></div>
+      <div class="rc-marquee-group" aria-hidden="true"><span class="rc-marquee-item">RC Esports Management Hub</span><span class="rc-marquee-item">Host. Manage. Scale.</span><span class="rc-marquee-item">India's Premier Management Hub</span><span class="rc-marquee-item">Competitive Operations</span></div>
+    </div>
+  </div>
   <!-- ================= EXPANDED FOOTER ================= -->
   <footer class="border-t border-rc-border bg-rc-card/90 py-8 px-4 sm:px-6 lg:px-8 text-xs text-rc-muted font-mono select-none space-y-6">
     <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-6 text-center sm:text-left border-b border-rc-border pb-6">
@@ -1314,8 +1357,8 @@
   </footer>
 <div id="globalPopupModal" class="fixed inset-0 z-[99999] bg-black/90 hidden items-center justify-center backdrop-blur-md px-4 transition-all duration-500 opacity-0">
     <div class="max-w-lg w-full bg-rc-surface border-2 border-rc-red p-6 sm:p-8 rounded-3xl text-center shadow-[0_0_60px_rgba(225,29,72,0.4)] transform scale-95 transition-transform duration-500" id="globalPopupBox">
-      <span class="inline-block px-3 py-1 bg-rc-red text-white font-black text-[10px] rounded mb-4 tracking-widest animate-pulse">GLOBAL ALERT</span>
-      <img id="globalPopupImg" class="w-full h-auto max-h-64 object-cover rounded-xl mb-5 hidden border border-rc-border shadow-lg" src="" />
+      <span class="inline-block px-3 py-1 bg-rc-red text-white font-black text-[10px] rounded mb-4 tracking-widest animate-pulse">MEDIA DISPATCH</span>
+      <img id="globalPopupImg" class="w-full h-auto max-h-[70vh] object-contain rounded-xl mb-5 hidden border border-rc-border bg-black/20 shadow-lg" src="" />
       <h2 id="globalPopupTitle" class="text-2xl font-black text-white mb-3 font-sans uppercase tracking-wide"></h2>
       <p id="globalPopupBody" class="text-rc-muted font-sans mb-8 text-sm leading-relaxed"></p>
       <a id="globalPopupLink" class="hidden inline-flex items-center justify-center px-4 py-2 mb-6 rounded-xl bg-rc-card border border-rc-border text-rc-discord text-xs font-mono font-bold hover:border-rc-discord hover:text-white transition-all" target="_blank" rel="noopener noreferrer">Open attached link ↗</a>
@@ -1432,8 +1475,7 @@
         document.getElementById('globalPopupBody').innerText = popupData.body;
         const img = document.getElementById('globalPopupImg');
         const popupLink = document.getElementById('globalPopupLink');
-        if (popupData.link && isSafeExternalUrl(popupData.link)) { popupLink.href = popupData.link; popupLink.classList.remove('hidden'); } else { popupLink.classList.add('hidden'); }
-        img.classList.add('hidden');
+        if (popupData.link && isSafeExternalUrl(popupData.link)) { popupLink.href = popupData.link; popupLink.classList.remove('hidden'); if (isBroadcastImageUrl(popupData.link)) { img.src = popupData.link; img.classList.remove('hidden'); } else { img.classList.add('hidden'); } } else { popupLink.classList.add('hidden'); img.classList.add('hidden'); }
         m.classList.remove('hidden'); m.classList.add('flex');
         setTimeout(() => { m.style.opacity = '1'; b.classList.remove('scale-95'); b.classList.add('scale-100'); }, 50);
         sessionStorage.setItem(`seen_popup_${popupData.id}`, 'true');
@@ -1576,13 +1618,14 @@
     async function toggleDutyAvailability(status) { const { error: profileError } = await rcClient.from('profiles').update({ duty_availability: status }).eq('id', db.currentUser.id); if (profileError) { showToast(`Availability could not be updated: ${profileError.message}`, true); return; } const { error: dutyError } = await rcClient.from('active_duties').update({ availability: status }).eq('staff_code', db.currentUser.staffCode).eq('status', 'Active'); if (dutyError) { showToast(`Duty availability could not be updated: ${dutyError.message}`, true); return; } db.currentUser.dutyAvailability = status; await refreshWorkspaceData(); renderStaffWorkspace(); showToast(`Status set to ${status}`); }
     async function markDutyDone() { const { error: dutyError } = await rcClient.from('active_duties').update({ status: 'Done', availability: 'Unavailable' }).eq('staff_code', db.currentUser.staffCode).eq('status', 'Active'); if (dutyError) { showToast(`Duty could not be completed: ${dutyError.message}`, true); return; } const { error: profileError } = await rcClient.from('profiles').update({ is_duty_active: false, duty_availability: 'Unavailable' }).eq('id', db.currentUser.id); if (profileError) { showToast(`Profile status could not be updated: ${profileError.message}`, true); return; } db.currentUser.isDutyActive = false; db.currentUser.dutyAvailability = 'Unavailable'; await rcClient.from('audit_logs').insert([{ actor: db.currentUser.username, action: 'DUTY_COMPLETED', target: db.currentUser.staffCode, details: 'Staff marked duty as done.' }]); await refreshWorkspaceData(); renderStaffWorkspace(); showToast('Duty marked as completed!'); }
     async function clearCompletedDuties() {
-      if (!db.currentUser || (!db.currentUser.isHR && !db.currentUser.isHeadStaff)) return;
-      if (!confirm('Clear all completed duty records from the terminal? Active duties will not be changed.')) return;
-      const { error } = await rcClient.from('active_duties').delete().eq('status', 'Done');
+      if (!db.currentUser || (!db.currentUser.isHR && !db.currentUser.isHeadStaff)) { showToast('Only HR or Head Staff can clear completed duties.', true); return; }
+      if (!confirm('Clear all duty records from the terminal? This will remove active and completed duties.')) return;
+      const { data, error } = await rcClient.from('active_duties').delete().not('id', 'is', null).select('id');
       if (error) { showToast(`Completed duties could not be cleared: ${error.message}`, true); return; }
+      if (!data?.length) { showToast('No duty records were found to clear.', true); return; }
       await refreshWorkspaceData();
       renderTerminal();
-      showToast('Completed duty history cleared.');
+      showToast(`${data.length} duty record${data.length === 1 ? '' : 's'} cleared.`);
     }
     
     function autoLookupUser(val) { 
@@ -1620,7 +1663,7 @@
       triggerLoading('Publishing...', async () => {
         const { error } = await rcClient.from('announcements').insert([{ announcement_ref: `#ANN-${Math.floor(1000 + Math.random() * 9000)}`, author_username: db.currentUser.username, title: document.getElementById('pubTitle').value, body: document.getElementById('pubBody').value, link: document.getElementById('pubLink').value || null, tag: tag }]);
         if (error) { document.getElementById('loadingOverlay').classList.add('hidden'); showToast(`Broadcast could not be published: ${error.message}`, true); return; }
-        document.getElementById('pubTitle').value = ''; document.getElementById('pubBody').value = ''; document.getElementById('pubLink').value = ''; if(document.getElementById('pubGlobalCheck')) document.getElementById('pubGlobalCheck').checked = false;
+        document.getElementById('pubTitle').value = ''; document.getElementById('pubBody').value = ''; document.getElementById('pubLink').value = ''; previewBroadcastMedia(''); if(document.getElementById('pubGlobalCheck')) document.getElementById('pubGlobalCheck').checked = false;
         await refreshWorkspaceData(); renderTermAnnouncements(); document.getElementById('loadingOverlay').classList.add('hidden'); showToast('Broadcast published globally!');
       });
     }
@@ -1808,7 +1851,55 @@
       });
     }
 
-    window.addEventListener('DOMContentLoaded', () => { initWelcomeSplash(); loadDB(); });
+    function initVisualLayer() {
+      const header = document.getElementById('siteHeader');
+      const splash = document.getElementById('welcomeSplash');
+      const reveal = document.querySelectorAll('.rc-page-reveal');
+      const counters = document.querySelectorAll('.rc-counter');
+      const ready = () => {
+        document.body.classList.add('rc-page-ready');
+        reveal.forEach(element => element.classList.add('is-visible'));
+        counters.forEach((element, index) => {
+          const target = Number(element.dataset.count || 0);
+          const prefix = element.dataset.prefix || '';
+          const suffix = element.dataset.suffix || '';
+          const formatter = value => element.dataset.format === 'inr' ? value.toLocaleString('en-IN') : value;
+          const start = performance.now() + index * 180;
+          const tick = now => {
+            const progress = Math.min(Math.max((now - start) / 2600, 0), 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            element.textContent = `${prefix}${formatter(Math.round(target * eased))}${suffix}`;
+            if (progress < 1) requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+        });
+      };
+      if (splash) {
+        const observer = new MutationObserver(() => { if (splash.classList.contains('hidden')) { observer.disconnect(); ready(); } });
+        observer.observe(splash, { attributes: true, attributeFilter: ['class'] });
+      } else ready();
+      window.addEventListener('scroll', () => header?.classList.toggle('is-scrolled', window.scrollY > 18), { passive: true });
+    }
+    function openEmployeeInfoModal(rawIdx) {
+      const member = db.roster[rawIdx];
+      const content = document.getElementById('employeeInfoContent');
+      if (!member || !content) return;
+      const app = db.applications.find(item => item.user_id === member.id) || member;
+      const phone = String(app.phone || '').trim();
+      const whatsappNumber = phone.replace(/[^0-9]/g, '');
+      const whatsappHref = whatsappNumber ? `https://wa.me/${whatsappNumber.length === 10 ? `91${whatsappNumber}` : whatsappNumber}` : '';
+      const instagram = String(app.insta || app.instagram || member.insta || '').trim();
+      const instagramHref = instagram ? (instagram.startsWith('http') ? instagram : `https://instagram.com/${instagram.replace(/^@/, '')}`) : '';
+      const managerLinks = db.currentUser?.isHR || db.currentUser?.isHeadStaff;
+      const phoneMarkup = managerLinks && whatsappHref ? `<a href="${whatsappHref}" target="_blank" rel="noopener noreferrer" class="text-rc-emerald font-bold underline hover:text-white">${phone} ↗</a>` : `<strong>${phone || 'N/A'}</strong>`;
+      const instagramMarkup = managerLinks && instagramHref ? `<a href="${instagramHref}" target="_blank" rel="noopener noreferrer" class="text-pink-400 font-bold underline hover:text-white">${instagram} ↗</a>` : `<strong>${instagram || 'N/A'}</strong>`;
+      content.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2"><div class="p-2.5 rounded-lg bg-rc-surface border border-rc-border"><span class="text-[10px] text-rc-muted block">Name</span><strong>${member.name || 'N/A'}</strong></div><div class="p-2.5 rounded-lg bg-rc-surface border border-rc-border"><span class="text-[10px] text-rc-muted block">Staff Code</span><strong>${member.code || 'N/A'}</strong></div><div class="p-2.5 rounded-lg bg-rc-surface border border-rc-border"><span class="text-[10px] text-rc-muted block">Email</span><strong>${member.email || 'N/A'}</strong></div><div class="p-2.5 rounded-lg bg-rc-surface border border-rc-border"><span class="text-[10px] text-rc-muted block">WhatsApp</span>${phoneMarkup}</div><div class="p-2.5 rounded-lg bg-rc-surface border border-rc-border"><span class="text-[10px] text-rc-muted block">Instagram</span>${instagramMarkup}</div><div class="p-2.5 rounded-lg bg-rc-surface border border-rc-border"><span class="text-[10px] text-rc-muted block">Discord</span><strong>${app.disc_user || app.disc_display || 'N/A'}</strong></div><div class="p-2.5 rounded-lg bg-rc-surface border border-rc-border"><span class="text-[10px] text-rc-muted block">Duty</span><strong>${member.dutyState || 'Inactive'} | ${member.dutyAvailability || 'Unavailable'}</strong></div><div class="p-2.5 rounded-lg bg-rc-surface border border-rc-border col-span-full"><span class="text-[10px] text-rc-muted block">Dispatched Shift</span><strong>${member.dutyTime || 'Not dispatched'}${member.dutyTier ? ` | ${member.dutyTier}` : ''}</strong></div></div>`;
+      openModal('employeeInfo');
+    }
+    function isBroadcastImageUrl(value) { try { return /\.(avif|gif|jpe?g|png|webp)(\?.*)?$/i.test(new URL(value).pathname + new URL(value).search); } catch (error) { return false; } }
+    function previewBroadcastMedia(value) { const preview = document.getElementById('pubMediaPreview'); if (!preview) return; if (isBroadcastImageUrl(value)) { preview.src = value; preview.classList.remove('hidden'); } else { preview.removeAttribute('src'); preview.classList.add('hidden'); } }
+    function announcementLinkMarkup(value) { if (!value || !isSafeExternalUrl(value)) return ''; const escaped = String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); if (isBroadcastImageUrl(value)) return `<div class="space-y-2"><img src="${escaped}" alt="Broadcast media" class="w-full max-h-72 object-contain rounded-xl border border-rc-border bg-rc-card"><a href="${escaped}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-rc-discord text-[11px] font-mono font-bold hover:text-white">Open full media ↗</a></div>`; return `<a href="${escaped}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-rc-card border border-rc-border text-rc-discord text-[11px] font-mono font-bold hover:border-rc-discord hover:text-white transition-all">Open attached link ↗</a>`; }
+    window.addEventListener('DOMContentLoaded', () => { initVisualLayer(); initWelcomeSplash(); loadDB(); });
   </script>
 </body>
 </html>
